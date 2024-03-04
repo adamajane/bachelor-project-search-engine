@@ -16,6 +16,7 @@ class Index2 {
     }
 
     public Index2(String filename) {
+        long startTime = System.currentTimeMillis(); // Start timing
         String word;
         WikiItem current, tmp;
         try {
@@ -31,12 +32,16 @@ class Index2 {
                 current = tmp;
             }
             input.close();
+            long endTime = System.currentTimeMillis(); // End timing
+            long elapsedTime = endTime - startTime;
+            System.out.println("Preprocessing completed in " + elapsedTime + " milliseconds.");
         } catch (FileNotFoundException e) {
             System.out.println("Error reading file " + filename);
         }
     }
 
     public boolean search(String searchstr) {
+        long startTime = System.currentTimeMillis(); // Start timing
         WikiItem current = start;
         boolean found = false;
 
@@ -52,8 +57,10 @@ class Index2 {
                     current = current.next;
                 }
 
-                // Check if the search string is present in the document
-                if (documentContent.toString().contains(searchstr)) {
+                // Check if the search string is present in the document. We started of using '.contains', but it found all words that partially matched the search word.
+                // we then changed it to using regex, such that we only find the exact word when searching, and not all words that contain the word.
+
+                if (documentContent.toString().matches(".*\\b" + searchstr + "\\b.*")) {
                     System.out.println("Found in: Document Title: " + documentTitle);
                     found = true;
                 }
@@ -62,13 +69,16 @@ class Index2 {
                 current = current.next;
             }
         }
-
+        long endTime = System.currentTimeMillis(); // End timing
+        long elapsedTime = endTime - startTime;
+        System.out.println("Preprocessing completed in " + elapsedTime + " milliseconds.");
         return found;
     }
 
     public static void main(String[] args) {
         // Specify the file path
-        String filePath = "/Users/Adam/IdeaProjects/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_100KB.txt";
+        String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_1MB.txt";
+        //String filePath = "/Users/Adam/IdeaProjects/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_100KB.txt";
 
         System.out.println("Preprocessing " + filePath);
         Index2 i = new Index2(filePath);
