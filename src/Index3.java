@@ -35,8 +35,8 @@ class Index3 {
     }
 
     public Index3(String filename) {
-
         try {
+            long startTime = System.currentTimeMillis(); // Start timing
             Scanner input = new Scanner(new File(filename), "UTF-8");
 
             String currentTitle = null;
@@ -48,18 +48,21 @@ class Index3 {
 
                 if (readingTitle) {
                     if (word.endsWith(".")) {
-                        currentTitle = word;
+                        // Accumulate words until we find the end of a title
+                        currentTitle = documentContent.toString() + word;
                         readingTitle = false; // Switch to reading content
+                    } else {
+                        documentContent.append(word).append(" ");
                     }
-                } else {  // We're within document content
+                } else { // We're within document content
                     if (word.equals("---END.OF.DOCUMENT---")) {
                         // Process the extracted words one by one
                         Scanner contentScanner = new Scanner(documentContent.toString());
                         while (contentScanner.hasNext()) {
                             addWordToIndex(contentScanner.next(), currentTitle);
                         }
-                        // .. reset variables  ...
-                        readingTitle = true; // Ready for the next title
+                        // Reset variables for the next title
+                        readingTitle = true;
                         currentTitle = null;
                         documentContent.setLength(0);
                         contentScanner.close();
@@ -68,7 +71,10 @@ class Index3 {
                     }
                 }
             }
-
+            input.close();
+            long endTime = System.currentTimeMillis(); // End timing
+            long elapsedTime = endTime - startTime;
+            System.out.println("Preprocessing completed in " + elapsedTime + " milliseconds.");
         } catch (FileNotFoundException e) {
             System.out.println("Error reading file " + filename);
         }
@@ -97,6 +103,7 @@ class Index3 {
 
 
     public void search(String searchString) {
+        long startTime = System.currentTimeMillis(); // Start timing
         WikiItem foundItem = findWikiItem(searchString);
         if (foundItem != null) {
             System.out.println("Documents associated with '" + searchString + "':");
@@ -112,12 +119,16 @@ class Index3 {
         } else {
             System.out.println(searchString + " not found in the index.");
         }
+        long endTime = System.currentTimeMillis(); // End timing
+        long elapsedTime = endTime - startTime;
+        System.out.println("Preprocessing completed in " + elapsedTime + " milliseconds.");
     }
 
 
     public static void main(String[] args) {
         // Specify the file path
-        String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_100KB.txt";
+        String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_1MB.txt";
+        //String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_100KB.txt";
 
         System.out.println("Preprocessing " + filePath);
         Index3 index = new Index3(filePath);
