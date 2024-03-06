@@ -4,7 +4,7 @@ import java.util.Scanner;
 class Index4 {
 
     private WikiItem[] hashTable;
-    private int tableSize = 15000;
+    private int tableSize = 150000;
 
     public Index4() {
         hashTable = new WikiItem[tableSize];
@@ -33,6 +33,7 @@ class Index4 {
     }
 
     public Index4(String filename) {
+        long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
 
         try {
@@ -46,8 +47,13 @@ class Index4 {
                 String word = input.next();
 
                 if (readingTitle) {
-                    if (word.endsWith(".")) {
+                    if (currentTitle == null) {
                         currentTitle = word;
+                    } else {
+                        currentTitle = currentTitle + " " + word; // Append words
+                    }
+
+                    if (word.endsWith(".")) {
                         readingTitle = false;
                     }
                 } else {
@@ -69,16 +75,22 @@ class Index4 {
         } catch (FileNotFoundException e) {
             System.out.println("Error reading file " + filename);
         }
+        long endTime = System.currentTimeMillis(); // End timing
+        double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
+        System.out.println("Preprocessing completed in " + minutes + " minutes.");
     }
 
+    // using modulus instead of logical AND, reduced the running time by half!!
     private int hash(String word) {
         int hashValue = 0;
         for (char c : word.toCharArray()) {
             hashValue += c;
         }
-        System.out.println(hashValue & (tableSize - 1));
-        return hashValue & (tableSize - 1);
+        hashValue = hashValue % tableSize;
+        //System.out.println(hashValue);
+        return hashValue;
     }
+
 
     private void addWordToIndex(String word, String docTitle) {
         int hashIndex = hash(word);
@@ -159,10 +171,11 @@ class Index4 {
     }
 
     public static void main(String[] args) {
-        String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_100KB.txt";
+        //String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_100KB.txt";
+        String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_10MB.txt";
 
         System.out.println("Preprocessing " + filePath);
-        Index3 index = new Index3(filePath);
+        Index4 index = new Index4(filePath);
 
         Scanner console = new Scanner(System.in);
         while (true) {
