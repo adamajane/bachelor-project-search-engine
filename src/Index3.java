@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.Arrays;
 import java.util.Scanner;
 
 class Index3 {
@@ -34,51 +35,53 @@ class Index3 {
         }
     }
 
+    // changed the index from using scanner to buffered reader. It has a larger default buffer size and is typically faster for file reading.
     public Index3(String filename) {
-        try {
-            long startTime = System.currentTimeMillis(); // Start timing
-            Scanner input = new Scanner(new File(filename), "UTF-8");
+        long startTime = System.currentTimeMillis(); // Start timing
 
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String currentTitle = null;
             StringBuilder documentContent = new StringBuilder();
             boolean readingTitle = true;
+            String line;
 
-            while (input.hasNext()) {
-                String word = input.next();
+            while ((line = reader.readLine()) != null) {
+                String[] words = line.split("\\s+");
 
-                if (readingTitle) {
-                    if (word.endsWith(".")) {
-                        // Accumulate words until we find the end of a title
-                        currentTitle = documentContent.toString() + word;
-                        readingTitle = false; // Switch to reading content
-                    } else {
-                        documentContent.append(word).append(" ");
-                    }
-                } else { // We're within document content
-                    if (word.equals("---END.OF.DOCUMENT---")) {
-                        // Process the extracted words one by one
-                        Scanner contentScanner = new Scanner(documentContent.toString());
-                        while (contentScanner.hasNext()) {
-                            addWordToIndex(contentScanner.next(), currentTitle);
+                for (String word : words) {
+                    if (readingTitle) {
+                        if (word.endsWith(".")) {
+                            currentTitle = documentContent.toString() + word;
+                            readingTitle = false;
+                        } else {
+                            documentContent.append(word).append(" ");
                         }
-                        // Reset variables for the next title
-                        readingTitle = true;
-                        currentTitle = null;
-                        documentContent.setLength(0);
-                        contentScanner.close();
                     } else {
-                        documentContent.append(word).append(" ");
+                        if (word.equals("---END.OF.DOCUMENT---")) {
+                            String content = documentContent.toString();
+                            String[] contentWords = content.split("\\s+");
+                            for (String w : contentWords) {
+                                addWordToIndex(w, currentTitle);
+                            }
+
+                            readingTitle = true;
+                            currentTitle = null;
+                            documentContent.setLength(0);
+                        } else {
+                            documentContent.append(word).append(" ");
+                        }
                     }
                 }
             }
-            input.close();
-            long endTime = System.currentTimeMillis(); // End timing
-            long elapsedTime = endTime - startTime;
-            System.out.println("Preprocessing completed in " + elapsedTime + " milliseconds.");
-        } catch (FileNotFoundException e) {
-            System.out.println("Error reading file " + filename);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+        long endTime = System.currentTimeMillis(); // End timing
+        double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
+        System.out.println("Preprocessing completed in " + minutes + " minutes.");
     }
+
 
 
     private void addWordToIndex(String word, String docTitle) {
@@ -96,7 +99,7 @@ class Index3 {
         }
 
         // Logging for debugging (remove these lines later)
-        System.out.println("Added word: " + word + " for document: " + docTitle);
+        //System.out.println("Added word: " + word + " for document: " + docTitle);
     }
 
 
@@ -127,7 +130,7 @@ class Index3 {
 
     public static void main(String[] args) {
         // Specify the file path
-        String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_1MB.txt";
+        String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_100KB.txt";
         //String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_100KB.txt";
 
         System.out.println("Preprocessing " + filePath);
@@ -153,7 +156,7 @@ class Index3 {
         WikiItem current = index;
         while (current != null) {
             if (current.searchString.equals(searchString)) {
-                System.out.println("Found WikiItem for: " + searchString); // Debugging log
+                //System.out.println("Found WikiItem for: " + searchString); // Debugging log
                 return current;
             }
             current = current.next;
@@ -169,7 +172,7 @@ class Index3 {
         // Check for duplicates
         while (currentDoc != null) {
             if (currentDoc.documentName.equals(documentName)) {
-                System.out.println("Document '" + documentName + "' already exists in WikiItem: " + item.searchString);
+                //System.out.println("Document '" + documentName + "' already exists in WikiItem: " + item.searchString);
                 return; // Document already exists, no need to add again
             }
             currentDoc = currentDoc.next;
@@ -190,7 +193,7 @@ class Index3 {
             currentDoc.next = newDoc;
         }
 
-        System.out.println("Adding document '" + documentName + "' to WikiItem: " + item.searchString);
+        //System.out.println("Adding document '" + documentName + "' to WikiItem: " + item.searchString);
     }
 
 
