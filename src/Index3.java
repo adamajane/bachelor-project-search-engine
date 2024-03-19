@@ -1,5 +1,4 @@
 import java.io.*;
-import java.util.Arrays;
 import java.util.Scanner;
 
 class Index3 {
@@ -130,7 +129,7 @@ class Index3 {
 
     public static void main(String[] args) {
         // Specify the file path
-        String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_100KB.txt";
+        String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_10MB.txt";
         //String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_100KB.txt";
 
         System.out.println("Preprocessing " + filePath);

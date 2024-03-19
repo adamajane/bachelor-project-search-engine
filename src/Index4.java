@@ -4,7 +4,7 @@ import java.util.Scanner;
 class Index4 {
 
     private WikiItem[] hashTable;
-    private int tableSize = 150000;
+    private int tableSize = 20007;
 
     public Index4() {
         hashTable = new WikiItem[tableSize];
@@ -14,7 +14,7 @@ class Index4 {
         String searchString;
         DocumentList documents;
         WikiItem next;
-
+    
         WikiItem(String s, DocumentList d, WikiItem n) {
             searchString = s;
             documents = d;
@@ -81,15 +81,20 @@ class Index4 {
     }
 
     // using modulus instead of logical AND, reduced the running time by half!!
+    // using java inbuilt hash function on strings now further increased runtime by 20-25%
     private int hash(String word) {
-        int hashValue = 0;
-        for (char c : word.toCharArray()) {
-            hashValue += c;
-        }
+        // Use the built-in hashCode() method
+        int hashValue = word.hashCode();
+
+        // Ensure the hash value is non-negative
+        hashValue = Math.abs(hashValue);
+
+        // Reduce the hash value to fit within your table size
         hashValue = hashValue % tableSize;
-        //System.out.println(hashValue);
+
         return hashValue;
     }
+
 
 
     private void addWordToIndex(String word, String docTitle) {
@@ -172,7 +177,7 @@ class Index4 {
 
     public static void main(String[] args) {
         //String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_100KB.txt";
-        String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_10MB.txt";
+        String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_400MB.txt";
 
         System.out.println("Preprocessing " + filePath);
         Index4 index = new Index4(filePath);
