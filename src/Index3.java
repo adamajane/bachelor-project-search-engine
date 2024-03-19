@@ -129,8 +129,8 @@ class Index3 {
 
     public static void main(String[] args) {
         // Specify the file path
-        String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_10MB.txt";
-        //String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_100KB.txt";
+        //String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_10MB.txt";
+        String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_5MB.txt";
 
         System.out.println("Preprocessing " + filePath);
         Index3 index = new Index3(filePath);

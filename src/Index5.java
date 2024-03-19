@@ -1,13 +1,16 @@
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Scanner;
 
-class Index4 {
+class Index5 {
 
     private WikiItem[] hashTable;
     private int tableSize = 50007;
     private int numItems = 0; // Track number of items
     private double loadFactor = 0.75;
-    public Index4() {
+    public Index5() {
         hashTable = new WikiItem[tableSize];
     }
 
@@ -15,7 +18,7 @@ class Index4 {
         String searchString;
         DocumentList documents;
         WikiItem next;
-    
+
         WikiItem(String s, DocumentList d, WikiItem n) {
             searchString = s;
             documents = d;
@@ -25,15 +28,18 @@ class Index4 {
 
     private class DocumentList {
         String documentName;
+
+        int count;
         DocumentList next;
 
-        DocumentList(String documentName, DocumentList next) {
+        DocumentList(String documentName, int count, DocumentList next) {
             this.documentName = documentName;
+            this.count = count;
             this.next = next;
         }
     }
 
-    public Index4(String filename) {
+    public Index5(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
 
@@ -103,12 +109,22 @@ class Index4 {
         WikiItem existingItem = findWikiItem(word);
 
         if (existingItem == null) {
-            WikiItem newItem = new WikiItem(word, new DocumentList(docTitle, null), hashTable[hashIndex]);
+            DocumentList newDocList = new DocumentList(docTitle, 1, null);
+            WikiItem newItem = new WikiItem(word, newDocList, hashTable[hashIndex]);
             hashTable[hashIndex] = newItem;
         } else {
-            addDocumentToWikiItem(existingItem, docTitle);
+            DocumentList docList = existingItem.documents;
+            while (docList != null) {
+                if (docList.documentName.equals(docTitle)) {
+                    docList.count++; // Increment the count if the document is already in the list
+                    return;
+                }
+                docList = docList.next;
+            }
+            // If the document is not in the list, add it with a count of 1
+            DocumentList newDocList = new DocumentList(docTitle, 1, existingItem.documents);
+            existingItem.documents = newDocList;
         }
-
         //System.out.println("Added word: " + word + " for document: " + docTitle);
 
         numItems++; // Increment the item count
@@ -158,15 +174,26 @@ class Index4 {
             if (currentDoc == null) {
                 System.out.println("  No documents found.");
             } else {
+                // Create a list from the linked list of documents
+                List<DocumentList> docs = new ArrayList<>();
                 while (currentDoc != null) {
-                    System.out.println("  - " + currentDoc.documentName);
+                    docs.add(currentDoc);
                     currentDoc = currentDoc.next;
+                }
+
+                // Sort the list in descending order of count
+                Collections.sort(docs, (doc1, doc2) -> Integer.compare(doc2.count, doc1.count));
+
+                // Print the sorted list of documents
+                for (DocumentList doc : docs) {
+                    System.out.println("  - " + doc.documentName + " (count: " + doc.count + ")");
                 }
             }
         } else {
             System.out.println(searchString + " not found in the index.");
         }
     }
+
 
     private WikiItem findWikiItem(String searchString) {
         int hashIndex = hash(searchString);
@@ -196,9 +223,9 @@ class Index4 {
         }
 
         if (item.documents == null) {
-            item.documents = new DocumentList(documentName, null);
+            item.documents = new DocumentList(documentName,1,  null);
         } else {
-            DocumentList newDoc = new DocumentList(documentName, null);
+            DocumentList newDoc = new DocumentList(documentName,1, null);
             currentDoc = item.documents;
 
             while (currentDoc.next != null) {
@@ -212,11 +239,11 @@ class Index4 {
     }
 
     public static void main(String[] args) {
-        String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_20MB.txt";
+        String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_100KB.txt";
         //String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_400MB.txt";
 
         System.out.println("Preprocessing " + filePath);
-        Index4 index = new Index4(filePath);
+        Index5 index = new Index5(filePath);
 
         Scanner console = new Scanner(System.in);
         while (true) {
