@@ -1,6 +1,4 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 class Index4 {
@@ -11,18 +9,6 @@ class Index4 {
     private double loadFactor = 0.75;
     public Index4() {
         hashTable = new WikiItem[tableSize];
-    }
-
-    class TrieNode {
-        TrieNode[] children = new TrieNode[26]; // For lowercase English letters
-        boolean isEndOfWord;
-
-        public TrieNode() {
-            isEndOfWord = false;
-            for (int i = 0; i < 26; i++) {
-                children[i] = null;
-            }
-        }
     }
 
     private class WikiItem {
@@ -47,11 +33,9 @@ class Index4 {
         }
     }
 
-    private TrieNode root;
     public Index4(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
-        root = new TrieNode(); // Initialize the trie root
 
         try {
             Scanner input = new Scanner(new File(filename), "UTF-8");
@@ -133,46 +117,7 @@ class Index4 {
         if (currentLoadFactor > loadFactor) {
             resizeHashTable();
         }
-        // Insert word into the trie
-        TrieNode node = root;
-        for (int i = 0; i < word.length(); i++) {
-            char c = word.charAt(i);
-            if (c >= 'a' && c <= 'z') { // Ensure the character is a lowercase letter
-                int index = c - 'a';
-                if (node.children[index] == null) {
-                    node.children[index] = new TrieNode();
-                }
-                node = node.children[index];
-            }
-        }
-        node.isEndOfWord = true;
     }
-
-    public List<String> autoComplete(String prefix) {
-        List<String> results = new ArrayList<>();
-        TrieNode node = root;
-        for (int i = 0; i < prefix.length(); i++) {
-            int index = prefix.charAt(i) - 'a';
-            if (node.children[index] == null) {
-                return results;
-            }
-            node = node.children[index];
-        }
-        findAllWords(node, prefix, results);
-        return results;
-    }
-
-    private void findAllWords(TrieNode node, String prefix, List<String> results) {
-        if (node.isEndOfWord) {
-            results.add(prefix);
-        }
-        for (int i = 0; i < 26; i++) {
-            if (node.children[i] != null) {
-                findAllWords(node.children[i], prefix + (char)(i + 'a'), results);
-            }
-        }
-    }
-
 
     private void resizeHashTable() {
         System.out.println("Starting resize..."); // Log start
@@ -267,8 +212,8 @@ class Index4 {
     }
 
     public static void main(String[] args) {
-        //String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_20MB.txt";
-        String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_1MB.txt";
+        String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_20MB.txt";
+        //String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_400MB.txt";
 
         System.out.println("Preprocessing " + filePath);
         Index4 index = new Index4(filePath);
@@ -276,8 +221,6 @@ class Index4 {
         Scanner console = new Scanner(System.in);
         while (true) {
             System.out.println("Input search string or type 'exit' to stop");
-            List<String> suggestions = index.autoComplete("feat"); // Example usage
-            System.out.println(suggestions);
             String searchString = console.nextLine();
             if (searchString.equals("exit")) {
                 break;
