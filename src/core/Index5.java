@@ -5,12 +5,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+import static util.Config.*;
 
 class Index5 {
 
     private WikiItem[] hashTable;
     private int tableSize = 50007;
-    private int numItems = 0; // Track number of items
+    private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
     public Index5() {
         hashTable = new WikiItem[tableSize];

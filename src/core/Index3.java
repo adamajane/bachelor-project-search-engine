@@ -2,10 +2,11 @@ package core;
 
 import java.io.*;
 import java.util.Scanner;
+import static util.Config.*;
 
 class Index3 {
 
-    //WikiItem start;
+    // WikiItem start;
 
     private WikiItem index; // Represents the head of our main index
 
@@ -19,13 +20,14 @@ class Index3 {
         WikiItem next;
 
         WikiItem(String s, DocumentList d, WikiItem n) {
-            searchString = s;
-            documents = d;
-            next = n;
+            this.searchString = s;
+            this.documents = d;
+            this.next = n;
         }
     }
-    // add documentlist class, that can be used to create a linked list of documents,
-// and attach it to each wikiitem object.
+
+    // Add DocumentList class, that can be used to create a linked list of documents,
+    // And attach it to each WikiItem object.
     private class DocumentList {
         String documentName;
         DocumentList next;
@@ -36,7 +38,8 @@ class Index3 {
         }
     }
 
-    // changed the index from using scanner to buffered reader. It has a larger default buffer size and is typically faster for file reading.
+    // Changed the index from using Scanner to buffered reader
+    // It has a larger default buffer size and is typically faster for file reading.
     public Index3(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
 
@@ -84,7 +87,6 @@ class Index3 {
     }
 
 
-
     private void addWordToIndex(String word, String docTitle) {
         WikiItem existingItem = findWikiItem(word);
 
@@ -100,10 +102,8 @@ class Index3 {
         }
 
         // Logging for debugging (remove these lines later)
-        //System.out.println("Added word: " + word + " for document: " + docTitle);
+        // System.out.println("Added word: " + word + " for document: " + docTitle);
     }
-
-
 
 
     public void search(String searchString) {
@@ -150,8 +150,6 @@ class Index3 {
     }
 
 
-
-
     // Finds a WikiItem with the given searchString or returns null
     private WikiItem findWikiItem(String searchString) {
         WikiItem current = index;
@@ -196,9 +194,6 @@ class Index3 {
 
         //System.out.println("Adding document '" + documentName + "' to WikiItem: " + item.searchString);
     }
-
-
-
 
 
 }

@@ -2,6 +2,9 @@ package core;
 
 import java.io.*;
 import java.util.Scanner;
+import static util.Config.*;
+
+
 
 class Index2 {
 
@@ -12,8 +15,8 @@ class Index2 {
         WikiItem next;
 
         WikiItem(String s, WikiItem n) {
-            str = s;
-            next = n;
+            this.str = s;
+            this.next = n;
         }
     }
 
@@ -78,13 +81,9 @@ class Index2 {
     }
 
     public static void main(String[] args) {
-        // Specify the file path
-        //String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_1MB.txt";
-        String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_20MB.txt";
-        //String filePath = "/Users/Adam/IdeaProjects/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_100KB.txt";
 
-        System.out.println("Preprocessing " + filePath);
-        Index2 i = new Index2(filePath);
+        System.out.println("Preprocessing " + FILE_PATH1);
+        Index2 i = new Index2(FILE_PATH1);
         Scanner console = new Scanner(System.in);
         for (; ; ) {
             System.out.println("Input search string or type exit to stop");

@@ -2,13 +2,15 @@ package core;
 
 import java.io.*;
 import java.util.Scanner;
+import static util.Config.*;
 
-class Index4 {
+public class Index4 {
 
     private WikiItem[] hashTable;
     private int tableSize = 50007;
-    private int numItems = 0; // Track number of items
+    private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
+
     public Index4() {
         hashTable = new WikiItem[tableSize];
     }
@@ -17,11 +19,11 @@ class Index4 {
         String searchString;
         DocumentList documents;
         WikiItem next;
-    
+
         WikiItem(String s, DocumentList d, WikiItem n) {
-            searchString = s;
-            documents = d;
-            next = n;
+            this.searchString = s;
+            this.documents = d;
+            this.next = n;
         }
     }
 
@@ -83,8 +85,8 @@ class Index4 {
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
     }
 
-    // using modulus instead of logical AND, reduced the running time by half!!
-    // using java inbuilt hash function on strings now further increased runtime by 20-25%
+    // Using modulus instead of logical AND, reduced the running time by half!!
+    // Using java inbuilt hash function on strings now further increased runtime by 20-25%
     private int hash(String word) {
         // Use the built-in hashCode() method
         int hashValue = word.hashCode();
@@ -97,7 +99,6 @@ class Index4 {
 
         return hashValue;
     }
-
 
 
     private void addWordToIndex(String word, String docTitle) {
@@ -210,15 +211,14 @@ class Index4 {
             currentDoc.next = newDoc;
         }
 
-        //System.out.println("Adding document '" + documentName + "' to WikiItem: " + item.searchString);
+        // System.out.println("Adding document '" + documentName + "' to WikiItem: " + item.searchString);
     }
 
     public static void main(String[] args) {
-        String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_400MB.txt";
-        //String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_400MB.txt";
+        // String filePath = "...";
 
-        System.out.println("Preprocessing " + filePath);
-        Index4 index = new Index4(filePath);
+        System.out.println("Preprocessing " + FILE_PATH3);
+        Index4 index = new Index4(FILE_PATH3);
 
         Scanner console = new Scanner(System.in);
         while (true) {
