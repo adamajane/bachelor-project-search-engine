@@ -1,3 +1,5 @@
+package core;
+
 import java.io.*;
 import java.util.Scanner;
 
@@ -212,7 +214,7 @@ class Index4 {
     }
 
     public static void main(String[] args) {
-        String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_20MB.txt";
+        String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_400MB.txt";
         //String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_400MB.txt";
 
         System.out.println("Preprocessing " + filePath);

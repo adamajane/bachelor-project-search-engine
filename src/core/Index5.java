@@ -1,3 +1,5 @@
+package core;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -239,7 +241,7 @@ class Index5 {
     }
 
     public static void main(String[] args) {
-        String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_100KB.txt";
+        String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_1MB.txt";
         //String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_400MB.txt";
 
         System.out.println("Preprocessing " + filePath);
