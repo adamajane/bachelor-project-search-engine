@@ -4,7 +4,7 @@ import core.Index6;
 
 import javax.swing.*;
 
-import static util.Config.FILE_PATH2;
+import static util.Config.*;
 
 public class Main {
     public static void main(String[] args) {
