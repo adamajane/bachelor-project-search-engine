@@ -1,15 +1,15 @@
-package GUI;
+package gui;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-public class SearchEngineGUI extends JFrame {
+public class View extends JFrame {
     private JTextField searchField;
     private JTextArea resultsArea;
     private JButton searchButton = new JButton("Search");
 
-    public SearchEngineGUI() {
+    public View() {
         super("Search Engine"); // Set window title
         initializeComponents();
         setupLayout();

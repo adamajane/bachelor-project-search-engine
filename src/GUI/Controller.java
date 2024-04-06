@@ -1,16 +1,16 @@
-package GUI;
+package gui;
 
 import core.Index6;
-import GUI.SearchEngineGUI;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
 public class Controller {
     private Index6 model;
-    private SearchEngineGUI view;
+    private View view;
 
-    public Controller(Index6 model, SearchEngineGUI view) {
+    public Controller(Index6 model, View view) {
         this.model = model;
         this.view = view;
         initView();
