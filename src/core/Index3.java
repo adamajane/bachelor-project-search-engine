@@ -39,7 +39,7 @@ class Index3 {
         }
     }
 
-    // Changed the index from using Scanner to buffered reader
+    // Changed the index from using Scanner to BufferedReader
     // It has a larger default buffer size and is typically faster for file reading.
     public Index3(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
@@ -132,11 +132,10 @@ class Index3 {
 
     public static void main(String[] args) {
         // Specify the file path
-        //String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_10MB.txt";
-        String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_5MB.txt";
+        //String filePath = "...";
 
-        System.out.println("Preprocessing " + filePath);
-        Index3 index = new Index3(filePath);
+        System.out.println("Preprocessing " + FILE_PATH3);
+        Index3 index = new Index3(FILE_PATH3);
 
         Scanner console = new Scanner(System.in);
         while (true) { // Simple loop for multiple searches

@@ -62,8 +62,11 @@ class Index2 {
                     current = current.next;
                 }
 
-                // Check if the search string is present in the document. We started of using '.contains', but it found all words that partially matched the search word.
-                // we then changed it to using regex, such that we only find the exact word when searching, and not all words that contain the word.
+                // Check if the search string is present in the document.
+                // We started using '.contains',
+                // but it found all words that partially matched the search word.
+                // We then changed it to using regex, such that we only find the exact word when searching,
+                // and not all words that contain the word.
 
                 if (documentContent.toString().matches(".*\\b" + searchstr + "\\b.*")) {
                     System.out.println("Found in: Document Title: " + documentTitle);

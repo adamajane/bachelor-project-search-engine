@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+
 import static util.Config.*;
 
 class Index5 {
@@ -13,6 +14,7 @@ class Index5 {
     private int tableSize = 50007;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
+
     public Index5() {
         hashTable = new WikiItem[tableSize];
     }
@@ -104,7 +106,6 @@ class Index5 {
 
         return hashValue;
     }
-
 
 
     private void addWordToIndex(String word, String docTitle) {
@@ -226,9 +227,9 @@ class Index5 {
         }
 
         if (item.documents == null) {
-            item.documents = new DocumentList(documentName,1,  null);
+            item.documents = new DocumentList(documentName, 1, null);
         } else {
-            DocumentList newDoc = new DocumentList(documentName,1, null);
+            DocumentList newDoc = new DocumentList(documentName, 1, null);
             currentDoc = item.documents;
 
             while (currentDoc.next != null) {
@@ -242,11 +243,10 @@ class Index5 {
     }
 
     public static void main(String[] args) {
-        String filePath = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_1MB.txt";
-        //String filePath = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_400MB.txt";
+        // String filePath = "...";
 
-        System.out.println("Preprocessing " + filePath);
-        Index5 index = new Index5(filePath);
+        System.out.println("Preprocessing " + FILE_PATH3);
+        Index5 index = new Index5(FILE_PATH3);
 
         Scanner console = new Scanner(System.in);
         while (true) {
