@@ -30,3 +30,6 @@ bin/
 
 ### Text files ###
 data-files
+
+### Util ###
+src/util/Config.java
