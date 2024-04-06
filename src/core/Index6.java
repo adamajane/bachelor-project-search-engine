@@ -1,17 +1,20 @@
 package core;
 
+
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import static util.Config.*;
 
-public class Index4 {
+public class Index6 {
 
     private WikiItem[] hashTable;
     private int tableSize = 50007;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
 
-    public Index4() {
+    public Index6() {
         hashTable = new WikiItem[tableSize];
     }
 
@@ -37,7 +40,7 @@ public class Index4 {
         }
     }
 
-    public Index4(String filename) {
+    public Index6(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
 
@@ -149,26 +152,21 @@ public class Index4 {
         System.out.println("Resize complete. New size: " + tableSize);  // Log end
     }
 
-
-    public void search(String searchString) {
+    // changed search method to return list instead of being void
+    public List<String> search(String searchString) {
         int hashIndex = hash(searchString);
         WikiItem foundItem = findWikiItem(searchString);
 
-        if (foundItem != null) {
-            System.out.println("Documents associated with '" + searchString + "':");
-            DocumentList currentDoc = foundItem.documents;
+        List<String> results = new ArrayList<>(); // Create a list to hold the results
 
-            if (currentDoc == null) {
-                System.out.println("  No documents found.");
-            } else {
-                while (currentDoc != null) {
-                    System.out.println("  - " + currentDoc.documentName);
-                    currentDoc = currentDoc.next;
-                }
+        if (foundItem != null) {
+            DocumentList currentDoc = foundItem.documents;
+            while (currentDoc != null) {
+                results.add(currentDoc.documentName);
+                currentDoc = currentDoc.next;
             }
-        } else {
-            System.out.println(searchString + " not found in the index.");
         }
+        return results; // Return the list of results
     }
 
     private WikiItem findWikiItem(String searchString) {
@@ -218,7 +216,7 @@ public class Index4 {
         // String filePath = "...";
 
         System.out.println("Preprocessing " + FILE_PATH2);
-        Index4 index = new Index4(FILE_PATH2);
+        Index6 index = new Index6(FILE_PATH2);
 
         Scanner console = new Scanner(System.in);
         while (true) {
@@ -227,7 +225,7 @@ public class Index4 {
             if (searchString.equals("exit")) {
                 break;
             }
-            index.search(searchString);
+            System.out.println(index.search(searchString));
         }
         console.close();
     }
