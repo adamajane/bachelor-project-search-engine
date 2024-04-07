@@ -103,7 +103,7 @@ public class Index6 {
 
     private void addWordToIndex(String word, String docTitle) {
 
-        double currentLoadFactor = (double) numItems / tableSize;
+        double currentLoadFactor = (double) (numItems + 1) / tableSize;
 
         if (currentLoadFactor > loadFactor) {
             resizeHashTable();
@@ -174,6 +174,7 @@ public class Index6 {
         System.out.println("Resize complete. New size: " + tableSize);  // Log end
     }
 
+
     // changed search method to return list instead of being void
     public List<String> search(String searchString) {
         int hashIndex = hash(searchString);
@@ -190,6 +191,7 @@ public class Index6 {
         }
         return results; // Return the list of results
     }
+
 
     private WikiItem findWikiItem(String searchString) {
         int hashIndex = hash(searchString);
@@ -247,7 +249,7 @@ public class Index6 {
             if (searchString.equals("exit")) {
                 break;
             }
-            System.out.println(index.search(searchString));
+            index.search(searchString);
         }
         console.close();
     }
