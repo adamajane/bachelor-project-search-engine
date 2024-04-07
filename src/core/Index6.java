@@ -1,16 +1,16 @@
 package core;
 
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
 import static util.Config.*;
 
 public class Index6 {
 
     private WikiItem[] hashTable;
-    private int tableSize = 50007;
+    private int tableSize = 49999;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
 
@@ -94,41 +94,66 @@ public class Index6 {
         // Use the built-in hashCode() method
         int hashValue = word.hashCode();
 
-        // Ensure the hash value is non-negative
-        hashValue = Math.abs(hashValue);
+        // Ensures that the hash value is non-negative
+        hashValue = hashValue & 0x7fffffff;
 
         // Reduce the hash value to fit within your table size
-        hashValue = Math.abs((hashValue * 31) % tableSize);
+        hashValue = hashValue % tableSize;
 
         return hashValue;
     }
 
 
     private void addWordToIndex(String word, String docTitle) {
+
+        double currentLoadFactor = (double) (numItems + 1) / tableSize;
+
+        if (currentLoadFactor > loadFactor) {
+            resizeHashTable();
+        }
+
         int hashIndex = hash(word);
         WikiItem existingItem = findWikiItem(word);
 
         if (existingItem == null) {
             WikiItem newItem = new WikiItem(word, new DocumentList(docTitle, null), hashTable[hashIndex]);
             hashTable[hashIndex] = newItem;
+            numItems++; // Increment the item count
         } else {
             addDocumentToWikiItem(existingItem, docTitle);
         }
 
         //System.out.println("Added word: " + word + " for document: " + docTitle);
 
-        numItems++; // Increment the item count
-        double currentLoadFactor = (double) numItems / tableSize;
+    }
 
-        if (currentLoadFactor > loadFactor) {
-            resizeHashTable();
+    private int nextPrime(int input) {
+        int counter;
+        boolean prime = false;
+
+        // Start searching for next prime number
+        int num = input;
+
+        while (!prime) {
+            num++;
+            prime = true;
+            int sqrt = (int) Math.sqrt(num);
+
+            for (counter = 2; counter <= sqrt; counter++) {
+                if (num % counter == 0) {
+                    prime = false;
+                    break; // exit the inner for loop
+                }
+            }
         }
+
+        return num;
     }
 
     private void resizeHashTable() {
         System.out.println("Starting resize..."); // Log start
 
-        int newTableSize = tableSize * 2;
+        int newTableSize = nextPrime(tableSize * 2);
         WikiItem[] tempTable = new WikiItem[newTableSize];
 
         for (WikiItem item : hashTable) {
@@ -152,6 +177,7 @@ public class Index6 {
         System.out.println("Resize complete. New size: " + tableSize);  // Log end
     }
 
+
     // changed search method to return list instead of being void
     public List<String> search(String searchString) {
         int hashIndex = hash(searchString);
@@ -168,6 +194,7 @@ public class Index6 {
         }
         return results; // Return the list of results
     }
+
 
     private WikiItem findWikiItem(String searchString) {
         int hashIndex = hash(searchString);
@@ -215,8 +242,8 @@ public class Index6 {
     public static void main(String[] args) {
         // String filePath = "...";
 
-        System.out.println("Preprocessing " + FILE_PATH2);
-        Index6 index = new Index6(FILE_PATH2);
+        System.out.println("Preprocessing " + FILE_PATH3);
+        Index6 index = new Index6(FILE_PATH3);
 
         Scanner console = new Scanner(System.in);
         while (true) {
@@ -225,7 +252,7 @@ public class Index6 {
             if (searchString.equals("exit")) {
                 break;
             }
-            System.out.println(index.search(searchString));
+            index.search(searchString);
         }
         console.close();
     }
