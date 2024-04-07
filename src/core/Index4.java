@@ -12,10 +12,6 @@ public class Index4 {
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
 
-    public Index4() {
-        hashTable = new WikiItem[tableSize];
-    }
-
     private class WikiItem {
         String searchString;
         DocumentList documents;

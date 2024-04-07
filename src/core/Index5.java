@@ -11,13 +11,9 @@ import static util.Config.*;
 class Index5 {
 
     private WikiItem[] hashTable;
-    private int tableSize = 50007;
+    private int tableSize = 49999;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
-
-    public Index5() {
-        hashTable = new WikiItem[tableSize];
-    }
 
     private class WikiItem {
         String searchString;
@@ -99,16 +95,23 @@ class Index5 {
         int hashValue = word.hashCode();
 
         // Ensure the hash value is non-negative
-        hashValue = Math.abs(hashValue);
+        hashValue = hashValue & 0x7fffffff;
 
         // Reduce the hash value to fit within your table size
-        hashValue = Math.abs((hashValue * 31) % tableSize);
+        hashValue = hashValue % tableSize;
 
         return hashValue;
     }
 
 
     private void addWordToIndex(String word, String docTitle) {
+
+        double currentLoadFactor = (double) numItems / tableSize;
+
+        if (currentLoadFactor > loadFactor) {
+            resizeHashTable();
+        }
+
         int hashIndex = hash(word);
         WikiItem existingItem = findWikiItem(word);
 
@@ -116,33 +119,40 @@ class Index5 {
             DocumentList newDocList = new DocumentList(docTitle, 1, null);
             WikiItem newItem = new WikiItem(word, newDocList, hashTable[hashIndex]);
             hashTable[hashIndex] = newItem;
+            numItems++; // Increment the item count
         } else {
-            DocumentList docList = existingItem.documents;
-            while (docList != null) {
-                if (docList.documentName.equals(docTitle)) {
-                    docList.count++; // Increment the count if the document is already in the list
-                    return;
-                }
-                docList = docList.next;
-            }
-            // If the document is not in the list, add it with a count of 1
-            DocumentList newDocList = new DocumentList(docTitle, 1, existingItem.documents);
-            existingItem.documents = newDocList;
+            addDocumentToWikiItem(existingItem, docTitle);
         }
         //System.out.println("Added word: " + word + " for document: " + docTitle);
+    }
 
-        numItems++; // Increment the item count
-        double currentLoadFactor = (double) numItems / tableSize;
+    private int nextPrime(int input) {
+        int counter;
+        boolean prime = false;
 
-        if (currentLoadFactor > loadFactor) {
-            resizeHashTable();
+        // Start searching for next prime number
+        int num = input;
+
+        while (!prime) {
+            num++;
+            prime = true;
+            int sqrt = (int) Math.sqrt(num);
+
+            for (counter = 2; counter <= sqrt; counter++) {
+                if (num % counter == 0) {
+                    prime = false;
+                    break; // exit the inner for loop
+                }
+            }
         }
+
+        return num;
     }
 
     private void resizeHashTable() {
         System.out.println("Starting resize..."); // Log start
 
-        int newTableSize = tableSize * 2;
+        int newTableSize = nextPrime(tableSize * 2);
         WikiItem[] tempTable = new WikiItem[newTableSize];
 
         for (WikiItem item : hashTable) {
@@ -216,28 +226,16 @@ class Index5 {
 
 
     private void addDocumentToWikiItem(WikiItem item, String documentName) {
-        DocumentList currentDoc = item.documents;
-
-        while (currentDoc != null) {
-            if (currentDoc.documentName.equals(documentName)) {
-                //System.out.println("Document '" + documentName + "' already exists in WikiItem: " + item.searchString);
+        DocumentList docList = item.documents;
+        while (docList != null) {
+            if (docList.documentName.equals(documentName)) {
+                docList.count++; // Increment the count if the document is already in the list
                 return;
             }
-            currentDoc = currentDoc.next;
+            docList = docList.next;
         }
-
-        if (item.documents == null) {
-            item.documents = new DocumentList(documentName, 1, null);
-        } else {
-            DocumentList newDoc = new DocumentList(documentName, 1, null);
-            currentDoc = item.documents;
-
-            while (currentDoc.next != null) {
-                currentDoc = currentDoc.next;
-            }
-
-            currentDoc.next = newDoc;
-        }
+        // If the document is not in the list, add it with a count of 1
+        item.documents = new DocumentList(documentName, 1, item.documents);
 
         //System.out.println("Adding document '" + documentName + "' to WikiItem: " + item.searchString);
     }
