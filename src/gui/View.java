@@ -1,6 +1,7 @@
 package gui;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.List;
 
@@ -22,18 +23,40 @@ public class View extends JFrame {
     }
 
     private void setupLayout() {
-        setSize(700, 700); // Set initial window size
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout()); // Set the JFrame's layout manager
 
-        // Add layout (we'll customize this later)
-        JPanel panel = new JPanel();
-        panel.add(searchField);
-        panel.add(searchButton);
-        panel.add(new JScrollPane(resultsArea)); // Wrap resultsArea in a JScrollPane for scrolling
-        add(panel);
+        // Create constraints for components
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.weightx = 1.0;
+        constraints.weighty = 1.0;
 
+        // Panel for search components
+        JPanel searchPanel = new JPanel(new GridBagLayout());
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        searchPanel.add(searchField, constraints);
+
+        constraints.gridx = 1;
+        constraints.gridy = 0;
+        constraints.weightx = 0.1; // Button should not take up much horizontal space
+        searchPanel.add(searchButton, constraints);
+
+        // Add searchPanel to the north of the BorderLayout
+        add(searchPanel, BorderLayout.NORTH);
+
+        // Results area in the center for maximum space utilization
+        resultsArea.setLineWrap(true);
+        resultsArea.setWrapStyleWord(true);
+        JScrollPane scrollPane = new JScrollPane(resultsArea);
+        add(scrollPane, BorderLayout.CENTER);
+
+        pack(); // Adjusts the JFrame size to fit the components
+        setLocationRelativeTo(null); // Center the window
         setVisible(true);
     }
+
 
     // Removed the instantiation of Index6 and the call to addSearchButtonListener
 
@@ -44,6 +67,11 @@ public class View extends JFrame {
 
     public String getSearchQuery() {
         return searchField.getText();
+    }
+
+
+    public JTextField getSearchField() {
+        return searchField;
     }
 
     public void displayResults(List<String> results) {
