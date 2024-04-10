@@ -152,16 +152,17 @@ public class Index6 {
         int newTableSize = nextPrime(tableSize * 2);
         WikiItem[] tempTable = new WikiItem[newTableSize];
 
-        for (WikiItem item : hashTable) {
+        for (int i = 0; i < tableSize; i++) {
+            WikiItem item = hashTable[i];
             while (item != null) {
                 System.out.println("Rehashing item: " + item.searchString); // Log item
-                int newIndex = hash(item.searchString) % newTableSize;
+                int newIndex = rehash(item.searchString, newTableSize);
 
                 WikiItem nextItem = item.next; // Save the next item
 
-                // Create a new item with the same data but without the old 'next' reference
-                WikiItem newItem = new WikiItem(item.searchString, item.documents, tempTable[newIndex]);
-                tempTable[newIndex] = newItem;
+                // Insert at the head of the list in the new table
+                item.next = tempTable[newIndex];
+                tempTable[newIndex] = item;
 
                 item = nextItem; // Move to the next item in the old list
             }
@@ -170,7 +171,14 @@ public class Index6 {
         hashTable = tempTable;
         tableSize = newTableSize;
 
-        System.out.println("Resize complete. New size: " + tableSize);  // Log end
+        System.out.println("Resize complete. New size: " + tableSize); // Log end
+    }
+
+    private int rehash(String word, int newSize) {
+        int hashValue = word.hashCode();
+        hashValue = hashValue & 0x7fffffff;
+        hashValue = hashValue % newSize;
+        return hashValue;
     }
 
 
