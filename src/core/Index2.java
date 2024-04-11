@@ -2,8 +2,8 @@ package core;
 
 import java.io.*;
 import java.util.Scanner;
-import static util.Config.*;
 
+import static util.Config.*;
 
 
 class Index2 {

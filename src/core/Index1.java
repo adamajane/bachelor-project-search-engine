@@ -53,7 +53,7 @@ class Index1 {
         System.out.println("Preprocessing " + args[0]);
         Index1 i = new Index1(args[0]);
         Scanner console = new Scanner(System.in);
-        for (;;) {
+        for (; ; ) {
             System.out.println("Input search string or type exit to stop");
             String searchstr = console.nextLine();
             if (searchstr.equals("exit")) {

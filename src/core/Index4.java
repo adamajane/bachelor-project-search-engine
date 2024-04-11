@@ -27,10 +27,12 @@ public class Index4 {
     private class DocumentList {
         String documentName;
         DocumentList next;
+        DocumentList tail;
 
         DocumentList(String documentName, DocumentList next) {
             this.documentName = documentName;
             this.next = next;
+            this.tail = this;
         }
     }
 
@@ -117,8 +119,6 @@ public class Index4 {
             addDocumentToWikiItem(existingItem, docTitle);
         }
 
-        //System.out.println("Added word: " + word + " for document: " + docTitle);
-
     }
 
     private int nextPrime(int input) {
@@ -180,9 +180,7 @@ public class Index4 {
     }
 
 
-
     public void search(String searchString) {
-        int hashIndex = hash(searchString);
         WikiItem foundItem = findWikiItem(searchString);
 
         if (foundItem != null) {
@@ -217,32 +215,24 @@ public class Index4 {
         return null; // Item not found
     }
 
-
     private void addDocumentToWikiItem(WikiItem item, String documentName) {
         DocumentList currentDoc = item.documents;
 
-        while (currentDoc != null) {
-            if (currentDoc.documentName.equals(documentName)) {
-                //System.out.println("Document '" + documentName + "' already exists in WikiItem: " + item.searchString);
-                return;
-            }
-            currentDoc = currentDoc.next;
-        }
-
-        if (item.documents == null) {
+        // Check if the document list is empty
+        if (currentDoc == null) {
             item.documents = new DocumentList(documentName, null);
-        } else {
-            DocumentList newDoc = new DocumentList(documentName, null);
-            currentDoc = item.documents;
-
-            while (currentDoc.next != null) {
-                currentDoc = currentDoc.next;
-            }
-
-            currentDoc.next = newDoc;
+            return;  // Document added; we can return immediately
         }
 
-        // System.out.println("Adding document '" + documentName + "' to WikiItem: " + item.searchString);
+        // Check the tail to avoid duplicates
+        if (currentDoc.tail.documentName.equals(documentName)) {
+            return; // Document already exists at the end
+        }
+
+        // Document doesn't exist yet, add it to the list
+        DocumentList newDoc = new DocumentList(documentName, null);
+        currentDoc.tail.next = newDoc;
+        currentDoc.tail = newDoc; // Update the tail pointer
     }
 
     public static void main(String[] args) {
