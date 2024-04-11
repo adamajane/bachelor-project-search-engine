@@ -1,6 +1,6 @@
 package gui;
 
-import core.Index6;
+import core.Index7;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,10 +9,10 @@ import java.awt.event.KeyEvent;
 import java.util.List;
 
 public class Controller {
-    private Index6 model;
+    private Index7 model;
     private View view;
 
-    public Controller(Index6 model, View view) {
+    public Controller(Index7 model, View view) {
         this.model = model;
         this.view = view;
         initView();
