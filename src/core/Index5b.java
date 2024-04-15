@@ -2,16 +2,16 @@ package core;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 import static util.Config.*;
 
-public class Index5 {
+public class Index5b {
 
     private WikiItem[] hashTable;
     private int tableSize = 49999;
-    private ArrayList<String> documentNames;
+    private String[] documentNames;
+    private int documentNamesSize = 0; // Track the number of document names
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
 
@@ -39,10 +39,10 @@ public class Index5 {
         }
     }
 
-    public Index5(String filename) {
+    public Index5b(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
-        documentNames = new ArrayList<>(); // Initialize the document names list
+        documentNames = new String[100]; // Initialize the document names array with an initial capacity
 
         try {
             Scanner input = new Scanner(new File(filename), "UTF-8");
@@ -63,14 +63,14 @@ public class Index5 {
 
                     if (word.endsWith(".")) {
                         readingTitle = false;
-                        documentNames.add(currentTitle);
+                        addDocumentName(currentTitle);
 
                     }
                 } else {
                     if (word.equals("---END.OF.DOCUMENT---")) {
                         Scanner contentScanner = new Scanner(documentContent.toString());
                         while (contentScanner.hasNext()) {
-                            addWordToIndex(contentScanner.next(), documentNames.size()-1);
+                            addWordToIndex(contentScanner.next(), documentNamesSize-1);
                         }
                         readingTitle = true;
                         currentTitle = null;
@@ -89,6 +89,21 @@ public class Index5 {
         double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
     }
+
+    private void addDocumentName(String documentName) {
+        if (documentNamesSize == documentNames.length) {
+            resizeDocumentNames();
+        }
+        documentNames[documentNamesSize] = documentName;
+        documentNamesSize++;
+    }
+
+    private void resizeDocumentNames() {
+        String[] newDocumentNames = new String[documentNames.length * 2];
+        System.arraycopy(documentNames, 0, newDocumentNames, 0, documentNames.length);
+        documentNames = newDocumentNames;
+    }
+
 
     // Using modulus instead of logical AND, reduced the running time by half!!
     // Using java inbuilt hash function on strings now further increased runtime by 20-25%
@@ -197,7 +212,7 @@ public class Index5 {
                 System.out.println("  No documents found.");
             } else {
                 while (currentDoc != null) {
-                    System.out.println("  - " + documentNames.get(currentDoc.documentName));
+                    System.out.println("  - " + documentNames[currentDoc.documentName]);
                     currentDoc = currentDoc.next;
                 }
             }
@@ -245,8 +260,8 @@ public class Index5 {
         // String filePath = "...";
         long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
 
-        System.out.println("Preprocessing " + FILE_PATH1);
-        Index5 index = new Index5(FILE_PATH1);
+        System.out.println("Preprocessing " + FILE_PATH2);
+        Index5b index = new Index5b(FILE_PATH2);
         long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
         System.out.println("Memory Used:" + (afterUsedMem-beforeUsedMem));
 
