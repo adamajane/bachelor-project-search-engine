@@ -1,6 +1,8 @@
 package core;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import static util.Config.*;
@@ -9,6 +11,7 @@ public class Index5 {
 
     private WikiItem[] hashTable;
     private int tableSize = 49999;
+    private ArrayList<String> documentNames;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
 
@@ -25,11 +28,11 @@ public class Index5 {
     }
 
     private class DocumentList {
-        String documentName;
+        int documentName;
         DocumentList next;
         DocumentList tail;
 
-        DocumentList(String documentName, DocumentList next) {
+        DocumentList(int documentName, DocumentList next) {
             this.documentName = documentName;
             this.next = next;
             this.tail = this;
@@ -39,6 +42,7 @@ public class Index5 {
     public Index5(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
+        documentNames = new ArrayList<>(); // Initialize the document names list
 
         try {
             Scanner input = new Scanner(new File(filename), "UTF-8");
@@ -59,12 +63,14 @@ public class Index5 {
 
                     if (word.endsWith(".")) {
                         readingTitle = false;
+                        documentNames.add(currentTitle);
+
                     }
                 } else {
                     if (word.equals("---END.OF.DOCUMENT---")) {
                         Scanner contentScanner = new Scanner(documentContent.toString());
                         while (contentScanner.hasNext()) {
-                            addWordToIndex(contentScanner.next(), currentTitle);
+                            addWordToIndex(contentScanner.next(), documentNames.size()-1);
                         }
                         readingTitle = true;
                         currentTitle = null;
@@ -100,7 +106,7 @@ public class Index5 {
     }
 
 
-    private void addWordToIndex(String word, String docTitle) {
+    private void addWordToIndex(String word, int docId) {
 
         double currentLoadFactor = (double) (numItems + 1) / tableSize;
 
@@ -112,11 +118,11 @@ public class Index5 {
         WikiItem existingItem = findWikiItem(word);
 
         if (existingItem == null) {
-            WikiItem newItem = new WikiItem(word, new DocumentList(docTitle, null), hashTable[hashIndex]);
+            WikiItem newItem = new WikiItem(word, new DocumentList(docId, null), hashTable[hashIndex]);
             hashTable[hashIndex] = newItem;
             numItems++; // Increment the item count
         } else {
-            addDocumentToWikiItem(existingItem, docTitle);
+            addDocumentToWikiItem(existingItem, docId);
         }
 
     }
@@ -191,7 +197,7 @@ public class Index5 {
                 System.out.println("  No documents found.");
             } else {
                 while (currentDoc != null) {
-                    System.out.println("  - " + currentDoc.documentName);
+                    System.out.println("  - " + documentNames.get(currentDoc.documentName));
                     currentDoc = currentDoc.next;
                 }
             }
@@ -215,31 +221,35 @@ public class Index5 {
         return null; // Item not found
     }
 
-    private void addDocumentToWikiItem(WikiItem item, String documentName) {
+    private void addDocumentToWikiItem(WikiItem item, int documentId) {
         DocumentList currentDoc = item.documents;
 
         // Check if the document list is empty
         if (currentDoc == null) {
-            item.documents = new DocumentList(documentName, null);
+            item.documents = new DocumentList(documentId, null);
             return;  // Document added; we can return immediately
         }
 
         // Check the tail to avoid duplicates
-        if (currentDoc.tail.documentName.equals(documentName)) {
+        if (currentDoc.tail.documentName == documentId) {
             return; // Document already exists at the end
         }
 
         // Document doesn't exist yet, add it to the list
-        DocumentList newDoc = new DocumentList(documentName, null);
+        DocumentList newDoc = new DocumentList(documentId, null);
         currentDoc.tail.next = newDoc;
         currentDoc.tail = newDoc; // Update the tail pointer
     }
 
     public static void main(String[] args) {
         // String filePath = "...";
+        long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
 
-        System.out.println("Preprocessing " + FILE_PATH3);
-        Index5 index = new Index5(FILE_PATH3);
+        System.out.println("Preprocessing " + FILE_PATH1);
+        Index5 index = new Index5(FILE_PATH1);
+        long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
+        System.out.println("Memory Used:" + (afterUsedMem-beforeUsedMem));
+
 
         Scanner console = new Scanner(System.in);
         while (true) {
