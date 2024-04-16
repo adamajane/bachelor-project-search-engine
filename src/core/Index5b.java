@@ -8,6 +8,13 @@ import static util.Config.*;
 
 public class Index5b {
 
+    /* This index implements space efficiency features.
+    It modifies Index4 to use an index array for the article titles in the linked list of documents
+    instead of the string name.
+
+    In this index (Index5b), a string array is used for the index array
+    */
+
     private WikiItem[] hashTable;
     private int tableSize = 49999;
     private String[] documentNames;
@@ -70,7 +77,7 @@ public class Index5b {
                     if (word.equals("---END.OF.DOCUMENT---")) {
                         Scanner contentScanner = new Scanner(documentContent.toString());
                         while (contentScanner.hasNext()) {
-                            addWordToIndex(contentScanner.next(), documentNamesSize-1);
+                            addWordToIndex(contentScanner.next(), documentNamesSize - 1);
                         }
                         readingTitle = true;
                         currentTitle = null;
@@ -258,12 +265,12 @@ public class Index5b {
 
     public static void main(String[] args) {
         // String filePath = "...";
-        long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
+        long beforeUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
-        System.out.println("Preprocessing " + FILE_PATH2);
-        Index5b index = new Index5b(FILE_PATH2);
-        long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-        System.out.println("Memory Used:" + (afterUsedMem-beforeUsedMem));
+        System.out.println("Preprocessing " + FULL_FILE_PATH);
+        Index5b index = new Index5b(FULL_FILE_PATH);
+        long afterUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        System.out.println("Memory Used:" + (afterUsedMem - beforeUsedMem));
 
 
         Scanner console = new Scanner(System.in);

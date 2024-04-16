@@ -7,13 +7,15 @@ import static util.Config.*;
 
 class Index3 {
 
-    // WikiItem start;
+    /* Modified the construction of the data structure to include a linked list of the possible
+    search strings and the documents they appear in is constructed.
+    Each object in the linked list contains three fields:
+        1. The search string.
+        2. A linked list of documents in which search string appears.
+        3. A reference to the next item in the list.
+    */
 
     private WikiItem index; // Represents the head of our main index
-
-    public Index3() {
-        index = null;
-    }
 
     private class WikiItem {
         String searchString;

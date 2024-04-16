@@ -8,6 +8,13 @@ import static util.Config.*;
 
 public class Index5a {
 
+    /* This index implements space efficiency features.
+    It modifies Index4 to use an index array for the article titles in the linked list of documents
+    instead of the string name.
+
+    In this index (Index5a), an ArrayList is used for the index array
+    */
+
     private WikiItem[] hashTable;
     private int tableSize = 49999;
     private ArrayList<String> documentNames;
@@ -69,7 +76,7 @@ public class Index5a {
                     if (word.equals("---END.OF.DOCUMENT---")) {
                         Scanner contentScanner = new Scanner(documentContent.toString());
                         while (contentScanner.hasNext()) {
-                            addWordToIndex(contentScanner.next(), documentNames.size()-1);
+                            addWordToIndex(contentScanner.next(), documentNames.size() - 1);
                         }
                         readingTitle = true;
                         currentTitle = null;
@@ -242,12 +249,13 @@ public class Index5a {
 
     public static void main(String[] args) {
         // String filePath = "...";
-        long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
+        // long beforeUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
-        System.out.println("Preprocessing " + FILE_PATH2);
-        Index5a index = new Index5a(FILE_PATH2);
-        long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-        System.out.println("Memory Used:" + (afterUsedMem-beforeUsedMem));
+        System.out.println("Preprocessing " + FULL_FILE_PATH);
+        Index5a index = new Index5a(FULL_FILE_PATH);
+        // long afterUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        // System.out.println("Memory Used:" + (afterUsedMem - beforeUsedMem));
+        System.out.println("Number of articles: " + index.documentNames.size());
 
 
         Scanner console = new Scanner(System.in);

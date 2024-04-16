@@ -1,19 +1,29 @@
 package core;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
-import static util.Config.*;
+import static util.Config.FULL_FILE_PATH;
 
-class Index6 {
+public class Index5c {
+
+    /* This index implements space efficiency features.
+    It modifies Index4 to use an index array for the article titles in the linked list of documents
+    instead of the string name.
+
+    This index builds upon Index5a and removes punctuation and converts all words to lowercase.
+    */
 
     private WikiItem[] hashTable;
     private int tableSize = 49999;
+    private ArrayList<String> documentNames;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
+    private StringBuilder sb = new StringBuilder();
 
     private class WikiItem {
         String searchString;
@@ -21,28 +31,28 @@ class Index6 {
         WikiItem next;
 
         WikiItem(String s, DocumentList d, WikiItem n) {
-            searchString = s;
-            documents = d;
-            next = n;
+            this.searchString = s;
+            this.documents = d;
+            this.next = n;
         }
     }
 
     private class DocumentList {
-        String documentName;
-
-        int count;
+        int documentName;
         DocumentList next;
+        DocumentList tail;
 
-        DocumentList(String documentName, int count, DocumentList next) {
+        DocumentList(int documentName, DocumentList next) {
             this.documentName = documentName;
-            this.count = count;
             this.next = next;
+            this.tail = this;
         }
     }
 
-    public Index6(String filename) {
+    public Index5c(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
+        documentNames = new ArrayList<>(); // Initialize the document names list
 
         try {
             Scanner input = new Scanner(new File(filename), "UTF-8");
@@ -63,12 +73,14 @@ class Index6 {
 
                     if (word.endsWith(".")) {
                         readingTitle = false;
+                        documentNames.add(currentTitle);
+
                     }
                 } else {
                     if (word.equals("---END.OF.DOCUMENT---")) {
                         Scanner contentScanner = new Scanner(documentContent.toString());
                         while (contentScanner.hasNext()) {
-                            addWordToIndex(contentScanner.next(), currentTitle);
+                            addWordToIndex(contentScanner.next(), documentNames.size() - 1);
                         }
                         readingTitle = true;
                         currentTitle = null;
@@ -88,13 +100,13 @@ class Index6 {
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
     }
 
-    // using modulus instead of logical AND, reduced the running time by half!!
-    // using java inbuilt hash function on strings now further increased runtime by 20-25%
+    // Using modulus instead of logical AND, reduced the running time by half!!
+    // Using java inbuilt hash function on strings now further increased runtime by 20-25%
     private int hash(String word) {
         // Use the built-in hashCode() method
         int hashValue = word.hashCode();
 
-        // Ensure the hash value is non-negative
+        // Ensures that the hash value is non-negative
         hashValue = hashValue & 0x7fffffff;
 
         // Reduce the hash value to fit within your table size
@@ -103,10 +115,36 @@ class Index6 {
         return hashValue;
     }
 
+    private void addWordToIndex(String word, int docId) {
 
-    private void addWordToIndex(String word, String docTitle) {
+        // List of words to ignore
+        List<String> ignoreWords = Arrays.asList("the", "an");
 
-        double currentLoadFactor = (double) numItems / tableSize;
+        // Remove punctuation and convert to lowercase
+        // word = word.replaceAll("[^a-zA-Z ]", "").toLowerCase();
+
+        // Clear the StringBuilder
+        sb.setLength(0);
+
+        // Use StringBuilder to remove punctuation and convert to lowercase
+        // StringBuilder sb = new StringBuilder();
+        for (char c : word.toCharArray()) {
+            if (Character.isLetter(c)) {
+                sb.append(c);
+            }
+        }
+
+        // TODO: The above for-loop removes all punctuation. Note some words (like jiu-jitsu) contain hyphens.
+        //  We should consider how to handle these cases.
+
+        word = sb.toString().toLowerCase();
+
+        // Skip if the word is in the ignore list
+        if (ignoreWords.contains(word)) {
+            return;
+        }
+
+        double currentLoadFactor = (double) (numItems + 1) / tableSize;
 
         if (currentLoadFactor > loadFactor) {
             resizeHashTable();
@@ -116,14 +154,13 @@ class Index6 {
         WikiItem existingItem = findWikiItem(word);
 
         if (existingItem == null) {
-            DocumentList newDocList = new DocumentList(docTitle, 1, null);
-            WikiItem newItem = new WikiItem(word, newDocList, hashTable[hashIndex]);
+            WikiItem newItem = new WikiItem(word, new DocumentList(docId, null), hashTable[hashIndex]);
             hashTable[hashIndex] = newItem;
             numItems++; // Increment the item count
         } else {
-            addDocumentToWikiItem(existingItem, docTitle);
+            addDocumentToWikiItem(existingItem, docId);
         }
-        //System.out.println("Added word: " + word + " for document: " + docTitle);
+
     }
 
     private int nextPrime(int input) {
@@ -186,7 +223,6 @@ class Index6 {
 
 
     public void search(String searchString) {
-        int hashIndex = hash(searchString);
         WikiItem foundItem = findWikiItem(searchString);
 
         if (foundItem != null) {
@@ -196,26 +232,15 @@ class Index6 {
             if (currentDoc == null) {
                 System.out.println("  No documents found.");
             } else {
-                // Create a list from the linked list of documents
-                List<DocumentList> docs = new ArrayList<>();
                 while (currentDoc != null) {
-                    docs.add(currentDoc);
+                    System.out.println("  - " + documentNames.get(currentDoc.documentName));
                     currentDoc = currentDoc.next;
-                }
-
-                // Sort the list in descending order of count
-                Collections.sort(docs, (doc1, doc2) -> Integer.compare(doc2.count, doc1.count));
-
-                // Print the sorted list of documents
-                for (DocumentList doc : docs) {
-                    System.out.println("  - " + doc.documentName + " (count: " + doc.count + ")");
                 }
             }
         } else {
             System.out.println(searchString + " not found in the index.");
         }
     }
-
 
     private WikiItem findWikiItem(String searchString) {
         int hashIndex = hash(searchString);
@@ -232,32 +257,41 @@ class Index6 {
         return null; // Item not found
     }
 
+    private void addDocumentToWikiItem(WikiItem item, int documentId) {
+        DocumentList currentDoc = item.documents;
 
-    private void addDocumentToWikiItem(WikiItem item, String documentName) {
-        DocumentList docList = item.documents;
-        while (docList != null) {
-            if (docList.documentName.equals(documentName)) {
-                docList.count++; // Increment the count if the document is already in the list
-                return;
-            }
-            docList = docList.next;
+        // Check if the document list is empty
+        if (currentDoc == null) {
+            item.documents = new DocumentList(documentId, null);
+            return;  // Document added; we can return immediately
         }
-        // If the document is not in the list, add it with a count of 1
-        item.documents = new DocumentList(documentName, 1, item.documents);
 
-        //System.out.println("Adding document '" + documentName + "' to WikiItem: " + item.searchString);
+        // Check the tail to avoid duplicates
+        if (currentDoc.tail.documentName == documentId) {
+            return; // Document already exists at the end
+        }
+
+        // The document doesn't exist yet, add it to the list
+        DocumentList newDoc = new DocumentList(documentId, null);
+        currentDoc.tail.next = newDoc;
+        currentDoc.tail = newDoc; // Update the tail pointer
     }
 
     public static void main(String[] args) {
         // String filePath = "...";
+        // long beforeUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
         System.out.println("Preprocessing " + FULL_FILE_PATH);
-        Index6 index = new Index6(FULL_FILE_PATH);
+        Index5c index = new Index5c(FULL_FILE_PATH);
+        // long afterUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        // System.out.println("Memory Used:" + (afterUsedMem - beforeUsedMem));
+        System.out.println("Number of articles: " + index.documentNames.size());
+
 
         Scanner console = new Scanner(System.in);
         while (true) {
             System.out.println("Input search string or type 'exit' to stop");
-            String searchString = console.nextLine();
+            String searchString = console.nextLine().toLowerCase();
             if (searchString.equals("exit")) {
                 break;
             }

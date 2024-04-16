@@ -7,6 +7,8 @@ import static util.Config.*;
 
 public class Index4 {
 
+    // Modifies Index3 to use a hash table instead of a linked list
+
     private WikiItem[] hashTable;
     private int tableSize = 49999;
     private int numItems = 0; // Track the number of items

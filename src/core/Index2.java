@@ -8,6 +8,8 @@ import static util.Config.*;
 
 class Index2 {
 
+    // Modifies Index1 to output the titles of all documents containing the specified search string
+
     WikiItem start;
 
     private class WikiItem {

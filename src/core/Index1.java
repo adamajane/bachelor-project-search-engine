@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 class Index1 {
 
-    // Initial index to test the program. Checks if a word exists in the input file.
+    // Initial index to test the program. Checks if a word exists in the input file
 
     WikiItem start;
 

@@ -246,8 +246,8 @@ public class Index7 {
     public static void main(String[] args) {
         // String filePath = "...";
 
-        System.out.println("Preprocessing " + FILE_PATH3);
-        Index7 index = new Index7(FILE_PATH3);
+        System.out.println("Preprocessing " + FULL_FILE_PATH);
+        Index7 index = new Index7(FULL_FILE_PATH);
 
         Scanner console = new Scanner(System.in);
         while (true) {

@@ -17,7 +17,7 @@ public class Driver {
                 Index1 i1 = new Index1(FULL_FILE_PATH);
                 for (; ; ) {
                     System.out.println("Input search string or type exit to stop");
-                    searchString = console.nextLine();
+                    searchString = console.nextLine().toLowerCase();
                     if (searchString.equals("exit")) {
                         break;
                     }
@@ -33,7 +33,7 @@ public class Driver {
                 Index2 i2 = new Index2(FULL_FILE_PATH);
                 for (; ; ) {
                     System.out.println("Input search string or type exit to stop");
-                    searchString = console.nextLine();
+                    searchString = console.nextLine().toLowerCase();
                     if (searchString.equals("exit")) {
                         break;
                     }
@@ -50,7 +50,7 @@ public class Driver {
 
                 while (true) { // Simple loop for multiple searches
                     System.out.println("Input search string or type 'exit' to stop");
-                    searchString = console.nextLine();
+                    searchString = console.nextLine().toLowerCase();
                     if (searchString.equals("exit")) {
                         break;
                     }
@@ -62,7 +62,7 @@ public class Driver {
 
                 while (true) {
                     System.out.println("Input search string or type 'exit' to stop");
-                    searchString = console.nextLine();
+                    searchString = console.nextLine().toLowerCase();
                     if (searchString.equals("exit")) {
                         break;
                     }
