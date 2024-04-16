@@ -129,27 +129,6 @@ class Index3 {
         System.out.println("Preprocessing completed in " + elapsedTime + " milliseconds.");
     }
 
-
-    public static void main(String[] args) {
-        // Specify the file path
-        //String filePath = "...";
-
-        System.out.println("Preprocessing " + FILE_PATH3);
-        Index3 index = new Index3(FILE_PATH3);
-
-        Scanner console = new Scanner(System.in);
-        while (true) { // Simple loop for multiple searches
-            System.out.println("Input search string or type 'exit' to stop");
-            String searchString = console.nextLine();
-            if (searchString.equals("exit")) {
-                break;
-            }
-            index.search(searchString);
-        }
-        console.close();
-    }
-
-
     // Finds a WikiItem with the given searchString or returns null
     private WikiItem findWikiItem(String searchString) {
         WikiItem current = index;
@@ -192,8 +171,5 @@ class Index3 {
             currentDoc.next = newDoc;
         }
 
-        //System.out.println("Adding document '" + documentName + "' to WikiItem: " + item.searchString);
     }
-
-
 }

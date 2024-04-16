@@ -82,24 +82,4 @@ class Index2 {
         System.out.println("Preprocessing completed in " + elapsedTime + " milliseconds.");
         return found;
     }
-
-    public static void main(String[] args) {
-
-        System.out.println("Preprocessing " + FILE_PATH1);
-        Index2 i = new Index2(FILE_PATH1);
-        Scanner console = new Scanner(System.in);
-        for (; ; ) {
-            System.out.println("Input search string or type exit to stop");
-            String searchstr = console.nextLine();
-            if (searchstr.equals("exit")) {
-                break;
-            }
-            if (i.search(searchstr)) {
-                System.out.println(searchstr + " exists");
-            } else {
-                System.out.println(searchstr + " does not exist");
-            }
-        }
-        console.close();
-    }
 }

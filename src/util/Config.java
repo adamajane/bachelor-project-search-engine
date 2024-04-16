@@ -2,18 +2,23 @@ package util;
 
 public class Config {
 
-    // Remember to specify the correct file size
-
     // Oliver's Windows PC
-    public static final String FILE_PATH1 = "C:\\Users\\olski\\Desktop\\WestburyLab.wikicorp.201004_1MB.txt";
+    public static final String OLIVER_WINDOWS = "C:\\Users\\olski\\Desktop\\";
 
     // Oliver's MacBook Pro
-    public static final String FILE_PATH2 = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_1MB.txt";
+    public static final String OLIVER_MAC = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/";
 
     // Adam's MacBook Pro
-    public static final String FILE_PATH3 = "/Users/Adam/IdeaProjects/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_100KB.txt";
+    public static final String ADAM_MAC = "/Users/Adam/IdeaProjects/bachelor-project-search-engine/data-files/";
 
+    // Change the variables below to test different indexes and files
 
-    public static final int INDEX_TO_TEST = 1;
+    // Specify which index to test, which file path to use, and which size to use
+    public static final int INDEX_TO_TEST = 4;
+    public static final String CURRENT_FILE_PATH = ADAM_MAC;
+    public static final String FILE_SIZE = "100MB";
+
+    // Construct the full file path
+    public static final String FULL_FILE_PATH = CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_" + FILE_SIZE + ".txt";
 
 }

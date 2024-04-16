@@ -6,49 +6,71 @@ import static util.Config.*;
 
 public class Driver {
 
-    /*
     public static void main(String[] args) {
 
         Scanner console = new Scanner(System.in);
-        String searchstr;
+        String searchString;
 
         switch (INDEX_TO_TEST) {
             case 1:
-                System.out.println("Preprocessing " + FILE_PATH3);
-                Index1 i1 = new Index1(FILE_PATH3);
+                System.out.println("Preprocessing " + FULL_FILE_PATH);
+                Index1 i1 = new Index1(FULL_FILE_PATH);
                 for (; ; ) {
                     System.out.println("Input search string or type exit to stop");
-                    searchstr = console.nextLine();
-                    if (searchstr.equals("exit")) {
+                    searchString = console.nextLine();
+                    if (searchString.equals("exit")) {
                         break;
                     }
-                    if (i1.search(searchstr)) {
-                        System.out.println(searchstr + " exists");
+                    if (i1.search(searchString)) {
+                        System.out.println(searchString + " exists");
                     } else {
-                        System.out.println(searchstr + " does not exist");
+                        System.out.println(searchString + " does not exist");
                     }
                 }
                 break;
             case 2:
-                System.out.println("Preprocessing " + FILE_PATH2);
-                Index2 i2 = new Index2(FILE_PATH2);
+                System.out.println("Preprocessing " + FULL_FILE_PATH);
+                Index2 i2 = new Index2(FULL_FILE_PATH);
                 for (; ; ) {
                     System.out.println("Input search string or type exit to stop");
-                    searchstr = console.nextLine();
-                    if (searchstr.equals("exit")) {
+                    searchString = console.nextLine();
+                    if (searchString.equals("exit")) {
                         break;
                     }
-                    if (i2.search(searchstr)) {
-                        System.out.println(searchstr + " exists");
+                    if (i2.search(searchString)) {
+                        System.out.println(searchString + " exists");
                     } else {
-                        System.out.println(searchstr + " does not exist");
+                        System.out.println(searchString + " does not exist");
                     }
                 }
                 break;
-            // Add more cases as needed for other indexes...
-        }4
+            case 3:
+                System.out.println("Preprocessing " + FULL_FILE_PATH);
+                Index3 i3 = new Index3(FULL_FILE_PATH);
+
+                while (true) { // Simple loop for multiple searches
+                    System.out.println("Input search string or type 'exit' to stop");
+                    searchString = console.nextLine();
+                    if (searchString.equals("exit")) {
+                        break;
+                    }
+                    i3.search(searchString);
+                }
+            case 4:
+                System.out.println("Preprocessing " + FULL_FILE_PATH);
+                Index4 i4 = new Index4(FULL_FILE_PATH);
+
+                while (true) {
+                    System.out.println("Input search string or type 'exit' to stop");
+                    searchString = console.nextLine();
+                    if (searchString.equals("exit")) {
+                        break;
+                    }
+                    i4.search(searchString);
+                }
+                break;
+        }
 
         console.close();
     }
-    */
 }

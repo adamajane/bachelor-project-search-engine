@@ -229,27 +229,9 @@ public class Index4 {
             return; // Document already exists at the end
         }
 
-        // Document doesn't exist yet, add it to the list
+        // The document doesn't exist yet, add it to the list
         DocumentList newDoc = new DocumentList(documentName, null);
         currentDoc.tail.next = newDoc;
         currentDoc.tail = newDoc; // Update the tail pointer
-    }
-
-    public static void main(String[] args) {
-        // String filePath = "...";
-
-        System.out.println("Preprocessing " + FILE_PATH3);
-        Index4 index = new Index4(FILE_PATH3);
-
-        Scanner console = new Scanner(System.in);
-        while (true) {
-            System.out.println("Input search string or type 'exit' to stop");
-            String searchString = console.nextLine();
-            if (searchString.equals("exit")) {
-                break;
-            }
-            index.search(searchString);
-        }
-        console.close();
     }
 }

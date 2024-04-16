@@ -5,6 +5,8 @@ import java.util.Scanner;
 
 class Index1 {
 
+    // Initial index to test the program. Checks if a word exists in the input file.
+
     WikiItem start;
 
     private class WikiItem {
@@ -47,24 +49,5 @@ class Index1 {
             current = current.next;
         }
         return false;
-    }
-
-    public static void main(String[] args) {
-        System.out.println("Preprocessing " + args[0]);
-        Index1 i = new Index1(args[0]);
-        Scanner console = new Scanner(System.in);
-        for (; ; ) {
-            System.out.println("Input search string or type exit to stop");
-            String searchstr = console.nextLine();
-            if (searchstr.equals("exit")) {
-                break;
-            }
-            if (i.search(searchstr)) {
-                System.out.println(searchstr + " exists");
-            } else {
-                System.out.println(searchstr + " does not exist");
-            }
-        }
-        console.close();
     }
 }
