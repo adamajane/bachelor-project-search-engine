@@ -2,49 +2,43 @@ package core;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import static util.Config.*;
 
-public class Index6 {
-
+public class IndexGUI {
 
     private WikiItem[] hashTable;
     private int tableSize = 49999;
-    private ArrayList<String> documentNames;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
 
     private class WikiItem {
         String searchString;
-        ArrayList<Integer> documentDiffs; // Now stores differences
+        DocumentList documents;
         WikiItem next;
 
-        WikiItem(String s, int firstDocId, WikiItem n) {
+        WikiItem(String s, DocumentList d, WikiItem n) {
             this.searchString = s;
-            this.documentDiffs = new ArrayList<>();
-            this.documentDiffs.add(firstDocId); // Add the first document ID directly
+            this.documents = d;
             this.next = n;
         }
     }
 
-    /*
     private class DocumentList {
-        int documentName;
+        String documentName;
         DocumentList next;
-        DocumentList tail;
 
-        DocumentList(int documentName, DocumentList next) {
+        DocumentList(String documentName, DocumentList next) {
             this.documentName = documentName;
             this.next = next;
-            this.tail = this;
         }
     }
-*/
-    public Index6(String filename) {
+
+    public IndexGUI(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
-        documentNames = new ArrayList<>(); // Initialize the document names list
 
         try {
             Scanner input = new Scanner(new File(filename), "UTF-8");
@@ -65,14 +59,12 @@ public class Index6 {
 
                     if (word.endsWith(".")) {
                         readingTitle = false;
-                        documentNames.add(currentTitle);
-
                     }
                 } else {
                     if (word.equals("---END.OF.DOCUMENT---")) {
                         Scanner contentScanner = new Scanner(documentContent.toString());
                         while (contentScanner.hasNext()) {
-                            addWordToIndex(contentScanner.next(), documentNames.size()-1);
+                            addWordToIndex(contentScanner.next(), currentTitle);
                         }
                         readingTitle = true;
                         currentTitle = null;
@@ -108,7 +100,8 @@ public class Index6 {
     }
 
 
-    private void addWordToIndex(String word, int docId) {
+    private void addWordToIndex(String word, String docTitle) {
+
         double currentLoadFactor = (double) (numItems + 1) / tableSize;
 
         if (currentLoadFactor > loadFactor) {
@@ -119,20 +112,16 @@ public class Index6 {
         WikiItem existingItem = findWikiItem(word);
 
         if (existingItem == null) {
-            WikiItem newItem = new WikiItem(word, docId, hashTable[hashIndex]);
+            WikiItem newItem = new WikiItem(word, new DocumentList(docTitle, null), hashTable[hashIndex]);
             hashTable[hashIndex] = newItem;
             numItems++; // Increment the item count
         } else {
-            int lastDocId = existingItem.documentDiffs.get(0); // First element is the actual first docId
-            for (int i = 1; i < existingItem.documentDiffs.size(); i++) {
-                lastDocId += existingItem.documentDiffs.get(i); // Sum up the differences to find the last docId
-            }
-            if (lastDocId != docId) {
-                existingItem.documentDiffs.add(docId - lastDocId); // Store only the difference
-            }
+            addDocumentToWikiItem(existingItem, docTitle);
         }
-    }
 
+        //System.out.println("Added word: " + word + " for document: " + docTitle);
+
+    }
 
     private int nextPrime(int input) {
         int counter;
@@ -193,26 +182,21 @@ public class Index6 {
     }
 
 
-    public void search(String searchString) {
+    // changed search method to return list instead of being void
+    public List<String> search(String searchString) {
+        int hashIndex = hash(searchString);
         WikiItem foundItem = findWikiItem(searchString);
 
-        if (foundItem != null) {
-            System.out.println("Documents associated with '" + searchString + "':");
-            ArrayList<Integer> currentDocDiffs = foundItem.documentDiffs;
+        List<String> results = new ArrayList<>(); // Create a list to hold the results
 
-            if (currentDocDiffs.isEmpty()) {
-                System.out.println("  No documents found.");
-            } else {
-                int docId = currentDocDiffs.get(0); // First document ID
-                System.out.println(docId + "  - " + documentNames.get(docId));
-                for (int i = 1; i < currentDocDiffs.size(); i++) {
-                    docId += currentDocDiffs.get(i);
-                    System.out.println(docId + "  - " + documentNames.get(docId));
-                }
+        if (foundItem != null) {
+            DocumentList currentDoc = foundItem.documents;
+            while (currentDoc != null) {
+                results.add(currentDoc.documentName);
+                currentDoc = currentDoc.next;
             }
-        } else {
-            System.out.println(searchString + " not found in the index.");
         }
+        return results; // Return the list of results
     }
 
 
@@ -231,46 +215,39 @@ public class Index6 {
         return null; // Item not found
     }
 
-    //commented out because not needed when using arraylist for documents
-/*
-    private void addDocumentToWikiItem(WikiItem item, int documentId) {
+
+    private void addDocumentToWikiItem(WikiItem item, String documentName) {
         DocumentList currentDoc = item.documents;
 
-        // Check if the document list is empty
-        if (currentDoc == null) {
-            item.documents = new DocumentList(documentId, null);
-            return;  // Document added; we can return immediately
+        while (currentDoc != null) {
+            if (currentDoc.documentName.equals(documentName)) {
+                //System.out.println("Document '" + documentName + "' already exists in WikiItem: " + item.searchString);
+                return;
+            }
+            currentDoc = currentDoc.next;
         }
 
-        // Check the tail to avoid duplicates
-        if (currentDoc.tail.documentName == documentId) {
-            return; // Document already exists at the end
+        if (item.documents == null) {
+            item.documents = new DocumentList(documentName, null);
+        } else {
+            DocumentList newDoc = new DocumentList(documentName, null);
+            currentDoc = item.documents;
+
+            while (currentDoc.next != null) {
+                currentDoc = currentDoc.next;
+            }
+
+            currentDoc.next = newDoc;
         }
 
-        // Document doesn't exist yet, add it to the list
-        DocumentList newDoc = new DocumentList(documentId, null);
-        currentDoc.tail.next = newDoc;
-        currentDoc.tail = newDoc; // Update the tail pointer
-    }
-
- */
-
-    public int countDocuments() {
-        return documentNames.size();
+        // System.out.println("Adding document '" + documentName + "' to WikiItem: " + item.searchString);
     }
 
     public static void main(String[] args) {
         // String filePath = "...";
-        //long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
 
         System.out.println("Preprocessing " + FULL_FILE_PATH);
-        Index6 index = new Index6(FULL_FILE_PATH);
-        //long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-        //System.out.println("Memory Used:" + (afterUsedMem-beforeUsedMem));
-        //System.out.println(index.countDocuments());
-
-        long heapSize = Runtime.getRuntime().totalMemory();
-        System.out.println("Current heap size: " + heapSize / (1024 * 1024) + " MB");
+        IndexGUI index = new IndexGUI(FULL_FILE_PATH);
 
         Scanner console = new Scanner(System.in);
         while (true) {

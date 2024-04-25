@@ -2,12 +2,13 @@ package core;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
 import static util.Config.*;
 
-public class Index7 {
+class IndexPrefix {
 
     private WikiItem[] hashTable;
     private int tableSize = 49999;
@@ -20,23 +21,26 @@ public class Index7 {
         WikiItem next;
 
         WikiItem(String s, DocumentList d, WikiItem n) {
-            this.searchString = s;
-            this.documents = d;
-            this.next = n;
+            searchString = s;
+            documents = d;
+            next = n;
         }
     }
 
     private class DocumentList {
         String documentName;
+
+        int count;
         DocumentList next;
 
-        DocumentList(String documentName, DocumentList next) {
+        DocumentList(String documentName, int count, DocumentList next) {
             this.documentName = documentName;
+            this.count = count;
             this.next = next;
         }
     }
 
-    public Index7(String filename) {
+    public IndexPrefix(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
 
@@ -84,13 +88,13 @@ public class Index7 {
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
     }
 
-    // Using modulus instead of logical AND, reduced the running time by half!!
-    // Using java inbuilt hash function on strings now further increased runtime by 20-25%
+    // using modulus instead of logical AND, reduced the running time by half!!
+    // using java inbuilt hash function on strings now further increased runtime by 20-25%
     private int hash(String word) {
         // Use the built-in hashCode() method
         int hashValue = word.hashCode();
 
-        // Ensures that the hash value is non-negative
+        // Ensure the hash value is non-negative
         hashValue = hashValue & 0x7fffffff;
 
         // Reduce the hash value to fit within your table size
@@ -102,7 +106,7 @@ public class Index7 {
 
     private void addWordToIndex(String word, String docTitle) {
 
-        double currentLoadFactor = (double) (numItems + 1) / tableSize;
+        double currentLoadFactor = (double) numItems / tableSize;
 
         if (currentLoadFactor > loadFactor) {
             resizeHashTable();
@@ -112,15 +116,14 @@ public class Index7 {
         WikiItem existingItem = findWikiItem(word);
 
         if (existingItem == null) {
-            WikiItem newItem = new WikiItem(word, new DocumentList(docTitle, null), hashTable[hashIndex]);
+            DocumentList newDocList = new DocumentList(docTitle, 1, null);
+            WikiItem newItem = new WikiItem(word, newDocList, hashTable[hashIndex]);
             hashTable[hashIndex] = newItem;
             numItems++; // Increment the item count
         } else {
             addDocumentToWikiItem(existingItem, docTitle);
         }
-
         //System.out.println("Added word: " + word + " for document: " + docTitle);
-
     }
 
     private int nextPrime(int input) {
@@ -182,21 +185,35 @@ public class Index7 {
     }
 
 
-    // changed search method to return list instead of being void
-    public List<String> search(String searchString) {
+    public void search(String searchString) {
         int hashIndex = hash(searchString);
         WikiItem foundItem = findWikiItem(searchString);
 
-        List<String> results = new ArrayList<>(); // Create a list to hold the results
-
         if (foundItem != null) {
+            System.out.println("Documents associated with '" + searchString + "':");
             DocumentList currentDoc = foundItem.documents;
-            while (currentDoc != null) {
-                results.add(currentDoc.documentName);
-                currentDoc = currentDoc.next;
+
+            if (currentDoc == null) {
+                System.out.println("  No documents found.");
+            } else {
+                // Create a list from the linked list of documents
+                List<DocumentList> docs = new ArrayList<>();
+                while (currentDoc != null) {
+                    docs.add(currentDoc);
+                    currentDoc = currentDoc.next;
+                }
+
+                // Sort the list in descending order of count
+                Collections.sort(docs, (doc1, doc2) -> Integer.compare(doc2.count, doc1.count));
+
+                // Print the sorted list of documents
+                for (DocumentList doc : docs) {
+                    System.out.println("  - " + doc.documentName + " (count: " + doc.count + ")");
+                }
             }
+        } else {
+            System.out.println(searchString + " not found in the index.");
         }
-        return results; // Return the list of results
     }
 
 
@@ -217,37 +234,25 @@ public class Index7 {
 
 
     private void addDocumentToWikiItem(WikiItem item, String documentName) {
-        DocumentList currentDoc = item.documents;
-
-        while (currentDoc != null) {
-            if (currentDoc.documentName.equals(documentName)) {
-                //System.out.println("Document '" + documentName + "' already exists in WikiItem: " + item.searchString);
+        DocumentList docList = item.documents;
+        while (docList != null) {
+            if (docList.documentName.equals(documentName)) {
+                docList.count++; // Increment the count if the document is already in the list
                 return;
             }
-            currentDoc = currentDoc.next;
+            docList = docList.next;
         }
+        // If the document is not in the list, add it with a count of 1
+        item.documents = new DocumentList(documentName, 1, item.documents);
 
-        if (item.documents == null) {
-            item.documents = new DocumentList(documentName, null);
-        } else {
-            DocumentList newDoc = new DocumentList(documentName, null);
-            currentDoc = item.documents;
-
-            while (currentDoc.next != null) {
-                currentDoc = currentDoc.next;
-            }
-
-            currentDoc.next = newDoc;
-        }
-
-        // System.out.println("Adding document '" + documentName + "' to WikiItem: " + item.searchString);
+        //System.out.println("Adding document '" + documentName + "' to WikiItem: " + item.searchString);
     }
 
     public static void main(String[] args) {
         // String filePath = "...";
 
         System.out.println("Preprocessing " + FULL_FILE_PATH);
-        Index7 index = new Index7(FULL_FILE_PATH);
+        IndexPrefix index = new IndexPrefix(FULL_FILE_PATH);
 
         Scanner console = new Scanner(System.in);
         while (true) {
