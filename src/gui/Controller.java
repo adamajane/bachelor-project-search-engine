@@ -1,6 +1,5 @@
 package gui;
 
-import core.Index7;
 import core.IndexGUI;
 
 import java.awt.event.ActionEvent;
@@ -10,7 +9,7 @@ import java.awt.event.KeyEvent;
 import java.util.List;
 
 public class Controller {
-    private Index7 model;
+    private IndexGUI model;
     private View view;
 
     public Controller(IndexGUI model, View view) {
