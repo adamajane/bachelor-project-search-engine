@@ -1,5 +1,5 @@
 ### IntelliJ IDEA ###
-.idea/
+# .idea/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
@@ -34,4 +34,4 @@ bin/
 data-files
 
 ### Util ###
-/src/util/Config.java
+# /src/util/Config.java
