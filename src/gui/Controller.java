@@ -1,6 +1,7 @@
 package gui;
 
 import core.Index7;
+import core.IndexGUI;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,7 +13,7 @@ public class Controller {
     private Index7 model;
     private View view;
 
-    public Controller(Index7 model, View view) {
+    public Controller(IndexGUI model, View view) {
         this.model = model;
         this.view = view;
         initView();
