@@ -70,7 +70,7 @@ class Index2 {
                 // We then changed it to using regex, such that we only find the exact word when searching,
                 // and not all words that contain the word.
 
-                if (documentContent.toString().matches(".*\\b" + searchstr + "\\b.*")) {
+                if (documentContent.toString().matches("(?i).*\\b" + searchstr + "\\b.*")) {
                     System.out.println("Found in: Document Title: " + documentTitle);
                     found = true;
                 }
