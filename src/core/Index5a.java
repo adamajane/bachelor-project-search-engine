@@ -256,7 +256,8 @@ public class Index5a {
         // long afterUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         // System.out.println("Memory Used:" + (afterUsedMem - beforeUsedMem));
         System.out.println("Number of articles: " + index.documentNames.size());
-
+        long heapSize = Runtime.getRuntime().totalMemory();
+        System.out.println("Current heap size: " + heapSize / (1024 * 1024) + " MB");
 
         Scanner console = new Scanner(System.in);
         while (true) {

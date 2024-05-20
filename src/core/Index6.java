@@ -17,15 +17,46 @@ public class Index6 {
 
     private class WikiItem {
         String searchString;
-        ArrayList<Integer> documentDiffs; // Now stores differences
+        ByteArrayOutputStream documentDiffs;
         WikiItem next;
 
         WikiItem(String s, int firstDocId, WikiItem n) {
             this.searchString = s;
-            this.documentDiffs = new ArrayList<>();
-            this.documentDiffs.add(firstDocId); // Add the first document ID directly
+            this.documentDiffs = new ByteArrayOutputStream();
+            try {
+                writeVByte(firstDocId, this.documentDiffs);  // Encode the first docId
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             this.next = n;
         }
+    }
+
+
+    private void writeVByte(int value, ByteArrayOutputStream output) throws IOException {
+        while (true) {
+            if ((value & ~0x7F) == 0) {  // Check if value fits in 7 bits
+                output.write(value);  // Write the value as the last byte
+                return;
+            } else {
+                output.write((value & 0x7F) | 0x80);  // Write the lower 7 bits with MSB set to 1
+                value >>>= 7;  // Right shift by 7 bits to process the next part
+            }
+        }
+    }
+
+    private int readVByte(ByteArrayInputStream input) {
+        int value = 0;
+        int shift = 0;
+        while (true) {
+            byte b = (byte) input.read();
+            value |= (b & 0x7F) << shift;  // Combine 7-bit value
+            if ((b & 0x80) == 0) {  // If MSB is 0, this is the last byte
+                break;
+            }
+            shift += 7;  // Shift by 7 bits for the next part
+        }
+        return value;
     }
 
     /*
@@ -121,17 +152,28 @@ public class Index6 {
         if (existingItem == null) {
             WikiItem newItem = new WikiItem(word, docId, hashTable[hashIndex]);
             hashTable[hashIndex] = newItem;
-            numItems++; // Increment the item count
+            numItems++;
         } else {
-            int lastDocId = existingItem.documentDiffs.get(0); // First element is the actual first docId
-            for (int i = 1; i < existingItem.documentDiffs.size(); i++) {
-                lastDocId += existingItem.documentDiffs.get(i); // Sum up the differences to find the last docId
-            }
+            int lastDocId = decodeLastDocId(existingItem.documentDiffs.toByteArray());
             if (lastDocId != docId) {
-                existingItem.documentDiffs.add(docId - lastDocId); // Store only the difference
+                try {
+                    writeVByte(docId - lastDocId, existingItem.documentDiffs);  // Store the difference
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
+
+    private int decodeLastDocId(byte[] encodedDiffs) {
+        ByteArrayInputStream input = new ByteArrayInputStream(encodedDiffs);
+        int docId = readVByte(input);  // Decode the first docId
+        while (input.available() > 0) {
+            docId += readVByte(input);  // Decode and accumulate differences
+        }
+        return docId;
+    }
+
 
 
     private int nextPrime(int input) {
@@ -198,17 +240,13 @@ public class Index6 {
 
         if (foundItem != null) {
             System.out.println("Documents associated with '" + searchString + "':");
-            ArrayList<Integer> currentDocDiffs = foundItem.documentDiffs;
-
-            if (currentDocDiffs.isEmpty()) {
-                System.out.println("  No documents found.");
-            } else {
-                int docId = currentDocDiffs.get(0); // First document ID
+            byte[] encodedDiffs = foundItem.documentDiffs.toByteArray();
+            ByteArrayInputStream input = new ByteArrayInputStream(encodedDiffs);
+            int docId = readVByte(input);  // Decode the first docId
+            System.out.println(docId + "  - " + documentNames.get(docId));
+            while (input.available() > 0) {
+                docId += readVByte(input);  // Decode and accumulate differences
                 System.out.println(docId + "  - " + documentNames.get(docId));
-                for (int i = 1; i < currentDocDiffs.size(); i++) {
-                    docId += currentDocDiffs.get(i);
-                    System.out.println(docId + "  - " + documentNames.get(docId));
-                }
             }
         } else {
             System.out.println(searchString + " not found in the index.");

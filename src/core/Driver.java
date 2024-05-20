@@ -10,7 +10,7 @@ public class Driver {
 
         Scanner console = new Scanner(System.in);
         String searchString;
-
+        System.out.println("Testing index " + INDEX_TO_TEST + " with file " + FULL_FILE_PATH);
         switch (INDEX_TO_TEST) {
             case 1:
                 System.out.println("Preprocessing " + FULL_FILE_PATH);
@@ -56,6 +56,7 @@ public class Driver {
                     }
                     i3.search(searchString);
                 }
+                break;
             case 4:
                 System.out.println("Preprocessing " + FULL_FILE_PATH);
                 Index4 i4 = new Index4(FULL_FILE_PATH);
