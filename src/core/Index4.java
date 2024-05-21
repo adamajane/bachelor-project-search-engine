@@ -183,7 +183,12 @@ public class Index4 {
 
 
     public void search(String searchString) {
+        long startTime = System.nanoTime(); // Start timing
+
         WikiItem foundItem = findWikiItem(searchString);
+
+        long endTime = System.nanoTime(); // End timing
+        double timeTaken = (double) (endTime - startTime) / 1_000_000; // Convert to milliseconds
 
         if (foundItem != null) {
             System.out.println("Documents associated with '" + searchString + "':");
@@ -200,6 +205,8 @@ public class Index4 {
         } else {
             System.out.println(searchString + " not found in the index.");
         }
+
+        System.out.println("Search query time: " + timeTaken + " ms"); // Print the time taken
     }
 
     private WikiItem findWikiItem(String searchString) {
