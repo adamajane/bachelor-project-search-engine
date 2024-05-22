@@ -33,7 +33,7 @@ public class TestDriver {
                 //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004.txt"
         );
 
-        try (PrintWriter writer = new PrintWriter("/Users/mr.brandt/desktop/output.txt", "UTF-8")) {
+        try (PrintWriter writer = new PrintWriter("test-output.txt", "UTF-8")) {
             for (String dataFile : dataFiles) {
                 String fileSize = extractFileSize(dataFile);
                 boolean skipIndex3 = shouldSkipIndex3(fileSize);
