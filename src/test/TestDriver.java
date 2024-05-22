@@ -10,22 +10,27 @@ import java.util.List;
 
 public class TestDriver {
 
+    public static final String OLIVER_WINDOWS = "C:\\Users\\olski\\Desktop\\bachelor-project-search-engine\\data-files\\";
+    public static final String OLIVER_MAC = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/";
+    public static final String ADAM_MAC = "/Users/Adam/IdeaProjects/bachelor-project-search-engine/data-files/";
+
+    public static final String CURRENT_FILE_PATH = OLIVER_MAC;
     public static void main(String[] args) {
 
         // List of all data files
         List<String> dataFiles = Arrays.asList(
-                "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_100KB.txt",
-                "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_1MB.txt"
-                //,"/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_2MB.txt"
-                //,"/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_5MB.txt"
-                //,"/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_10MB.txt"
-                //,"/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_20MB.txt"
-                //,"/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_50MB.txt"
-                //,"/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_100MB.txt"
-                //,"/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_200MB.txt"
-                //,"/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_400MB.txt"
-                //,"/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004_800MB.txt"
-                //,"/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/WestburyLab.wikicorp.201004.txt"
+                CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_100KB.txt"
+                , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_1MB.txt"
+                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_2MB.txt"
+                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_5MB.txt"
+                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_10MB.txt"
+                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_20MB.txt"
+                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_50MB.txt"
+                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_100MB.txt"
+                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_200MB.txt"
+                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_400MB.txt"
+                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_800MB.txt"
+                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004.txt"
         );
 
         try (PrintWriter writer = new PrintWriter("/Users/mr.brandt/desktop/output.txt", "UTF-8")) {
@@ -94,8 +99,28 @@ public class TestDriver {
                             writer.println(output);
                             continue;
                         case 6:
-                            Index6a i6 = new Index6a(dataFile);
-                            break;
+                            output = "Testing index 6a with file of size " + fileSize;
+                            System.out.println(output);
+                            writer.println(output);
+                            startTime = System.currentTimeMillis();
+                            Index6a i6a = new Index6a(dataFile);
+                            endTime = System.currentTimeMillis();
+                            minutes = (double) (endTime - startTime) / (1000 * 60);
+                            output = String.format("Preprocessing for index 6a completed in %.5f minutes.", minutes);
+                            System.out.println(output);
+                            writer.println(output);
+
+                            output = "Testing index 6b with file of size " + fileSize;
+                            System.out.println(output);
+                            writer.println(output);
+                            startTime = System.currentTimeMillis();
+                            Index6b i6b = new Index6b(dataFile);
+                            endTime = System.currentTimeMillis();
+                            minutes = (double) (endTime - startTime) / (1000 * 60);
+                            output = String.format("Preprocessing for index 6b completed in %.5f minutes.", minutes);
+                            System.out.println(output);
+                            writer.println(output);
+                            continue;
                     }
                     endTime = System.currentTimeMillis();
                     double minutes = (double) (endTime - startTime) / (1000 * 60);
