@@ -5,12 +5,12 @@ import java.util.Scanner;
 
 import static util.Config.*;
 
-
-class Index2 {
+public class Index2 {
 
     // Modifies Index1 to output the titles of all documents containing the specified search string
 
-    WikiItem start;
+    private WikiItem start;
+    private long totalBytesUsed = 0; // Global byte counter
 
     private class WikiItem {
         String str;
@@ -19,6 +19,10 @@ class Index2 {
         WikiItem(String s, WikiItem n) {
             this.str = s;
             this.next = n;
+
+            // Estimate memory used by this WikiItem
+            totalBytesUsed += estimateMemoryUsage(s);
+            totalBytesUsed += estimateMemoryUsage(this);
         }
     }
 
@@ -42,6 +46,7 @@ class Index2 {
             long endTime = System.currentTimeMillis(); // End timing
             long elapsedTime = endTime - startTime;
             System.out.println("Preprocessing completed in " + elapsedTime + " milliseconds.");
+            System.out.println("Total memory used: " + totalBytesUsed + " bytes (" + totalBytesUsed / (1024 * 1024) + " MB).");
         } catch (FileNotFoundException e) {
             System.out.println("Error reading file " + filename);
         }
@@ -81,7 +86,37 @@ class Index2 {
         }
         long endTime = System.currentTimeMillis(); // End timing
         long elapsedTime = endTime - startTime;
-        System.out.println("Preprocessing completed in " + elapsedTime + " milliseconds.");
+        System.out.println("Search completed in " + elapsedTime + " milliseconds.");
         return found;
+    }
+
+    // Helper method to estimate memory usage of a String object using the given formula
+    private long estimateMemoryUsage(String s) {
+        int numChars = s.length();
+        int memoryUsage = 8 * (int) Math.ceil(((numChars * 2) + 38) / 8.0);
+        return memoryUsage;
+    }
+
+    // Helper method to estimate memory usage of a WikiItem object
+    private long estimateMemoryUsage(WikiItem item) {
+        return 16 + 4 + 4; // Object header (16 bytes) + references to String and next WikiItem (4 bytes each)
+    }
+
+    public static void main(String[] args) {
+        // String filePath = "...";
+        System.out.println("Preprocessing " + FULL_FILE_PATH);
+        Index2 index = new Index2(FULL_FILE_PATH);
+        System.out.println("Current heap size: " + (Runtime.getRuntime().totalMemory() / (1024 * 1024)) + " MB");
+
+        Scanner console = new Scanner(System.in);
+        while (true) {
+            System.out.println("Input search string or type 'exit' to stop");
+            String searchString = console.nextLine();
+            if (searchString.equals("exit")) {
+                break;
+            }
+            index.search(searchString);
+        }
+        console.close();
     }
 }

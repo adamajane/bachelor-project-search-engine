@@ -13,6 +13,7 @@ public class Index4 {
     private int tableSize = 49999;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
+    private long totalBytesUsed = 0; // Global byte counter
 
     private class WikiItem {
         String searchString;
@@ -23,6 +24,10 @@ public class Index4 {
             this.searchString = s;
             this.documents = d;
             this.next = n;
+
+            // Estimate memory used by this WikiItem
+            totalBytesUsed += estimateMemoryUsage(s);
+            totalBytesUsed += estimateMemoryUsage(this);
         }
     }
 
@@ -35,12 +40,17 @@ public class Index4 {
             this.documentName = documentName;
             this.next = next;
             this.tail = this;
+
+            // Estimate memory used by this DocumentList
+            totalBytesUsed += estimateMemoryUsage(documentName);
+            totalBytesUsed += estimateMemoryUsage(this);
         }
     }
 
     public Index4(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
+        totalBytesUsed += estimateMemoryUsage(hashTable);
 
         try {
             Scanner input = new Scanner(new File(filename), "UTF-8");
@@ -84,6 +94,7 @@ public class Index4 {
         long endTime = System.currentTimeMillis(); // End timing
         double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
+        System.out.println("Total memory used: " + totalBytesUsed + " bytes (" + totalBytesUsed / (1024 * 1024) + " MB).");
     }
 
     // Using modulus instead of logical AND, reduced the running time by half!!
@@ -170,6 +181,7 @@ public class Index4 {
 
         hashTable = tempTable;
         tableSize = newTableSize;
+        totalBytesUsed += estimateMemoryUsage(tempTable);
 
         System.out.println("Resize complete. New size: " + tableSize); // Log end
     }
@@ -243,4 +255,27 @@ public class Index4 {
         currentDoc.tail.next = newDoc;
         currentDoc.tail = newDoc; // Update the tail pointer
     }
+
+    // Helper method to estimate memory usage of a String object using the given formula
+    private long estimateMemoryUsage(String s) {
+        int numChars = s.length();
+        int memoryUsage = 8 * (int) Math.ceil(((numChars * 2) + 38) / 8.0);
+        return memoryUsage;
+    }
+
+    // Helper method to estimate memory usage of a WikiItem object
+    private long estimateMemoryUsage(WikiItem item) {
+        return 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, DocumentList, and next WikiItem (4 bytes each)
+    }
+
+    // Helper method to estimate memory usage of a DocumentList object
+    private long estimateMemoryUsage(DocumentList item) {
+        return 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, next and tail DocumentList (4 bytes each)
+    }
+
+    // Helper method to estimate memory usage of an array
+    private long estimateMemoryUsage(WikiItem[] array) {
+        return 12 + (array.length * 4); // Array header (12 bytes) + 4 bytes per reference
+    }
+
 }

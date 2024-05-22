@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 import static util.Config.*;
 
-class Index3 {
+public class Index3 {
 
     /* Modified the construction of the data structure to include a linked list of the possible
     search strings and the documents they appear in is constructed.
@@ -16,6 +16,7 @@ class Index3 {
     */
 
     private WikiItem index; // Represents the head of our main index
+    private long totalBytesUsed = 0; // Global byte counter
 
     private class WikiItem {
         String searchString;
@@ -26,6 +27,10 @@ class Index3 {
             this.searchString = s;
             this.documents = d;
             this.next = n;
+
+            // Estimate memory used by this WikiItem
+            totalBytesUsed += estimateMemoryUsage(s);
+            totalBytesUsed += estimateMemoryUsage(this);
         }
     }
 
@@ -38,6 +43,10 @@ class Index3 {
         DocumentList(String documentName, DocumentList next) {
             this.documentName = documentName;
             this.next = next;
+
+            // Estimate memory used by this DocumentList
+            totalBytesUsed += estimateMemoryUsage(documentName);
+            totalBytesUsed += estimateMemoryUsage(this);
         }
     }
 
@@ -87,6 +96,7 @@ class Index3 {
         long endTime = System.currentTimeMillis(); // End timing
         double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
+        System.out.println("Total memory used: " + totalBytesUsed + " bytes (" + totalBytesUsed / (1024 * 1024) + " MB).");
     }
 
 
@@ -173,5 +183,22 @@ class Index3 {
             currentDoc.next = newDoc;
         }
 
+    }
+
+    // Helper method to estimate memory usage of a String object using the given formula
+    private long estimateMemoryUsage(String s) {
+        int numChars = s.length();
+        int memoryUsage = 8 * (int) Math.ceil(((numChars * 2) + 38) / 8.0);
+        return memoryUsage;
+    }
+
+    // Helper method to estimate memory usage of a WikiItem object
+    private long estimateMemoryUsage(WikiItem item) {
+        return 4 + 4 + 4 + 12 ; //   references to String, DocumentList, and next WikiItem (4 bytes each)+ Object header (12 bytes)
+    }
+
+    // Helper method to estimate memory usage of a DocumentList object
+    private long estimateMemoryUsage(DocumentList item) {
+        return 16 + 4 + 4; // Object header (16 bytes(with the 8-byte java object padding rule)) + references to String and next DocumentList (4 bytes each)
     }
 }

@@ -1,4 +1,6 @@
-package core;
+package test;
+
+import core.*;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -6,7 +8,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-public class Test {
+public class TestDriver {
 
     public static void main(String[] args) {
 
@@ -92,7 +94,7 @@ public class Test {
                             writer.println(output);
                             continue;
                         case 6:
-                            Index6 i6 = new Index6(dataFile);
+                            Index6a i6 = new Index6a(dataFile);
                             break;
                     }
                     endTime = System.currentTimeMillis();
