@@ -4,10 +4,20 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import static util.Config.*;
+import static util.Config.FULL_FILE_PATH;
 
-public class Index6 {
+public class Index6b {
 
+    /*
+    This index implements compression techniques to further reduce memory usage.
+
+    It builds up Index5a to use a hash table for the index.
+
+    In addition, it uses a difference array and variable byte encoding for storing document IDs,
+    making the index more compact.
+
+    This index builds upon Index6a and removes punctuation and converts all words to lowercase to further reduce memory usage.
+    */
 
     private WikiItem[] hashTable;
     private int tableSize = 49999;
@@ -15,6 +25,7 @@ public class Index6 {
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
     private long totalBytesUsed = 0; // Global byte counter
+    private StringBuilder sb = new StringBuilder();
 
     private class WikiItem {
         String searchString;
@@ -66,7 +77,7 @@ public class Index6 {
         return value;
     }
 
-    public Index6(String filename) {
+    public Index6b(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
         totalBytesUsed += estimateMemoryUsage(hashTable);
@@ -140,6 +151,19 @@ public class Index6 {
 
 
     private void addWordToIndex(String word, int docId) {
+        // Clear the StringBuilder
+        sb.setLength(0);
+
+        // Use StringBuilder to remove punctuation and convert to lowercase
+        // StringBuilder sb = new StringBuilder();
+        for (char c : word.toCharArray()) {
+            if (Character.isLetter(c)) {
+                sb.append(c);
+            }
+        }
+
+        word = sb.toString().toLowerCase();
+
         double currentLoadFactor = (double) (numItems + 1) / tableSize;
 
         if (currentLoadFactor > loadFactor) {
@@ -344,7 +368,7 @@ public class Index6 {
         //long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
 
         System.out.println("Preprocessing " + FULL_FILE_PATH);
-        Index6 index = new Index6(FULL_FILE_PATH);
+        Index6b index = new Index6b(FULL_FILE_PATH);
         //long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
         //System.out.println("Memory Used:" + (afterUsedMem-beforeUsedMem));
         //System.out.println(index.countDocuments());
@@ -355,7 +379,8 @@ public class Index6 {
         Scanner console = new Scanner(System.in);
         while (true) {
             System.out.println("Input search string or type 'exit' to stop");
-            String searchString = console.nextLine();
+            String searchString = console.nextLine().toLowerCase();
+            ;
             if (searchString.equals("exit")) {
                 break;
             }
