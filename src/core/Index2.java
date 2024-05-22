@@ -101,22 +101,4 @@ public class Index2 {
     private long estimateMemoryUsage(WikiItem item) {
         return 16 + 4 + 4; // Object header (16 bytes) + references to String and next WikiItem (4 bytes each)
     }
-
-    public static void main(String[] args) {
-        // String filePath = "...";
-        System.out.println("Preprocessing " + FULL_FILE_PATH);
-        Index2 index = new Index2(FULL_FILE_PATH);
-        System.out.println("Current heap size: " + (Runtime.getRuntime().totalMemory() / (1024 * 1024)) + " MB");
-
-        Scanner console = new Scanner(System.in);
-        while (true) {
-            System.out.println("Input search string or type 'exit' to stop");
-            String searchString = console.nextLine();
-            if (searchString.equals("exit")) {
-                break;
-            }
-            index.search(searchString);
-        }
-        console.close();
-    }
 }

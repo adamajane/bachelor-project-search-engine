@@ -31,7 +31,9 @@ public class Driver {
             case 2:
                 System.out.println("Preprocessing " + FULL_FILE_PATH);
                 Index2 i2 = new Index2(FULL_FILE_PATH);
-                for (; ; ) {
+                System.out.println("Current heap size: " + (Runtime.getRuntime().totalMemory() / (1024 * 1024)) + " MB");
+
+                while (true) {
                     System.out.println("Input search string or type exit to stop");
                     searchString = console.nextLine().toLowerCase();
                     if (searchString.equals("exit")) {
