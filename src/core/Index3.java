@@ -128,7 +128,7 @@ class Index3 {
         }
         long endTime = System.currentTimeMillis(); // End timing
         long elapsedTime = endTime - startTime;
-        System.out.println("Preprocessing completed in " + elapsedTime + " milliseconds.");
+        System.out.println("Search query time: " + elapsedTime + " ms"); // Print the time taken
     }
 
     // Finds a WikiItem with the given searchString or returns null
