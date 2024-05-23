@@ -10,17 +10,18 @@ import java.util.List;
 
 public class TestDriver {
 
-    public static final String OLIVER_WINDOWS = "C:\\Users\\olski\\Desktop\\bachelor-project-search-engine\\data-files\\";
+    public static final String OLIVER_WINDOWS = "C:\\Users\\olski\\Desktop\\bachelor\\data-files\\";
     public static final String OLIVER_MAC = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/";
     public static final String ADAM_MAC = "/Users/Adam/IdeaProjects/bachelor-project-search-engine/data-files/";
 
-    public static final String CURRENT_FILE_PATH = OLIVER_MAC;
+    public static final String CURRENT_FILE_PATH = OLIVER_WINDOWS;
+
     public static void main(String[] args) {
 
         // List of all data files
         List<String> dataFiles = Arrays.asList(
-                CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_100KB.txt"
-                , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_1MB.txt"
+                CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_100KB.txt",
+                CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_1MB.txt"
                 //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_2MB.txt"
                 //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_5MB.txt"
                 //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_10MB.txt"
@@ -33,102 +34,103 @@ public class TestDriver {
                 //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004.txt"
         );
 
+        StringBuilder outputBuilder = new StringBuilder();
+
+        // Header row for the output table
+        outputBuilder.append(String.format("%-10s", "File Size"));
+        for (int index = 1; index <= 6; index++) {
+            if (index == 5) {
+                outputBuilder.append(String.format("%-12s%-12s%-12s", "Index 5a", "Index 5b", "Index 5c"));
+            } else if (index == 6) {
+                outputBuilder.append(String.format("%-12s%-12s", "Index 6a", "Index 6b"));
+            } else {
+                outputBuilder.append(String.format("%-12s", "Index " + index));
+            }
+        }
+        outputBuilder.append("\n");
+
         try (PrintWriter writer = new PrintWriter("test-output.txt", "UTF-8")) {
             for (String dataFile : dataFiles) {
                 String fileSize = extractFileSize(dataFile);
                 boolean skipIndex3 = shouldSkipIndex3(fileSize);
 
+                outputBuilder.append(String.format("%-10s", fileSize));
+
                 for (int index = 1; index <= 6; index++) {
+                    long startTime;
+                    long endTime;
+                    double minutes;
                     if (index == 3 && skipIndex3) {
-                        String output = "Skipping index " + index + " for file of size " + fileSize + " (greater than 5MB)";
-                        System.out.println(output);
-                        writer.println(output);
+                        outputBuilder.append(String.format("%-12s", "Skipped"));
                         continue;
                     }
 
-                    String output = "Testing index " + index + " with file of size " + fileSize;
-                    System.out.println(output);
-                    writer.println(output);
-                    long startTime = System.currentTimeMillis();
-                    long endTime = 0;
                     switch (index) {
                         case 1:
-                            Index1 i1 = new Index1(dataFile);
+                            startTime = System.currentTimeMillis();
+                            new Index1(dataFile);
+                            endTime = System.currentTimeMillis();
+                            minutes = (double) (endTime - startTime) / (1000 * 60);
+                            outputBuilder.append(String.format("%-12s", String.format("%.5f", minutes)));
                             break;
                         case 2:
-                            Index2 i2 = new Index2(dataFile);
+                            startTime = System.currentTimeMillis();
+                            new Index2(dataFile);
+                            endTime = System.currentTimeMillis();
+                            minutes = (double) (endTime - startTime) / (1000 * 60);
+                            outputBuilder.append(String.format("%-12s", String.format("%.5f", minutes)));
                             break;
                         case 3:
-                            Index3 i3 = new Index3(dataFile);
+                            startTime = System.currentTimeMillis();
+                            new Index3(dataFile);
+                            endTime = System.currentTimeMillis();
+                            minutes = (double) (endTime - startTime) / (1000 * 60);
+                            outputBuilder.append(String.format("%-12s", String.format("%.5f", minutes)));
                             break;
                         case 4:
-                            Index4 i4 = new Index4(dataFile);
+                            startTime = System.currentTimeMillis();
+                            new Index4(dataFile);
+                            endTime = System.currentTimeMillis();
+                            minutes = (double) (endTime - startTime) / (1000 * 60);
+                            outputBuilder.append(String.format("%-12s", String.format("%.5f", minutes)));
                             break;
                         case 5:
-                            output = "Testing index 5a with file of size " + fileSize;
-                            System.out.println(output);
-                            writer.println(output);
                             startTime = System.currentTimeMillis();
-                            Index5a i5a = new Index5a(dataFile);
-                            endTime = System.currentTimeMillis();
-                            double minutes = (double) (endTime - startTime) / (1000 * 60);
-                            output = String.format("Preprocessing for index 5a completed in %.5f minutes.", minutes);
-                            System.out.println(output);
-                            writer.println(output);
-
-                            output = "Testing index 5b with file of size " + fileSize;
-                            System.out.println(output);
-                            writer.println(output);
-                            startTime = System.currentTimeMillis();
-                            Index5b i5b = new Index5b(dataFile);
+                            new Index5a(dataFile);
                             endTime = System.currentTimeMillis();
                             minutes = (double) (endTime - startTime) / (1000 * 60);
-                            output = String.format("Preprocessing for index 5b completed in %.5f minutes.", minutes);
-                            System.out.println(output);
-                            writer.println(output);
+                            outputBuilder.append(String.format("%-12s", String.format("%.5f", minutes)));
 
-                            output = "Testing index 5c with file of size " + fileSize;
-                            System.out.println(output);
-                            writer.println(output);
                             startTime = System.currentTimeMillis();
-                            Index5c i5c = new Index5c(dataFile);
+                            new Index5b(dataFile);
                             endTime = System.currentTimeMillis();
                             minutes = (double) (endTime - startTime) / (1000 * 60);
-                            output = String.format("Preprocessing for index 5c completed in %.5f minutes.", minutes);
-                            System.out.println(output);
-                            writer.println(output);
-                            continue;
+                            outputBuilder.append(String.format("%-12s", String.format("%.5f", minutes)));
+
+                            startTime = System.currentTimeMillis();
+                            new Index5c(dataFile);
+                            endTime = System.currentTimeMillis();
+                            minutes = (double) (endTime - startTime) / (1000 * 60);
+                            outputBuilder.append(String.format("%-12s", String.format("%.5f", minutes)));
+                            break;
                         case 6:
-                            output = "Testing index 6a with file of size " + fileSize;
-                            System.out.println(output);
-                            writer.println(output);
                             startTime = System.currentTimeMillis();
-                            Index6a i6a = new Index6a(dataFile);
+                            new Index6a(dataFile);
                             endTime = System.currentTimeMillis();
                             minutes = (double) (endTime - startTime) / (1000 * 60);
-                            output = String.format("Preprocessing for index 6a completed in %.5f minutes.", minutes);
-                            System.out.println(output);
-                            writer.println(output);
+                            outputBuilder.append(String.format("%-12s", String.format("%.5f", minutes)));
 
-                            output = "Testing index 6b with file of size " + fileSize;
-                            System.out.println(output);
-                            writer.println(output);
                             startTime = System.currentTimeMillis();
-                            Index6b i6b = new Index6b(dataFile);
+                            new Index6b(dataFile);
                             endTime = System.currentTimeMillis();
                             minutes = (double) (endTime - startTime) / (1000 * 60);
-                            output = String.format("Preprocessing for index 6b completed in %.5f minutes.", minutes);
-                            System.out.println(output);
-                            writer.println(output);
-                            continue;
+                            outputBuilder.append(String.format("%-12s", String.format("%.5f", minutes)));
+                            break;
                     }
-                    endTime = System.currentTimeMillis();
-                    double minutes = (double) (endTime - startTime) / (1000 * 60);
-                    output = String.format("Preprocessing completed in %.5f minutes.", minutes);
-                    System.out.println(output);
-                    writer.println(output);
                 }
+                outputBuilder.append("\n");
             }
+            writer.print(outputBuilder.toString());
         } catch (IOException e) {
             System.out.println("An error occurred while writing to the file.");
             e.printStackTrace();
@@ -144,9 +146,6 @@ public class TestDriver {
     private static boolean shouldSkipIndex3(String fileSize) {
         String unit = fileSize.replaceAll("[^a-zA-Z]", "");
         long size = Long.parseLong(fileSize.replaceAll("[^0-9]", ""));
-        if (unit.equalsIgnoreCase("MB") && size > 5) {
-            return true;
-        }
-        return unit.equalsIgnoreCase("GB") || unit.equalsIgnoreCase("TB");
+        return unit.equalsIgnoreCase("MB") && size > 5 || unit.equalsIgnoreCase("GB") || unit.equalsIgnoreCase("TB");
     }
 }
