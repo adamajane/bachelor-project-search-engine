@@ -346,29 +346,4 @@ public class Index6a {
         int memoryUsage = 8 * (int) Math.ceil(((numChars * 2) + 38) / 8.0);
         return memoryUsage;
     }
-
-    public static void main(String[] args) {
-        // String filePath = "...";
-        //long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-
-        System.out.println("Preprocessing " + FULL_FILE_PATH);
-        Index6a index = new Index6a(FULL_FILE_PATH);
-        //long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-        //System.out.println("Memory Used:" + (afterUsedMem-beforeUsedMem));
-        //System.out.println(index.countDocuments());
-
-        long heapSize = Runtime.getRuntime().totalMemory();
-        System.out.println("Current heap size: " + heapSize / (1024 * 1024) + " MB");
-
-        Scanner console = new Scanner(System.in);
-        while (true) {
-            System.out.println("Input search string or type 'exit' to stop");
-            String searchString = console.nextLine();
-            if (searchString.equals("exit")) {
-                break;
-            }
-            index.search(searchString);
-        }
-        console.close();
-    }
 }

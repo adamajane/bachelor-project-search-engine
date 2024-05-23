@@ -277,26 +277,7 @@ public class Index5c {
         currentDoc.tail = newDoc; // Update the tail pointer
     }
 
-    public static void main(String[] args) {
-        // String filePath = "...";
-        // long beforeUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-
-        System.out.println("Preprocessing " + FULL_FILE_PATH);
-        Index5c index = new Index5c(FULL_FILE_PATH);
-        // long afterUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-        // System.out.println("Memory Used:" + (afterUsedMem - beforeUsedMem));
-        System.out.println("Number of articles: " + index.documentNames.size());
-
-
-        Scanner console = new Scanner(System.in);
-        while (true) {
-            System.out.println("Input search string or type 'exit' to stop");
-            String searchString = console.nextLine().toLowerCase();
-            if (searchString.equals("exit")) {
-                break;
-            }
-            index.search(searchString);
-        }
-        console.close();
+    public ArrayList<String> getDocumentNames() {
+        return documentNames;
     }
 }

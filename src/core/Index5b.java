@@ -262,26 +262,4 @@ public class Index5b {
         currentDoc.tail.next = newDoc;
         currentDoc.tail = newDoc; // Update the tail pointer
     }
-
-    public static void main(String[] args) {
-        // String filePath = "...";
-        long beforeUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-
-        System.out.println("Preprocessing " + FULL_FILE_PATH);
-        Index5b index = new Index5b(FULL_FILE_PATH);
-        long afterUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-        System.out.println("Memory Used:" + (afterUsedMem - beforeUsedMem));
-
-
-        Scanner console = new Scanner(System.in);
-        while (true) {
-            System.out.println("Input search string or type 'exit' to stop");
-            String searchString = console.nextLine();
-            if (searchString.equals("exit")) {
-                break;
-            }
-            index.search(searchString);
-        }
-        console.close();
-    }
 }

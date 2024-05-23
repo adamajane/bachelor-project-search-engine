@@ -106,7 +106,6 @@ public class Index5a {
         long endTime = System.currentTimeMillis(); // End timing
         double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
-        System.out.println("Total memory used: " + totalBytesUsed + " bytes (" + totalBytesUsed / (1024 * 1024) + " MB).");
     }
 
     // Using modulus instead of logical AND, reduced the running time by half!!
@@ -295,24 +294,11 @@ public class Index5a {
         return arrayListMemory;
     }
 
-    public static void main(String[] args) {
-        System.out.println("Preprocessing " + FULL_FILE_PATH);
-        Index5a index = new Index5a(FULL_FILE_PATH);
-        System.out.println("Total memory used: " + index.totalBytesUsed + " bytes (" + index.totalBytesUsed / (1024 * 1024) + " MB).");
+    public ArrayList<String> getDocumentNames() {
+        return documentNames;
+    }
 
-        System.out.println("Number of articles: " + index.documentNames.size());
-        long heapSize = Runtime.getRuntime().totalMemory();
-        System.out.println("Current heap size: " + heapSize / (1024 * 1024) + " MB");
-
-        Scanner console = new Scanner(System.in);
-        while (true) {
-            System.out.println("Input search string or type 'exit' to stop");
-            String searchString = console.nextLine();
-            if (searchString.equals("exit")) {
-                break;
-            }
-            index.search(searchString);
-        }
-        console.close();
+    public long getTotalBytesUsed() {
+        return totalBytesUsed;
     }
 }

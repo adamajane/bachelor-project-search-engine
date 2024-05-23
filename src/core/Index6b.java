@@ -264,7 +264,8 @@ public class Index6b {
         WikiItem foundItem = findWikiItem(searchString);
 
         if (foundItem != null) {
-            System.out.println("Documents associated with '" + searchString + "':");
+            // System.out.println("Documents associated with '" + searchString + "':");
+            System.out.println("Showing results for " + searchString + ":");
             byte[] encodedDiffs = foundItem.documentDiffs.toByteArray();
             ByteArrayInputStream input = new ByteArrayInputStream(encodedDiffs);
             int docId = readVByte(input);  // Decode the first docId
@@ -361,31 +362,5 @@ public class Index6b {
         int numChars = s.length();
         int memoryUsage = 8 * (int) Math.ceil(((numChars * 2) + 38) / 8.0);
         return memoryUsage;
-    }
-
-    public static void main(String[] args) {
-        // String filePath = "...";
-        //long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-
-        System.out.println("Preprocessing " + FULL_FILE_PATH);
-        Index6b index = new Index6b(FULL_FILE_PATH);
-        //long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-        //System.out.println("Memory Used:" + (afterUsedMem-beforeUsedMem));
-        //System.out.println(index.countDocuments());
-
-        long heapSize = Runtime.getRuntime().totalMemory();
-        System.out.println("Current heap size: " + heapSize / (1024 * 1024) + " MB");
-
-        Scanner console = new Scanner(System.in);
-        while (true) {
-            System.out.println("Input search string or type 'exit' to stop");
-            String searchString = console.nextLine().toLowerCase();
-            ;
-            if (searchString.equals("exit")) {
-                break;
-            }
-            index.search(searchString);
-        }
-        console.close();
     }
 }
