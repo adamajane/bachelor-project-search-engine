@@ -14,23 +14,23 @@ public class TestDriver {
     public static final String OLIVER_MAC = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/";
     public static final String ADAM_MAC = "/Users/Adam/IdeaProjects/bachelor-project-search-engine/data-files/";
 
-    public static final String CURRENT_FILE_PATH = OLIVER_WINDOWS;
+    public static final String CURRENT_FILE_PATH = OLIVER_MAC;
 
     public static void main(String[] args) {
 
         // List of all data files
         List<String> dataFiles = Arrays.asList(
-                CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_100KB.txt",
-                CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_1MB.txt"
-                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_2MB.txt"
-                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_5MB.txt"
-                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_10MB.txt"
-                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_20MB.txt"
-                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_50MB.txt"
-                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_100MB.txt"
-                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_200MB.txt"
-                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_400MB.txt"
-                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_800MB.txt"
+                CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_100KB.txt"
+                , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_1MB.txt"
+                , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_2MB.txt"
+                , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_5MB.txt"
+                , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_10MB.txt"
+                , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_20MB.txt"
+                , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_50MB.txt"
+                , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_100MB.txt"
+                , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_200MB.txt"
+                , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_400MB.txt"
+                , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_800MB.txt"
                 //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004.txt"
         );
 
@@ -53,6 +53,8 @@ public class TestDriver {
             for (String dataFile : dataFiles) {
                 String fileSize = extractFileSize(dataFile);
                 boolean skipIndex3 = shouldSkipIndex3(fileSize);
+                boolean skipIndex1 = shouldSkipIndex1(fileSize);
+                boolean skipIndex2 = shouldSkipIndex2(fileSize);
 
                 outputBuilder.append(String.format("%-10s", fileSize));
 
@@ -61,6 +63,14 @@ public class TestDriver {
                     long endTime;
                     double minutes;
                     if (index == 3 && skipIndex3) {
+                        outputBuilder.append(String.format("%-12s", "Skipped"));
+                        continue;
+                    }
+                    if (index == 1 && skipIndex1) {
+                        outputBuilder.append(String.format("%-12s", "Skipped"));
+                        continue;
+                    }
+                    if (index == 2 && skipIndex2) {
                         outputBuilder.append(String.format("%-12s", "Skipped"));
                         continue;
                     }
@@ -147,5 +157,15 @@ public class TestDriver {
         String unit = fileSize.replaceAll("[^a-zA-Z]", "");
         long size = Long.parseLong(fileSize.replaceAll("[^0-9]", ""));
         return unit.equalsIgnoreCase("MB") && size > 5 || unit.equalsIgnoreCase("GB") || unit.equalsIgnoreCase("TB");
+    }
+    private static boolean shouldSkipIndex1(String fileSize) {
+        String unit = fileSize.replaceAll("[^a-zA-Z]", "");
+        long size = Long.parseLong(fileSize.replaceAll("[^0-9]", ""));
+        return unit.equalsIgnoreCase("MB") && size > 200 || unit.equalsIgnoreCase("GB") || unit.equalsIgnoreCase("TB");
+    }
+    private static boolean shouldSkipIndex2(String fileSize) {
+        String unit = fileSize.replaceAll("[^a-zA-Z]", "");
+        long size = Long.parseLong(fileSize.replaceAll("[^0-9]", ""));
+        return unit.equalsIgnoreCase("MB") && size > 200 || unit.equalsIgnoreCase("GB") || unit.equalsIgnoreCase("TB");
     }
 }
