@@ -8,8 +8,11 @@ import static util.Config.*;
 
 public class Index5d {
 
-    /* This index implements  improves on 5a, because it uses an arrayList to contain
-    the documents for each wikiItem, instead of a linked list. This saves a lot of memory.
+    /* This index implements space efficiency features.
+    It modifies Index4 to use an index array for the article titles in the linked list of documents
+    instead of the string name.
+
+    In this index (Index5a), an ArrayList is used for the index array and for the document list.
     */
 
     private WikiItem[] hashTable;
@@ -239,7 +242,9 @@ public class Index5d {
 
     // Helper method to estimate memory usage of a WikiItem object
     private long estimateMemoryUsage(WikiItem item) {
-        return 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, ArrayList, and next WikiItem (4 bytes each)
+        long memoryUsage = 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, ArrayList, and next WikiItem (4 bytes each)
+        memoryUsage += estimateMemoryUsage(item.documents); // Add memory usage of the ArrayList
+        return memoryUsage;
     }
 
     // Helper method to estimate memory usage of an array
@@ -247,13 +252,17 @@ public class Index5d {
         return 12 + (array.length * 4); // Array header (12 bytes) + 4 bytes per reference
     }
 
-    // Helper method to estimate memory usage of an ArrayList
-    private long estimateMemoryUsage(ArrayList<String> arrayList) {
+    // Generic helper method to estimate memory usage of an ArrayList
+    private long estimateMemoryUsage(ArrayList<?> arrayList) {
         long arrayListMemory = 12 + 4 + 4 + 4; // ArrayList object header (12 bytes) + 4 bytes each for size, modCount, and elementData array reference
         if (arrayList.size() > 0) {
             arrayListMemory += 12 + (arrayList.size() * 4); // elementData array header (12 bytes) + 4 bytes per reference
-            for (String s : arrayList) {
-                arrayListMemory += estimateMemoryUsage(s);
+            for (Object element : arrayList) {
+                if (element instanceof String) {
+                    arrayListMemory += estimateMemoryUsage((String) element);
+                } else if (element instanceof Integer) {
+                    arrayListMemory += 4; // Integer size in bytes
+                }
             }
         }
         return arrayListMemory;
