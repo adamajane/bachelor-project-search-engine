@@ -130,6 +130,26 @@ public class Driver {
                     i5c.search(searchString);
                 }
                 break;
+            case "5d":
+                // long beforeUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+
+                System.out.println("Preprocessing " + FULL_FILE_PATH);
+                Index5d i5d = new Index5d(FULL_FILE_PATH);
+
+                System.out.println("Total memory used: " + i5d.getTotalBytesUsed() + " bytes (" + i5d.getTotalBytesUsed() / (1024 * 1024) + " MB).");
+                System.out.println("Number of articles: " + i5d.getDocumentNames().size());
+
+                System.out.println("Number of articles: " + i5d.getDocumentNames().size());
+
+                while (true) {
+                    System.out.println("Input search string or type 'exit' to stop");
+                    searchString = console.nextLine().toLowerCase();
+                    if (searchString.equals("exit")) {
+                        break;
+                    }
+                    i5d.search(searchString);
+                }
+                break;
             case "6a":
                 //long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
 
