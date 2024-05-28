@@ -200,7 +200,7 @@ public class Index4 {
         WikiItem foundItem = findWikiItem(searchString);
 
         long endTime = System.nanoTime(); // End timing
-        double timeTaken = (double) (endTime - startTime) / 1_000_000; // Convert to milliseconds
+        double timeTaken = (double) (endTime - startTime) ; // Convert to milliseconds
 
         if (foundItem != null) {
             System.out.println("Documents associated with '" + searchString + "':");
