@@ -69,7 +69,7 @@ public class Index4 {
                         currentTitle = currentTitle + " " + word; // Append words
                     }
 
-                    if (word.endsWith(".")) {
+                    if (word.endsWith(".") || word.endsWith("!") || word.endsWith("?")) {
                         readingTitle = false;
                     }
                 } else {

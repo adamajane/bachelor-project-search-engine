@@ -66,7 +66,7 @@ public class Index3 {
 
                 for (String word : words) {
                     if (readingTitle) {
-                        if (word.endsWith(".")) {
+                        if (word.endsWith(".") || word.endsWith("!") || word.endsWith("?")) {
                             currentTitle = documentContent.toString() + word;
                             readingTitle = false;
                         } else {
@@ -194,7 +194,7 @@ public class Index3 {
 
     // Helper method to estimate memory usage of a WikiItem object
     private long estimateMemoryUsage(WikiItem item) {
-        return 4 + 4 + 4 + 12 ; //   references to String, DocumentList, and next WikiItem (4 bytes each)+ Object header (12 bytes)
+        return 4 + 4 + 4 + 12; //   references to String, DocumentList, and next WikiItem (4 bytes each)+ Object header (12 bytes)
     }
 
     // Helper method to estimate memory usage of a DocumentList object

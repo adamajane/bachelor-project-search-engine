@@ -50,7 +50,7 @@ public class Index2 {
         boolean found = false;
 
         while (current != null) {
-            if (current.str.endsWith(".")) {
+            if (current.str.endsWith(".") || current.str.endsWith("!") || current.str.endsWith("?")) {
                 // Potential document title
                 String documentTitle = current.str;
                 StringBuilder documentContent = new StringBuilder();
