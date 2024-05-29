@@ -11,12 +11,7 @@ public class Index6b {
     /*
     This index implements compression techniques to further reduce memory usage.
 
-    It builds up Index5a to use a hash table for the index.
-
-    In addition, it uses a difference array and variable byte encoding for storing document IDs,
-    making the index more compact.
-
-    This index builds upon Index6a and removes punctuation and converts all words to lowercase to further reduce memory usage.
+    It builds up Index6a and removes punctuation and converts all words to lowercase to further reduce memory usage.
     */
 
     private WikiItem[] hashTable;

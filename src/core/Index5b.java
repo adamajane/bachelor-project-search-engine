@@ -2,6 +2,7 @@ package core;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import static util.Config.*;
@@ -21,6 +22,7 @@ public class Index5b {
     private int documentNamesSize = 0; // Track the number of document names
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
+    private long totalBytesUsed = 0; // Global byte counter
 
     private class WikiItem {
         String searchString;
@@ -31,6 +33,10 @@ public class Index5b {
             this.searchString = s;
             this.documents = d;
             this.next = n;
+
+            // Estimate memory used by this WikiItem
+            totalBytesUsed += estimateMemoryUsage(s);
+            totalBytesUsed += estimateMemoryUsage(this);
         }
     }
 
@@ -43,12 +49,16 @@ public class Index5b {
             this.documentName = documentName;
             this.next = next;
             this.tail = this;
+
+            // Estimate memory used by this DocumentList
+            totalBytesUsed += estimateMemoryUsage(this);
         }
     }
 
     public Index5b(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
+        totalBytesUsed += estimateMemoryUsage(hashTable);
         documentNames = new String[100]; // Initialize the document names array with an initial capacity
 
         try {
@@ -71,7 +81,7 @@ public class Index5b {
                     if (word.endsWith(".")) {
                         readingTitle = false;
                         addDocumentName(currentTitle);
-
+                        totalBytesUsed += estimateMemoryUsage(currentTitle);
                     }
                 } else {
                     if (word.equals("---END.OF.DOCUMENT---")) {
@@ -92,6 +102,9 @@ public class Index5b {
         } catch (FileNotFoundException e) {
             System.out.println("Error reading file " + filename);
         }
+
+        totalBytesUsed += estimateMemoryUsage(Arrays.toString(documentNames));
+
         long endTime = System.currentTimeMillis(); // End timing
         double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
@@ -196,6 +209,7 @@ public class Index5b {
 
         hashTable = tempTable;
         tableSize = newTableSize;
+        totalBytesUsed += estimateMemoryUsage(tempTable);
 
         System.out.println("Resize complete. New size: " + tableSize); // Log end
     }
@@ -261,5 +275,47 @@ public class Index5b {
         DocumentList newDoc = new DocumentList(documentId, null);
         currentDoc.tail.next = newDoc;
         currentDoc.tail = newDoc; // Update the tail pointer
+    }
+
+    // Helper method to estimate memory usage of a String object using the given formula
+    private long estimateMemoryUsage(String s) {
+        int numChars = s.length();
+        int memoryUsage = 8 * (int) Math.ceil(((numChars * 2) + 38) / 8.0);
+        return memoryUsage;
+    }
+
+    // Helper method to estimate memory usage of a WikiItem object
+    private long estimateMemoryUsage(WikiItem item) {
+        return 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, DocumentList, and next WikiItem (4 bytes each)
+    }
+
+    // Helper method to estimate memory usage of a DocumentList object
+    private long estimateMemoryUsage(DocumentList item) {
+        return 12 + 4 + 4 + 4; // Object header (12 bytes) + int (4 bytes) + references to next DocumentList and tail DocumentList (4 bytes each)
+    }
+
+    // Helper method to estimate memory usage of an array
+    private long estimateMemoryUsage(WikiItem[] array) {
+        return 12 + (array.length * 4); // Array header (12 bytes) + 4 bytes per reference
+    }
+
+    // Helper method to estimate memory usage of an ArrayList
+    private long estimateMemoryUsage(ArrayList<String> arrayList) {
+        long arrayListMemory = 12 + 4 + 4 + 4; // ArrayList object header (12 bytes) + 4 bytes each for size, modCount, and elementData array reference
+        if (arrayList.size() > 0) {
+            arrayListMemory += 12 + (arrayList.size() * 4); // elementData array header (12 bytes) + 4 bytes per reference
+            for (String s : arrayList) {
+                arrayListMemory += estimateMemoryUsage(s);
+            }
+        }
+        return arrayListMemory;
+    }
+
+    public long getTotalBytesUsed() {
+        return totalBytesUsed;
+    }
+
+    public String[] getDocumentNames() {
+        return documentNames;
     }
 }

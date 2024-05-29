@@ -101,6 +101,9 @@ public class Driver {
                 // long afterUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
                 // System.out.println("Memory Used: " + (afterUsedMem - beforeUsedMem));
 
+                System.out.println("Total memory used: " + i5b.getTotalBytesUsed() + " bytes (" + i5b.getTotalBytesUsed() / (1024 * 1024) + " MB).");
+                System.out.println("Number of articles: " + i5b.getDocumentNames().length);
+
                 while (true) {
                     System.out.println("Input search string or type 'exit' to stop");
                     searchString = console.nextLine();
@@ -119,6 +122,7 @@ public class Driver {
                 // long afterUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
                 // System.out.println("Memory Used: " + (afterUsedMem - beforeUsedMem));
 
+                System.out.println("Total memory used: " + i5c.getTotalBytesUsed() + " bytes (" + i5c.getTotalBytesUsed() / (1024 * 1024) + " MB).");
                 System.out.println("Number of articles: " + i5c.getDocumentNames().size());
 
                 while (true) {
@@ -148,6 +152,24 @@ public class Driver {
                         break;
                     }
                     i5d.search(searchString);
+                }
+                break;
+            case "5e":
+                // long beforeUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+
+                System.out.println("Preprocessing " + FULL_FILE_PATH);
+                Index5d i5e = new Index5d(FULL_FILE_PATH);
+
+                System.out.println("Total memory used: " + i5e.getTotalBytesUsed() + " bytes (" + i5e.getTotalBytesUsed() / (1024 * 1024) + " MB).");
+                System.out.println("Number of articles: " + i5e.getDocumentNames().size());
+
+                while (true) {
+                    System.out.println("Input search string or type 'exit' to stop");
+                    searchString = console.nextLine().toLowerCase();
+                    if (searchString.equals("exit")) {
+                        break;
+                    }
+                    i5e.search(searchString);
                 }
                 break;
             case "6a":

@@ -4,17 +4,15 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import static util.Config.*;
-
 public class Index6a {
 
     /*
     This index implements compression techniques to further reduce memory usage.
 
-    It builds up Index5a to use a hash table for the index.
+    It builds up Index5a, which uses an ArrayList for the index array.
 
-    In addition, it uses a difference array and variable byte encoding for storing document IDs,
-    making the index more compact.
+    In addition, it uses a difference array and variable byte encoding for storing document IDs to make the
+    index more compact.
     */
 
     private WikiItem[] hashTable;
@@ -184,6 +182,40 @@ public class Index6a {
     }
     */
 
+    public boolean printByteArrayOfWord(String word) {
+        WikiItem item = findWikiItem(word);
+        if (item != null) {
+            byte[] bytes = item.documentDiffs.toByteArray();
+            System.out.print("ByteArrayOutputStream for word '" + word + "': ");
+            for (byte b : bytes) {
+                System.out.print(b + " ");
+            }
+            System.out.println();
+        } else {
+            System.out.println("Word '" + word + "' not found in the index.");
+        }
+        return false;
+    }
+
+    public boolean printByteArrayOfWord2(String word) {
+        WikiItem item = findWikiItem(word);
+        if (item != null) {
+            byte[] bytes = item.documentDiffs.toByteArray();
+            System.out.print("ByteArrayOutputStream for word '" + word + "': ");
+            for (byte b : bytes) {
+                String binaryString = Integer.toBinaryString(b & 0xFF);
+                while (binaryString.length() < 8) {  // Add leading zeros
+                    binaryString = "0" + binaryString;
+                }
+                System.out.print(binaryString + " ");
+            }
+            System.out.println();
+        } else {
+            System.out.println("Word '" + word + "' not found in the index.");
+        }
+        return false;
+    }
+
     private int nextPrime(int input) {
         int counter;
         boolean prime = false;
@@ -249,6 +281,8 @@ public class Index6a {
 
         if (foundItem != null) {
             System.out.println("Documents associated with '" + searchString + "':");
+            System.out.println(printByteArrayOfWord(searchString));
+            System.out.println(printByteArrayOfWord2(searchString));
             byte[] encodedDiffs = foundItem.documentDiffs.toByteArray();
             ByteArrayInputStream input = new ByteArrayInputStream(encodedDiffs);
             int docId = readVByte(input);  // Decode the first docId

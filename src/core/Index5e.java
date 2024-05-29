@@ -6,13 +6,13 @@ import java.util.Scanner;
 
 import static util.Config.*;
 
-public class Index5d {
+public class Index5e {
+
 
     /* This index implements space efficiency features.
-    It modifies Index4 to use an index array for the article titles in the linked list of documents
-    instead of the string name.
+    It modifies Index5a to use an ArrayList for documentNames instead of a linked list, which saves memory.
 
-    In this index (Index5d), an ArrayList is used for the index array and for the document list.
+    This index builds upon Index5d and removes punctuation and converts all words to lowercase.
     */
 
     private WikiItem[] hashTable;
@@ -21,6 +21,7 @@ public class Index5d {
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
     private long totalBytesUsed = 0; // Global byte counter
+    private StringBuilder sb = new StringBuilder();
 
     private class WikiItem {
         String searchString;
@@ -40,7 +41,7 @@ public class Index5d {
         }
     }
 
-    public Index5d(String filename) {
+    public Index5e(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
         totalBytesUsed += estimateMemoryUsage(hashTable);
@@ -111,6 +112,22 @@ public class Index5d {
     }
 
     private void addWordToIndex(String word, int docId) {
+
+        // Clear the StringBuilder
+        sb.setLength(0);
+
+        // Use StringBuilder to remove punctuation and convert to lowercase
+        // StringBuilder sb = new StringBuilder();
+        for (char c : word.toCharArray()) {
+            if (Character.isLetter(c)) {
+                sb.append(c);
+            }
+        }
+
+        word = sb.toString().toLowerCase();
+
+        // FIXME: Punctuation removal and lowercase not working properly
+
         double currentLoadFactor = (double) (numItems + 1) / tableSize;
 
         if (currentLoadFactor > loadFactor) {
@@ -242,9 +259,7 @@ public class Index5d {
 
     // Helper method to estimate memory usage of a WikiItem object
     private long estimateMemoryUsage(WikiItem item) {
-        long memoryUsage = 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, ArrayList, and next WikiItem (4 bytes each)
-        memoryUsage += estimateMemoryUsage(item.documents); // Add memory usage of the ArrayList
-        return memoryUsage;
+        return 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, ArrayList, and next WikiItem (4 bytes each)
     }
 
     // Helper method to estimate memory usage of an array
@@ -252,17 +267,13 @@ public class Index5d {
         return 12 + (array.length * 4); // Array header (12 bytes) + 4 bytes per reference
     }
 
-    // Generic helper method to estimate memory usage of an ArrayList
-    private long estimateMemoryUsage(ArrayList<?> arrayList) {
+    // Helper method to estimate memory usage of an ArrayList
+    private long estimateMemoryUsage(ArrayList<String> arrayList) {
         long arrayListMemory = 12 + 4 + 4 + 4; // ArrayList object header (12 bytes) + 4 bytes each for size, modCount, and elementData array reference
         if (arrayList.size() > 0) {
             arrayListMemory += 12 + (arrayList.size() * 4); // elementData array header (12 bytes) + 4 bytes per reference
-            for (Object element : arrayList) {
-                if (element instanceof String) {
-                    arrayListMemory += estimateMemoryUsage((String) element);
-                } else if (element instanceof Integer) {
-                    arrayListMemory += 4; // Integer size in bytes
-                }
+            for (String s : arrayList) {
+                arrayListMemory += estimateMemoryUsage(s);
             }
         }
         return arrayListMemory;

@@ -17,7 +17,7 @@ public class Index5a {
 
     private WikiItem[] hashTable;
     private int tableSize = 49999;
-    private ArrayList<String> documentNames;
+    private ArrayList<String> documentNames; // Index array for document titles
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
     private long totalBytesUsed = 0; // Global byte counter
@@ -57,7 +57,7 @@ public class Index5a {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
         totalBytesUsed += estimateMemoryUsage(hashTable);
-        documentNames = new ArrayList<>(); // Initialize the document names list
+        documentNames = new ArrayList<>(); // Initialize the index array
 
         try {
             Scanner input = new Scanner(new File(filename), "UTF-8");
@@ -78,13 +78,14 @@ public class Index5a {
 
                     if (word.endsWith(".")) {
                         readingTitle = false;
-                        documentNames.add(currentTitle);
+                        documentNames.add(currentTitle); // Add document title to the index array
                         totalBytesUsed += estimateMemoryUsage(currentTitle);
                     }
                 } else {
                     if (word.equals("---END.OF.DOCUMENT---")) {
                         Scanner contentScanner = new Scanner(documentContent.toString());
                         while (contentScanner.hasNext()) {
+                            // Store the index of the document title in the DocumentList
                             addWordToIndex(contentScanner.next(), documentNames.size() - 1);
                         }
                         readingTitle = true;
@@ -216,6 +217,7 @@ public class Index5a {
                 System.out.println("  No documents found.");
             } else {
                 while (currentDoc != null) {
+                    // Retrieve the document title from the index array
                     System.out.println("  - " + documentNames.get(currentDoc.documentName));
                     currentDoc = currentDoc.next;
                 }
