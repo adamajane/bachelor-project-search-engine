@@ -19,7 +19,7 @@ public class Index6b {
     private ArrayList<String> documentNames;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
-    private long totalBytesUsed = 0; // Global byte counter
+    public long totalBytesUsed = 0; // Global byte counter
     private StringBuilder sb = new StringBuilder();
 
     private class WikiItem {

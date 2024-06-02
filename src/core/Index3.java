@@ -16,7 +16,7 @@ public class Index3 {
     */
 
     private WikiItem index; // Represents the head of our main index
-    private long totalBytesUsed = 0; // Global byte counter
+    public long totalBytesUsed = 0; // Global byte counter
 
     private class WikiItem {
         String searchString;
@@ -120,7 +120,7 @@ public class Index3 {
 
 
     public void search(String searchString) {
-        long startTime = System.currentTimeMillis(); // Start timing
+        long startTime = System.nanoTime(); // Start timing in nanoseconds
         WikiItem foundItem = findWikiItem(searchString);
         if (foundItem != null) {
             System.out.println("Documents associated with '" + searchString + "':");
@@ -136,10 +136,11 @@ public class Index3 {
         } else {
             System.out.println(searchString + " not found in the index.");
         }
-        long endTime = System.currentTimeMillis(); // End timing
+        long endTime = System.nanoTime(); // End timing in nanoseconds
         long elapsedTime = endTime - startTime;
-        System.out.println("Search query time: " + elapsedTime + " ms"); // Print the time taken
+        System.out.println("Search query time: " + elapsedTime + " ns"); // Print the time taken
     }
+
 
     // Finds a WikiItem with the given searchString or returns null
     private WikiItem findWikiItem(String searchString) {

@@ -3,27 +3,20 @@ package core;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
-import static util.Config.FULL_FILE_PATH;
-
 public class Index5c {
 
-    /* This index implements space efficiency features.
-    It modifies Index4 to use an index array for the article titles in the linked list of documents
-    instead of the string name.
-
-    This index builds upon Index5a and removes punctuation and converts all words to lowercase.
-    */
+    // Modifies Index4 to use an index array for the article titles in the linked list of documents instead of the string name.
+    // This index builds upon Index5a and removes punctuation and converts all words to lowercase.
 
     private WikiItem[] hashTable;
     private int tableSize = 49999;
     private ArrayList<String> documentNames;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
-    private long totalBytesUsed = 0; // Global byte counter
+    public long totalBytesUsed = 0; // Global byte counter
     private StringBuilder sb = new StringBuilder();
 
     private class WikiItem {
@@ -83,7 +76,6 @@ public class Index5c {
                     if (word.endsWith(".")) {
                         readingTitle = false;
                         documentNames.add(currentTitle);
-                        totalBytesUsed += estimateMemoryUsage(currentTitle);
                     }
                 } else {
                     if (word.equals("---END.OF.DOCUMENT---")) {
@@ -105,11 +97,13 @@ public class Index5c {
             System.out.println("Error reading file " + filename);
         }
 
+        // Total memory usage of the documentNames ArrayList including the strings it contains
         totalBytesUsed += estimateMemoryUsage(documentNames);
 
         long endTime = System.currentTimeMillis(); // End timing
         double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
+        System.out.println("Total memory used: " + totalBytesUsed + " bytes (" + totalBytesUsed / (1024 * 1024) + " MB).");
     }
 
     // Using modulus instead of logical AND, reduced the running time by half!!
@@ -128,33 +122,16 @@ public class Index5c {
     }
 
     private void addWordToIndex(String word, int docId) {
-
-        // List of words to ignore
-        List<String> ignoreWords = Arrays.asList("the", "an");
-
         // Remove punctuation and convert to lowercase
-        // word = word.replaceAll("[^a-zA-Z ]", "").toLowerCase();
-
-        // Clear the StringBuilder
         sb.setLength(0);
-
-        // Use StringBuilder to remove punctuation and convert to lowercase
-        // StringBuilder sb = new StringBuilder();
         for (char c : word.toCharArray()) {
             if (Character.isLetter(c)) {
                 sb.append(c);
             }
         }
-
         // TODO: The above for-loop removes all punctuation. Note some words (like jiu-jitsu) contain hyphens.
         //  We should consider how to handle these cases.
-
         word = sb.toString().toLowerCase();
-
-        // Skip if the word is in the ignore list
-        if (ignoreWords.contains(word)) {
-            return;
-        }
 
         double currentLoadFactor = (double) (numItems + 1) / tableSize;
 
@@ -172,7 +149,6 @@ public class Index5c {
         } else {
             addDocumentToWikiItem(existingItem, docId);
         }
-
     }
 
     private int nextPrime(int input) {
@@ -234,8 +210,8 @@ public class Index5c {
         return hashValue;
     }
 
-
     public void search(String searchString) {
+        searchString = cleanWord(searchString); // Clean the search string
         WikiItem foundItem = findWikiItem(searchString);
 
         if (foundItem != null) {
@@ -255,13 +231,22 @@ public class Index5c {
         }
     }
 
+    private String cleanWord(String word) {
+        sb.setLength(0);
+        for (char c : word.toCharArray()) {
+            if (Character.isLetter(c)) {
+                sb.append(c);
+            }
+        }
+        return sb.toString().toLowerCase();
+    }
+
     private WikiItem findWikiItem(String searchString) {
         int hashIndex = hash(searchString);
         WikiItem current = hashTable[hashIndex];
 
         while (current != null) {
             if (current.searchString.equals(searchString)) {
-                //System.out.println("Found WikiItem for: " + searchString);
                 return current;
             }
             current = current.next;

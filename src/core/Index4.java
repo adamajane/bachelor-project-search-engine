@@ -13,7 +13,7 @@ public class Index4 {
     private int tableSize = 49999;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
-    private long totalBytesUsed = 0; // Global byte counter
+    public long totalBytesUsed = 0; // Global byte counter
 
     private class WikiItem {
         String searchString;
@@ -50,7 +50,6 @@ public class Index4 {
     public Index4(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
-        totalBytesUsed += estimateMemoryUsage(hashTable);
 
         try {
             Scanner input = new Scanner(new File(filename), "UTF-8");
@@ -93,12 +92,11 @@ public class Index4 {
         }
         long endTime = System.currentTimeMillis(); // End timing
         double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
+        totalBytesUsed += estimateMemoryUsage(hashTable); // Add the memory usage of the final hash table size
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
         System.out.println("Total memory used: " + totalBytesUsed + " bytes (" + totalBytesUsed / (1024 * 1024) + " MB).");
     }
 
-    // Using modulus instead of logical AND, reduced the running time by half!!
-    // Using java inbuilt hash function on strings now further increased runtime by 20-25%
     private int hash(String word) {
         // Use the built-in hashCode() method
         int hashValue = word.hashCode();
@@ -111,7 +109,6 @@ public class Index4 {
 
         return hashValue;
     }
-
 
     private void addWordToIndex(String word, String docTitle) {
 
@@ -131,7 +128,6 @@ public class Index4 {
         } else {
             addDocumentToWikiItem(existingItem, docTitle);
         }
-
     }
 
     private int nextPrime(int input) {
@@ -181,7 +177,6 @@ public class Index4 {
 
         hashTable = tempTable;
         tableSize = newTableSize;
-        totalBytesUsed += estimateMemoryUsage(tempTable);
 
         System.out.println("Resize complete. New size: " + tableSize); // Log end
     }
@@ -192,7 +187,6 @@ public class Index4 {
         hashValue = hashValue % newSize;
         return hashValue;
     }
-
 
     public void search(String searchString) {
         long startTime = System.nanoTime(); // Start timing
@@ -218,7 +212,7 @@ public class Index4 {
             System.out.println(searchString + " not found in the index.");
         }
 
-        System.out.println("Search query time: " + timeTaken + " ms"); // Print the time taken
+        System.out.println("Search query time: " + timeTaken + " ns"); // Print the time taken
     }
 
     private WikiItem findWikiItem(String searchString) {
@@ -227,7 +221,6 @@ public class Index4 {
 
         while (current != null) {
             if (current.searchString.equals(searchString)) {
-                //System.out.println("Found WikiItem for: " + searchString);
                 return current;
             }
             current = current.next;
@@ -277,5 +270,4 @@ public class Index4 {
     private long estimateMemoryUsage(WikiItem[] array) {
         return 12 + (array.length * 4); // Array header (12 bytes) + 4 bytes per reference
     }
-
 }

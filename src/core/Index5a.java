@@ -56,7 +56,6 @@ public class Index5a {
     public Index5a(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
-        totalBytesUsed += estimateMemoryUsage(hashTable);
         documentNames = new ArrayList<>(); // Initialize the index array
 
         try {
@@ -79,7 +78,6 @@ public class Index5a {
                     if (word.endsWith(".")) {
                         readingTitle = false;
                         documentNames.add(currentTitle); // Add document title to the index array
-                        totalBytesUsed += estimateMemoryUsage(currentTitle);
                     }
                 } else {
                     if (word.equals("---END.OF.DOCUMENT---")) {
@@ -103,6 +101,7 @@ public class Index5a {
         }
 
         totalBytesUsed += estimateMemoryUsage(documentNames);
+        totalBytesUsed += estimateMemoryUsage(hashTable);
 
         long endTime = System.currentTimeMillis(); // End timing
         double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
@@ -193,7 +192,6 @@ public class Index5a {
 
         hashTable = tempTable;
         tableSize = newTableSize;
-        totalBytesUsed += estimateMemoryUsage(tempTable);
 
         System.out.println("Resize complete. New size: " + tableSize); // Log end
     }

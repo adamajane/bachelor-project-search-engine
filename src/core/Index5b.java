@@ -1,7 +1,6 @@
 package core;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -9,12 +8,8 @@ import static util.Config.*;
 
 public class Index5b {
 
-    /* This index implements space efficiency features.
-    It modifies Index4 to use an index array for the article titles in the linked list of documents
-    instead of the string name.
-
-    In this index (Index5b), a string array is used for the index array
-    */
+    // Modifies Index4 to use an index array for the article titles in the linked list of documents instead of the string name.
+    // In this index (Index5b), a string array is used for the index array
 
     private WikiItem[] hashTable;
     private int tableSize = 49999;
@@ -22,7 +17,7 @@ public class Index5b {
     private int documentNamesSize = 0; // Track the number of document names
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
-    private long totalBytesUsed = 0; // Global byte counter
+    public long totalBytesUsed = 0; // Global byte counter
 
     private class WikiItem {
         String searchString;
@@ -81,7 +76,6 @@ public class Index5b {
                     if (word.endsWith(".")) {
                         readingTitle = false;
                         addDocumentName(currentTitle);
-                        totalBytesUsed += estimateMemoryUsage(currentTitle);
                     }
                 } else {
                     if (word.equals("---END.OF.DOCUMENT---")) {
@@ -103,11 +97,13 @@ public class Index5b {
             System.out.println("Error reading file " + filename);
         }
 
-        totalBytesUsed += estimateMemoryUsage(Arrays.toString(documentNames));
+        // Total memory usage of the documentNames array including the strings it contains
+        totalBytesUsed += estimateMemoryUsage(documentNames);
 
         long endTime = System.currentTimeMillis(); // End timing
         double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
+        System.out.println("Total memory used: " + totalBytesUsed + " bytes (" + totalBytesUsed / (1024 * 1024) + " MB).");
     }
 
     private void addDocumentName(String documentName) {
@@ -124,9 +120,6 @@ public class Index5b {
         documentNames = newDocumentNames;
     }
 
-
-    // Using modulus instead of logical AND, reduced the running time by half!!
-    // Using java inbuilt hash function on strings now further increased runtime by 20-25%
     private int hash(String word) {
         // Use the built-in hashCode() method
         int hashValue = word.hashCode();
@@ -140,9 +133,7 @@ public class Index5b {
         return hashValue;
     }
 
-
     private void addWordToIndex(String word, int docId) {
-
         double currentLoadFactor = (double) (numItems + 1) / tableSize;
 
         if (currentLoadFactor > loadFactor) {
@@ -159,7 +150,6 @@ public class Index5b {
         } else {
             addDocumentToWikiItem(existingItem, docId);
         }
-
     }
 
     private int nextPrime(int input) {
@@ -209,6 +199,7 @@ public class Index5b {
 
         hashTable = tempTable;
         tableSize = newTableSize;
+
         totalBytesUsed += estimateMemoryUsage(tempTable);
 
         System.out.println("Resize complete. New size: " + tableSize); // Log end
@@ -220,7 +211,6 @@ public class Index5b {
         hashValue = hashValue % newSize;
         return hashValue;
     }
-
 
     public void search(String searchString) {
         WikiItem foundItem = findWikiItem(searchString);
@@ -248,7 +238,6 @@ public class Index5b {
 
         while (current != null) {
             if (current.searchString.equals(searchString)) {
-                //System.out.println("Found WikiItem for: " + searchString);
                 return current;
             }
             current = current.next;
@@ -294,21 +283,20 @@ public class Index5b {
         return 12 + 4 + 4 + 4; // Object header (12 bytes) + int (4 bytes) + references to next DocumentList and tail DocumentList (4 bytes each)
     }
 
-    // Helper method to estimate memory usage of an array
-    private long estimateMemoryUsage(WikiItem[] array) {
-        return 12 + (array.length * 4); // Array header (12 bytes) + 4 bytes per reference
-    }
-
-    // Helper method to estimate memory usage of an ArrayList
-    private long estimateMemoryUsage(ArrayList<String> arrayList) {
-        long arrayListMemory = 12 + 4 + 4 + 4; // ArrayList object header (12 bytes) + 4 bytes each for size, modCount, and elementData array reference
-        if (arrayList.size() > 0) {
-            arrayListMemory += 12 + (arrayList.size() * 4); // elementData array header (12 bytes) + 4 bytes per reference
-            for (String s : arrayList) {
-                arrayListMemory += estimateMemoryUsage(s);
+    // Helper method to estimate memory usage of a String array
+    private long estimateMemoryUsage(String[] array) {
+        long memoryUsage = 12 + (array.length * 4); // Array header (12 bytes) + 4 bytes per reference
+        for (String s : array) {
+            if (s != null) {
+                memoryUsage += estimateMemoryUsage(s);
             }
         }
-        return arrayListMemory;
+        return memoryUsage;
+    }
+
+    // Helper method to estimate memory usage of a WikiItem array
+    private long estimateMemoryUsage(WikiItem[] array) {
+        return 12 + (array.length * 4); // Array header (12 bytes) + 4 bytes per reference
     }
 
     public long getTotalBytesUsed() {

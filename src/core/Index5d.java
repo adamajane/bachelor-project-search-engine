@@ -9,9 +9,7 @@ import static util.Config.*;
 public class Index5d {
 
     /* This index implements space efficiency features.
-    It modifies Index4 to use an index array for the article titles in the linked list of documents
-    instead of the string name.
-
+    It modifies Index4 to use an index array for the article titles in the linked list of documents instead of the string name.
     In this index (Index5d), an ArrayList is used for the index array and for the document list.
     */
 
@@ -20,7 +18,7 @@ public class Index5d {
     private ArrayList<String> documentNames;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
-    private long totalBytesUsed = 0; // Global byte counter
+    public long totalBytesUsed = 0; // Global byte counter
 
     private class WikiItem {
         String searchString;
@@ -66,7 +64,6 @@ public class Index5d {
                     if (word.endsWith(".")) {
                         readingTitle = false;
                         documentNames.add(currentTitle);
-                        totalBytesUsed += estimateMemoryUsage(currentTitle);
                     }
                 } else {
                     if (word.equals("---END.OF.DOCUMENT---")) {
@@ -88,15 +85,15 @@ public class Index5d {
             System.out.println("Error reading file " + filename);
         }
 
+        // Total memory usage of the documentNames ArrayList including the strings it contains
         totalBytesUsed += estimateMemoryUsage(documentNames);
 
         long endTime = System.currentTimeMillis(); // End timing
         double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
+        System.out.println("Total memory used: " + totalBytesUsed + " bytes (" + totalBytesUsed / (1024 * 1024) + " MB).");
     }
 
-    // Using modulus instead of logical AND, reduced the running time by half!!
-    // Using java inbuilt hash function on strings now further increased runtime by 20-25%
     private int hash(String word) {
         // Use the built-in hashCode() method
         int hashValue = word.hashCode();
@@ -216,7 +213,6 @@ public class Index5d {
 
         while (current != null) {
             if (current.searchString.equals(searchString)) {
-                //System.out.println("Found WikiItem for: " + searchString);
                 return current;
             }
             current = current.next;
