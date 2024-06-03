@@ -47,29 +47,32 @@ public class Index6b {
 
 
     private void writeVByte(int value, ByteArrayOutputStream output) throws IOException {
+        ArrayList<Integer> bytes = new ArrayList<>();
         while (true) {
-            if ((value & ~0x7F) == 0) {  // Check if value fits in 7 bits
-                output.write(value);  // Write the value as the last byte
-                return;
-            } else {
-                output.write((value & 0x7F) | 0x80);  // Write the lower 7 bits with MSB set to 1
-                value >>>= 7;  // Right shift by 7 bits to process the next part
+            bytes.add(0, value % 128); // PREPEND(bytes, n mod 128)
+            if (value < 128) {
+                break;
             }
+            value = value / 128; // n div 128
+        }
+        bytes.set(bytes.size() - 1, bytes.get(bytes.size() - 1) + 128); // Modify the last element
+        for (int b : bytes) {
+            output.write(b);
         }
     }
 
     private int readVByte(ByteArrayInputStream input) {
-        int value = 0;
-        int shift = 0;
+        int n = 0;
         while (true) {
-            byte b = (byte) input.read();
-            value |= (b & 0x7F) << shift;  // Combine 7-bit value
-            if ((b & 0x80) == 0) {  // If MSB is 0, this is the last byte
+            int b = input.read();
+            if (b >= 128) {
+                n = 128 * n + (b - 128);
                 break;
+            } else {
+                n = 128 * n + b;
             }
-            shift += 7;  // Shift by 7 bits for the next part
         }
-        return value;
+        return n;
     }
 
     public Index6b(String filename) {
