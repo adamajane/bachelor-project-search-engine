@@ -20,18 +20,18 @@ public class MemoryTestDriver {
 
         // List of all data files
         List<String> dataFiles = Arrays.asList(
-               // CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_100KB.txt",
-               // CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_1MB.txt"
-               // , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_2MB.txt"
-               //  , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_5MB.txt"
-               //  , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_10MB.txt"
-               //  , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_20MB.txt"
-               //  , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_50MB.txt"
-               //  , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_100MB.txt"
-                 // CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_200MB.txt"
-                  //CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_400MB.txt"
-                  //CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_800MB.txt"
-                 //CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004.txt"
+                // CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_100KB.txt",
+                // CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_1MB.txt"
+                // , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_2MB.txt"
+                //  , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_5MB.txt"
+                //  , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_10MB.txt"
+                //  , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_20MB.txt"
+                //  , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_50MB.txt"
+                //  , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_100MB.txt"
+                // CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_200MB.txt"
+                //CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_400MB.txt"
+                //CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_800MB.txt"
+                //CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004.txt"
         );
 
         StringBuilder outputBuilder = new StringBuilder();
@@ -113,6 +113,11 @@ public class MemoryTestDriver {
                             totalMegabytesUsed = index5c.getTotalBytesUsed() / (1024.0 * 1024.0);
                             outputBuilder.append(String.format("%-15s", String.format("%.2f", totalMegabytesUsed)));
                             index5c = null;  // Release the reference
+
+                            Index5d index5d = new Index5d(dataFile);
+                            totalMegabytesUsed = index5d.getTotalBytesUsed() / (1024.0 * 1024.0);
+                            outputBuilder.append(String.format("%-15s", String.format("%.2f", totalMegabytesUsed)));
+                            index5d = null;  // Release the reference
                             break;
                         case 6:
                             Index6a index6a = new Index6a(dataFile);

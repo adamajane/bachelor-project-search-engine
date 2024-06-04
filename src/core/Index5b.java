@@ -8,8 +8,7 @@ import static util.Config.*;
 
 public class Index5b {
 
-    // Modifies Index4 to use an index array for the article titles in the linked list of documents instead of the string name.
-    // In this index (Index5b), a string array is used for the index array
+    // This index modifies Index5a to use a string array for the index array for the document titles
 
     private WikiItem[] hashTable;
     private int tableSize = 49999;

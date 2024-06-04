@@ -12,7 +12,7 @@ public class Index5a {
     It modifies Index4 to use an index array for the article titles in the linked list of documents
     instead of the string name.
 
-    In this index (Index5a), an ArrayList is used for the index array
+    In this index, an ArrayList is used for the index array for the document titles
     */
 
     private WikiItem[] hashTable;

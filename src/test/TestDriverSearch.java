@@ -24,11 +24,11 @@ public class TestDriverSearch {
                 CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_100KB.txt",
                 CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_1MB.txt"
                 , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_2MB.txt"
-               , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_5MB.txt"
+                , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_5MB.txt"
                 , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_10MB.txt"
                 , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_20MB.txt"
                 , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_50MB.txt"
-                 , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_100MB.txt"
+                , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_100MB.txt"
                 , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_200MB.txt"
                 , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_400MB.txt"
                 , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_800MB.txt"
@@ -99,6 +99,9 @@ public class TestDriverSearch {
 
                             Index5c index5c = new Index5c(dataFile);
                             logSearchTimeNanos(index5c, SEARCH_WORD, outputBuilder);
+
+                            Index5d index5d = new Index5d(dataFile);
+                            logSearchTimeNanos(index5d, SEARCH_WORD, outputBuilder);
                             break;
                         case 6:
                             Index6a index6a = new Index6a(dataFile);
@@ -182,6 +185,15 @@ public class TestDriverSearch {
         logSearchResult();
     }
 
+    private static void logSearchTimeNanos(Index5d index, String searchWord, StringBuilder outputBuilder) {
+        long searchStartTime = System.nanoTime();
+        index.search(searchWord);
+        long searchEndTime = System.nanoTime();
+        long searchNanos = searchEndTime - searchStartTime;
+        appendSearchTimeNanos(outputBuilder, searchNanos);
+        logSearchResult();
+    }
+
     private static void logSearchTimeNanos(Index6a index, String searchWord, StringBuilder outputBuilder) {
         long searchStartTime = System.nanoTime();
         index.search(searchWord);
@@ -247,10 +259,10 @@ public class TestDriverSearch {
         long size = Long.parseLong(fileSize.replaceAll("[^0-9]", ""));
         return unit.equalsIgnoreCase("MB") && size > 200 || unit.equalsIgnoreCase("GB") || unit.equalsIgnoreCase("TB");
     }
+
     private static boolean shouldSkipIndex2(String fileSize) {
         String unit = fileSize.replaceAll("[^a-zA-Z]", "");
         long size = Long.parseLong(fileSize.replaceAll("[^0-9]", ""));
         return unit.equalsIgnoreCase("MB") && size > 200 || unit.equalsIgnoreCase("GB") || unit.equalsIgnoreCase("TB");
     }
 }
-

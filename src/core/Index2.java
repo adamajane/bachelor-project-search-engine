@@ -5,6 +5,8 @@ import java.util.Scanner;
 
 public class Index2 {
 
+    // Modifies Index1 to output the titles of all documents containing the specified search string
+
     private WikiItem start;
     public long totalBytesUsed = 0;  // Global byte counter
 

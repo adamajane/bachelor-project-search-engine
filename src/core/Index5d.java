@@ -4,21 +4,17 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import static util.Config.*;
-
 public class Index5d {
 
-    /* This index implements space efficiency features.
-    It modifies Index4 to use an index array for the article titles in the linked list of documents instead of the string name.
-    In this index (Index5d), an ArrayList is used for the index array and for the document list.
-    */
+    // This index builds upon Index5c and removing punctuation and converts all words to lowercase
 
     private WikiItem[] hashTable;
     private int tableSize = 49999;
     private ArrayList<String> documentNames;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
-    public long totalBytesUsed = 0; // Global byte counter
+    private long totalBytesUsed = 0; // Global byte counter
+    private StringBuilder sb = new StringBuilder();
 
     private class WikiItem {
         String searchString;
@@ -35,6 +31,7 @@ public class Index5d {
             // Estimate memory used by this WikiItem
             totalBytesUsed += estimateMemoryUsage(s);
             totalBytesUsed += estimateMemoryUsage(this);
+            totalBytesUsed += estimateMemoryUsageInt(documents); // Include memory usage of documents list
         }
     }
 
@@ -64,6 +61,7 @@ public class Index5d {
                     if (word.endsWith(".")) {
                         readingTitle = false;
                         documentNames.add(currentTitle);
+                        totalBytesUsed += estimateMemoryUsage(currentTitle);
                     }
                 } else {
                     if (word.equals("---END.OF.DOCUMENT---")) {
@@ -85,15 +83,15 @@ public class Index5d {
             System.out.println("Error reading file " + filename);
         }
 
-        // Total memory usage of the documentNames ArrayList including the strings it contains
         totalBytesUsed += estimateMemoryUsage(documentNames);
 
         long endTime = System.currentTimeMillis(); // End timing
         double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
-        System.out.println("Total memory used: " + totalBytesUsed + " bytes (" + totalBytesUsed / (1024 * 1024) + " MB).");
     }
 
+    // Using modulus instead of logical AND, reduced the running time by half!!
+    // Using java inbuilt hash function on strings now further increased runtime by 20-25%
     private int hash(String word) {
         // Use the built-in hashCode() method
         int hashValue = word.hashCode();
@@ -108,6 +106,10 @@ public class Index5d {
     }
 
     private void addWordToIndex(String word, int docId) {
+
+        // Removes punctuation and converts to lowercase
+        word = cleanWord(word);
+
         double currentLoadFactor = (double) (numItems + 1) / tableSize;
 
         if (currentLoadFactor > loadFactor) {
@@ -189,6 +191,7 @@ public class Index5d {
     }
 
     public void search(String searchString) {
+        searchString = cleanWord(searchString); // Clean the search string
         WikiItem foundItem = findWikiItem(searchString);
 
         if (foundItem != null) {
@@ -207,12 +210,26 @@ public class Index5d {
         }
     }
 
+    private String cleanWord(String word) {
+        // Clears the StringBuilder
+        sb.setLength(0);
+
+        // Builds a new string with only letters and converts to lowercase
+        for (char c : word.toCharArray()) {
+            if (Character.isLetter(c)) {
+                sb.append(c);
+            }
+        }
+        return sb.toString().toLowerCase();
+    }
+
     private WikiItem findWikiItem(String searchString) {
         int hashIndex = hash(searchString);
         WikiItem current = hashTable[hashIndex];
 
         while (current != null) {
             if (current.searchString.equals(searchString)) {
+                //System.out.println("Found WikiItem for: " + searchString);
                 return current;
             }
             current = current.next;
@@ -238,9 +255,7 @@ public class Index5d {
 
     // Helper method to estimate memory usage of a WikiItem object
     private long estimateMemoryUsage(WikiItem item) {
-        long memoryUsage = 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, ArrayList, and next WikiItem (4 bytes each)
-        memoryUsage += estimateMemoryUsage(item.documents); // Add memory usage of the ArrayList
-        return memoryUsage;
+        return 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, ArrayList, and next WikiItem (4 bytes each)
     }
 
     // Helper method to estimate memory usage of an array
@@ -248,17 +263,25 @@ public class Index5d {
         return 12 + (array.length * 4); // Array header (12 bytes) + 4 bytes per reference
     }
 
-    // Generic helper method to estimate memory usage of an ArrayList
-    private long estimateMemoryUsage(ArrayList<?> arrayList) {
+    // Helper method to estimate memory usage of an ArrayList of Integers
+    private long estimateMemoryUsageInt(ArrayList<Integer> arrayList) {
         long arrayListMemory = 12 + 4 + 4 + 4; // ArrayList object header (12 bytes) + 4 bytes each for size, modCount, and elementData array reference
         if (arrayList.size() > 0) {
             arrayListMemory += 12 + (arrayList.size() * 4); // elementData array header (12 bytes) + 4 bytes per reference
-            for (Object element : arrayList) {
-                if (element instanceof String) {
-                    arrayListMemory += estimateMemoryUsage((String) element);
-                } else if (element instanceof Integer) {
-                    arrayListMemory += 4; // Integer size in bytes
-                }
+            for (Integer i : arrayList) {
+                arrayListMemory += 4; // Integer object size (4 bytes)
+            }
+        }
+        return arrayListMemory;
+    }
+
+    // Helper method to estimate memory usage of an ArrayList
+    private long estimateMemoryUsage(ArrayList<String> arrayList) {
+        long arrayListMemory = 12 + 4 + 4 + 4; // ArrayList object header (12 bytes) + 4 bytes each for size, modCount, and elementData array reference
+        if (arrayList.size() > 0) {
+            arrayListMemory += 12 + (arrayList.size() * 4); // elementData array header (12 bytes) + 4 bytes per reference
+            for (String s : arrayList) {
+                arrayListMemory += estimateMemoryUsage(s);
             }
         }
         return arrayListMemory;

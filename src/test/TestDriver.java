@@ -122,6 +122,12 @@ public class TestDriver {
                             endTime = System.currentTimeMillis();
                             minutes = (double) (endTime - startTime) / (1000 * 60);
                             outputBuilder.append(String.format("%-12s", String.format("%.5f", minutes)));
+
+                            startTime = System.currentTimeMillis();
+                            new Index5d(dataFile);
+                            endTime = System.currentTimeMillis();
+                            minutes = (double) (endTime - startTime) / (1000 * 60);
+                            outputBuilder.append(String.format("%-12s", String.format("%.5f", minutes)));
                             break;
                         case 6:
                             startTime = System.currentTimeMillis();
@@ -158,11 +164,13 @@ public class TestDriver {
         long size = Long.parseLong(fileSize.replaceAll("[^0-9]", ""));
         return unit.equalsIgnoreCase("MB") && size > 5 || unit.equalsIgnoreCase("GB") || unit.equalsIgnoreCase("TB");
     }
+
     private static boolean shouldSkipIndex1(String fileSize) {
         String unit = fileSize.replaceAll("[^a-zA-Z]", "");
         long size = Long.parseLong(fileSize.replaceAll("[^0-9]", ""));
         return unit.equalsIgnoreCase("MB") && size > 200 || unit.equalsIgnoreCase("GB") || unit.equalsIgnoreCase("TB");
     }
+
     private static boolean shouldSkipIndex2(String fileSize) {
         String unit = fileSize.replaceAll("[^a-zA-Z]", "");
         long size = Long.parseLong(fileSize.replaceAll("[^0-9]", ""));

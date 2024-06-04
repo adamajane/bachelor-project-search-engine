@@ -143,8 +143,6 @@ public class Driver {
                 System.out.println("Total memory used: " + i5d.getTotalBytesUsed() + " bytes (" + i5d.getTotalBytesUsed() / (1024 * 1024) + " MB).");
                 System.out.println("Number of articles: " + i5d.getDocumentNames().size());
 
-                System.out.println("Number of articles: " + i5d.getDocumentNames().size());
-
                 while (true) {
                     System.out.println("Input search string or type 'exit' to stop");
                     searchString = console.nextLine().toLowerCase();
@@ -154,33 +152,15 @@ public class Driver {
                     i5d.search(searchString);
                 }
                 break;
-            case "5e":
-                // long beforeUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-
-                System.out.println("Preprocessing " + FULL_FILE_PATH);
-                Index5d i5e = new Index5d(FULL_FILE_PATH);
-
-                System.out.println("Total memory used: " + i5e.getTotalBytesUsed() + " bytes (" + i5e.getTotalBytesUsed() / (1024 * 1024) + " MB).");
-                System.out.println("Number of articles: " + i5e.getDocumentNames().size());
-
-                while (true) {
-                    System.out.println("Input search string or type 'exit' to stop");
-                    searchString = console.nextLine().toLowerCase();
-                    if (searchString.equals("exit")) {
-                        break;
-                    }
-                    i5e.search(searchString);
-                }
-                break;
             case "6a":
-                //long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
+                // long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
 
                 System.out.println("Preprocessing " + FULL_FILE_PATH);
                 Index6a i6a = new Index6a(FULL_FILE_PATH);
 
-                //long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-                //System.out.println("Memory Used:" + (afterUsedMem-beforeUsedMem));
-                //System.out.println(index.countDocuments());
+                // long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
+                // System.out.println("Memory Used: " + (afterUsedMem-beforeUsedMem));
+                // System.out.println(index.countDocuments());
 
                 heapSize = Runtime.getRuntime().totalMemory();
                 System.out.println("Current heap size: " + heapSize / (1024 * 1024) + " MB");
@@ -201,7 +181,7 @@ public class Driver {
                 Index6b i6b = new Index6b(FULL_FILE_PATH);
 
                 // long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-                // System.out.println("Memory Used:" + (afterUsedMem-beforeUsedMem));
+                // System.out.println("Memory Used: " + (afterUsedMem-beforeUsedMem));
                 // System.out.println(index.countDocuments());
 
                 heapSize = Runtime.getRuntime().totalMemory();
