@@ -31,6 +31,7 @@ public class Index5c {
             // Estimate memory used by this WikiItem
             totalBytesUsed += estimateMemoryUsage(s);
             totalBytesUsed += estimateMemoryUsage(this);
+            // Removed the document list memory usage from here
         }
     }
 
@@ -220,8 +221,11 @@ public class Index5c {
     private void addDocumentToWikiItem(WikiItem item, int documentId) {
         ArrayList<Integer> docList = item.documents;
         if (item.lastDocIndex == -1 || docList.get(item.lastDocIndex) != documentId) {
+            long oldMemoryUsage = estimateMemoryUsage(docList);
             docList.add(documentId);
             item.lastDocIndex = docList.size() - 1; // Update the last document index
+            long newMemoryUsage = estimateMemoryUsage(docList);
+            totalBytesUsed += (newMemoryUsage - oldMemoryUsage); // Update total memory usage
         }
     }
 
@@ -235,7 +239,6 @@ public class Index5c {
     // Helper method to estimate memory usage of a WikiItem object
     private long estimateMemoryUsage(WikiItem item) {
         long memoryUsage = 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, ArrayList, and next WikiItem (4 bytes each)
-        memoryUsage += estimateMemoryUsage(item.documents); // Add memory usage of the ArrayList
         return memoryUsage;
     }
 

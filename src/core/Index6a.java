@@ -151,15 +151,19 @@ public class Index6a {
             numItems++;
         } else {
             if (existingItem.lastDocId != docId) {
+                long oldMemoryUsage = estimateMemoryUsage(existingItem.documentDiffs);
                 try {
                     writeVByte(docId - existingItem.lastDocId, existingItem.documentDiffs);
                     existingItem.lastDocId = docId;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                long newMemoryUsage = estimateMemoryUsage(existingItem.documentDiffs);
+                totalBytesUsed += (newMemoryUsage - oldMemoryUsage);
             }
         }
     }
+
 
     private int nextPrime(int input) {
         int counter;
@@ -252,7 +256,6 @@ public class Index6a {
 
     private long estimateMemoryUsage(WikiItem item) {
         long memoryUsage = 12 + 4 + 4 + 4;
-        memoryUsage += estimateMemoryUsage(item.documentDiffs);
         return memoryUsage;
     }
 

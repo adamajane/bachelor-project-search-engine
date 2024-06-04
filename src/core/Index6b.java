@@ -153,7 +153,6 @@ public class Index6b {
         sb.setLength(0);
 
         // Use StringBuilder to remove punctuation and convert to lowercase
-        // StringBuilder sb = new StringBuilder();
         for (char c : word.toCharArray()) {
             if (Character.isLetter(c)) {
                 sb.append(c);
@@ -177,12 +176,15 @@ public class Index6b {
             numItems++;
         } else {
             if (existingItem.lastDocId != docId) {
+                long oldMemoryUsage = estimateMemoryUsage(existingItem.documentDiffs);
                 try {
                     writeVByte(docId - existingItem.lastDocId, existingItem.documentDiffs);  // Store the difference
                     existingItem.lastDocId = docId; // Update the cached lastDocId
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                long newMemoryUsage = estimateMemoryUsage(existingItem.documentDiffs);
+                totalBytesUsed += (newMemoryUsage - oldMemoryUsage); // Update total memory usage
             }
         }
     }
@@ -326,7 +328,6 @@ public class Index6b {
     // Helper method to estimate memory usage of a WikiItem object
     private long estimateMemoryUsage(WikiItem item) {
         long memoryUsage = 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, ByteArrayOutputStream, and next WikiItem (4 bytes each)
-        memoryUsage += estimateMemoryUsage(item.documentDiffs); // Add memory usage of the ByteArrayOutputStream
         return memoryUsage;
     }
 

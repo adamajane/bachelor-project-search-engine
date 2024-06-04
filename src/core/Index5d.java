@@ -31,14 +31,13 @@ public class Index5d {
             // Estimate memory used by this WikiItem
             totalBytesUsed += estimateMemoryUsage(s);
             totalBytesUsed += estimateMemoryUsage(this);
-            totalBytesUsed += estimateMemoryUsageInt(documents); // Include memory usage of documents list
         }
     }
 
     public Index5d(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
-        totalBytesUsed += estimateMemoryUsage(hashTable);
+
         documentNames = new ArrayList<>(); // Initialize the document names list
 
         try {
@@ -84,6 +83,7 @@ public class Index5d {
         }
 
         totalBytesUsed += estimateMemoryUsage(documentNames);
+        totalBytesUsed += estimateMemoryUsage(hashTable);
 
         long endTime = System.currentTimeMillis(); // End timing
         double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
@@ -178,7 +178,7 @@ public class Index5d {
 
         hashTable = tempTable;
         tableSize = newTableSize;
-        totalBytesUsed += estimateMemoryUsage(tempTable);
+
 
         System.out.println("Resize complete. New size: " + tableSize); // Log end
     }
@@ -241,8 +241,11 @@ public class Index5d {
     private void addDocumentToWikiItem(WikiItem item, int documentId) {
         ArrayList<Integer> docList = item.documents;
         if (item.lastDocIndex == -1 || docList.get(item.lastDocIndex) != documentId) {
+            long oldMemoryUsage = estimateMemoryUsageInt(docList);
             docList.add(documentId);
             item.lastDocIndex = docList.size() - 1; // Update the last document index
+            long newMemoryUsage = estimateMemoryUsageInt(docList);
+            totalBytesUsed += (newMemoryUsage - oldMemoryUsage); // Update total memory usage
         }
     }
 
@@ -255,7 +258,7 @@ public class Index5d {
 
     // Helper method to estimate memory usage of a WikiItem object
     private long estimateMemoryUsage(WikiItem item) {
-        return 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, ArrayList, and next WikiItem (4 bytes each)
+        return 16 + 4 + 4 + 4 + 4; // Object header (12 bytes + 4 for padding) + references to String, ArrayList, next WikiItem and lastdocID (4 bytes each)
     }
 
     // Helper method to estimate memory usage of an array
