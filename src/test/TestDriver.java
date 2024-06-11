@@ -38,18 +38,18 @@ public class TestDriver {
 
         // Header row for the output table
         outputBuilder.append(String.format("%-10s", "File Size"));
-        for (int index = 1; index <= 6; index++) {
+        for (int index = 5; index <= 5; index++) {
             if (index == 5) {
-                outputBuilder.append(String.format("%-12s%-12s%-12s%-12s", "Index 5a", "Index 5b", "Index 5c", "Index 5d"));
+                outputBuilder.append(String.format("%-12s%-12s%-12s%-12s", "Index 5a", "Index 5b", "Index 5c","Index 5d" ));
             } else if (index == 6) {
-                outputBuilder.append(String.format("%-12s%-12s%-12s", "Index 6a", "Index 6b"));
+                outputBuilder.append(String.format("%-12s%-12s", "Index 6a", "Index 6b"));
             } else {
                 outputBuilder.append(String.format("%-12s", "Index " + index));
             }
         }
         outputBuilder.append("\n");
 
-        try (PrintWriter writer = new PrintWriter("test-output.txt", "UTF-8")) {
+        try (PrintWriter writer = new PrintWriter("test-output-preprocessing2.txt", "UTF-8")) {
             for (String dataFile : dataFiles) {
                 String fileSize = extractFileSize(dataFile);
                 boolean skipIndex3 = shouldSkipIndex3(fileSize);
@@ -58,7 +58,7 @@ public class TestDriver {
 
                 outputBuilder.append(String.format("%-10s", fileSize));
 
-                for (int index = 1; index <= 6; index++) {
+                for (int index = 5; index <= 5; index++) {
                     long startTime;
                     long endTime;
                     double minutes;
@@ -106,25 +106,28 @@ public class TestDriver {
                             break;
                         case 5:
                             startTime = System.currentTimeMillis();
-                            new Index5a(dataFile);
+                            Index5a index5a = new Index5a(dataFile);
                             endTime = System.currentTimeMillis();
                             minutes = (double) (endTime - startTime) / (1000 * 60);
                             outputBuilder.append(String.format("%-12s", String.format("%.5f", minutes)));
+                            index5a = null;
 
                             startTime = System.currentTimeMillis();
-                            new Index5b(dataFile);
+                            Index5b index5b = new Index5b(dataFile);
                             endTime = System.currentTimeMillis();
                             minutes = (double) (endTime - startTime) / (1000 * 60);
                             outputBuilder.append(String.format("%-12s", String.format("%.5f", minutes)));
+                            index5b = null;
 
                             startTime = System.currentTimeMillis();
-                            new Index5c(dataFile);
+                            Index5c index5c = new Index5c(dataFile);
                             endTime = System.currentTimeMillis();
                             minutes = (double) (endTime - startTime) / (1000 * 60);
                             outputBuilder.append(String.format("%-12s", String.format("%.5f", minutes)));
+                            index5c = null;
 
                             startTime = System.currentTimeMillis();
-                            new Index5d(dataFile);
+                            Index5d index5d = new Index5d(dataFile);
                             endTime = System.currentTimeMillis();
                             minutes = (double) (endTime - startTime) / (1000 * 60);
                             outputBuilder.append(String.format("%-12s", String.format("%.5f", minutes)));
