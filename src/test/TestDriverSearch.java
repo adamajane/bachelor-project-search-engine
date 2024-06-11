@@ -14,7 +14,7 @@ public class TestDriverSearch {
     public static final String OLIVER_MAC = "/Users/mr.brandt/Desktop/bachelor-project-search-engine/data-files/";
     public static final String ADAM_MAC = "/Users/Adam/IdeaProjects/bachelor-project-search-engine/data-files/";
 
-    public static final String CURRENT_FILE_PATH = OLIVER_WINDOWS;
+    public static final String CURRENT_FILE_PATH = OLIVER_MAC;
     public static final String SEARCH_WORD = "specificWordThatIsNotExisting";  // Replace with the word you want to search
 
     public static void main(String[] args) {
@@ -30,8 +30,8 @@ public class TestDriverSearch {
                 , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_50MB.txt"
                 , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_100MB.txt"
                 , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_200MB.txt"
-                , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_400MB.txt"
-                , CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_800MB.txt"
+                 // ,CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_400MB.txt"
+                //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004_800MB.txt"
                 //, CURRENT_FILE_PATH + "WestburyLab.wikicorp.201004.txt"
         );
 
@@ -39,9 +39,9 @@ public class TestDriverSearch {
 
         // Header row for the output table
         outputBuilder.append(String.format("%-10s", "File Size"));
-        for (int index = 1; index <= 6; index++) {
+        for (int index = 1; index <= 1; index++) {
             if (index == 5) {
-                outputBuilder.append(String.format("%-15s%-15s%-15s", "Index 5a", "Index 5b", "Index 5c"));
+                outputBuilder.append(String.format("%-15s%-15s%-15s%-15s", "Index 5a", "Index 5b", "Index 5c", "Index 5d"));
             } else if (index == 6) {
                 outputBuilder.append(String.format("%-15s%-15s", "Index 6a", "Index 6b"));
             } else {
@@ -50,7 +50,7 @@ public class TestDriverSearch {
         }
         outputBuilder.append("\n");
 
-        try (PrintWriter writer = new PrintWriter("test-output.txt", "UTF-8")) {
+        try (PrintWriter writer = new PrintWriter("test-output_search.txt", "UTF-8")) {
             for (String dataFile : dataFiles) {
                 String fileSize = extractFileSize(dataFile);
                 boolean skipIndex3 = shouldSkipIndex3(fileSize);
@@ -59,7 +59,7 @@ public class TestDriverSearch {
 
                 outputBuilder.append(String.format("%-10s", fileSize));
 
-                for (int index = 1; index <= 6; index++) {
+                for (int index = 1; index <= 1; index++) {
                     if (index == 3 && skipIndex3) {
                         outputBuilder.append(String.format("%-15s", "Skipped"));
                         continue;
@@ -77,38 +77,48 @@ public class TestDriverSearch {
                         case 1:
                             Index1 index1 = new Index1(dataFile);
                             logSearchTimeMillis(index1, SEARCH_WORD, outputBuilder);
+                            index1 = null;  // Release the reference
                             break;
                         case 2:
                             Index2 index2 = new Index2(dataFile);
                             logSearchTimeMillis(index2, SEARCH_WORD, outputBuilder);
+                            index2 = null;  // Release the reference
                             break;
                         case 3:
                             Index3 index3 = new Index3(dataFile);
                             logSearchTimeNanos(index3, SEARCH_WORD, outputBuilder);
+                            index3 = null;  // Release the reference
                             break;
                         case 4:
                             Index4 index4 = new Index4(dataFile);
                             logSearchTimeNanos(index4, SEARCH_WORD, outputBuilder);
+                            index4 = null;  // Release the reference
                             break;
                         case 5:
                             Index5a index5a = new Index5a(dataFile);
                             logSearchTimeNanos(index5a, SEARCH_WORD, outputBuilder);
+                            index5a = null;  // Release the reference
 
                             Index5b index5b = new Index5b(dataFile);
                             logSearchTimeNanos(index5b, SEARCH_WORD, outputBuilder);
+                            index5b = null;  // Release the reference
 
                             Index5c index5c = new Index5c(dataFile);
                             logSearchTimeNanos(index5c, SEARCH_WORD, outputBuilder);
+                            index5c = null;  // Release the reference
 
                             Index5d index5d = new Index5d(dataFile);
                             logSearchTimeNanos(index5d, SEARCH_WORD, outputBuilder);
+                            index5d = null;  // Release the reference
                             break;
                         case 6:
                             Index6a index6a = new Index6a(dataFile);
                             logSearchTimeNanos(index6a, SEARCH_WORD, outputBuilder);
+                            index6a = null;  // Release the reference
 
                             Index6b index6b = new Index6b(dataFile);
                             logSearchTimeNanos(index6b, SEARCH_WORD, outputBuilder);
+                            index6b = null;  // Release the reference
                             break;
                     }
                 }
