@@ -98,7 +98,7 @@ public class Index6b {
                         currentTitle = currentTitle + " " + word; // Append words
                     }
 
-                    if (word.endsWith(".")) {
+                    if (word.endsWith(".") || word.endsWith("!") || word.endsWith("?")) {
                         readingTitle = false;
                         documentNames.add(currentTitle);
                         totalBytesUsed += estimateMemoryUsage(currentTitle);
@@ -152,9 +152,9 @@ public class Index6b {
         // Clear the StringBuilder
         sb.setLength(0);
 
-        // Use StringBuilder to remove punctuation and convert to lowercase
+        // Builds a new string without alphanumeric characters and converts to lowercase
         for (char c : word.toCharArray()) {
-            if (Character.isLetter(c)) {
+            if (Character.isLetter(c) || Character.isDigit(c)) {
                 sb.append(c);
             }
         }

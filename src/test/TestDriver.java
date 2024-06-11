@@ -40,9 +40,9 @@ public class TestDriver {
         outputBuilder.append(String.format("%-10s", "File Size"));
         for (int index = 1; index <= 6; index++) {
             if (index == 5) {
-                outputBuilder.append(String.format("%-12s%-12s%-12s", "Index 5a", "Index 5b", "Index 5c"));
+                outputBuilder.append(String.format("%-12s%-12s%-12s%-12s", "Index 5a", "Index 5b", "Index 5c", "Index 5d"));
             } else if (index == 6) {
-                outputBuilder.append(String.format("%-12s%-12s", "Index 6a", "Index 6b"));
+                outputBuilder.append(String.format("%-12s%-12s%-12s", "Index 6a", "Index 6b"));
             } else {
                 outputBuilder.append(String.format("%-12s", "Index " + index));
             }

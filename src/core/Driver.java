@@ -11,7 +11,7 @@ public class Driver {
         Scanner console = new Scanner(System.in);
         String searchString;
         long heapSize;
-        System.out.println("Testing index " + INDEX_TO_TEST + " with file " + FULL_FILE_PATH);
+        System.out.println("Running Index" + INDEX_TO_TEST + " with file " + FULL_FILE_PATH);
         switch (INDEX_TO_TEST) {
             case "1":
                 System.out.println("Preprocessing " + FULL_FILE_PATH);
@@ -122,7 +122,6 @@ public class Driver {
                 // long afterUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
                 // System.out.println("Memory Used: " + (afterUsedMem - beforeUsedMem));
 
-                System.out.println("Total memory used: " + i5c.getTotalBytesUsed() + " bytes (" + i5c.getTotalBytesUsed() / (1024 * 1024) + " MB).");
                 System.out.println("Number of articles: " + i5c.getDocumentNames().size());
 
                 while (true) {

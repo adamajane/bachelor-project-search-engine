@@ -82,8 +82,10 @@ public class Index2 {
                     current = current.next;
                 }
 
-                // Check if the search string is present in the document
+                // Split the document content into words
                 String[] words = documentContent.toString().split("\\s+");
+
+                // Check if the search string is present in the document
                 for (String word : words) {
                     if (word.equals(searchstr)) {
                         System.out.println("Found in: Document Title: " + documentTitle.toString().trim());

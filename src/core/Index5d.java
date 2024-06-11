@@ -1,8 +1,7 @@
 package core;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
 
 public class Index5d {
 
@@ -214,9 +213,9 @@ public class Index5d {
         // Clears the StringBuilder
         sb.setLength(0);
 
-        // Builds a new string with only letters and converts to lowercase
+        // Builds a new string without alphanumeric characters and converts to lowercase
         for (char c : word.toCharArray()) {
-            if (Character.isLetter(c)) {
+            if (Character.isLetter(c) || Character.isDigit(c)) {
                 sb.append(c);
             }
         }

@@ -17,10 +17,10 @@ public class Index4 {
 
     private class WikiItem {
         String searchString;
-        DocumentList documents;
+        DocumentItem documents;
         WikiItem next;
 
-        WikiItem(String s, DocumentList d, WikiItem n) {
+        WikiItem(String s, DocumentItem d, WikiItem n) {
             this.searchString = s;
             this.documents = d;
             this.next = n;
@@ -31,17 +31,17 @@ public class Index4 {
         }
     }
 
-    private class DocumentList {
+    private class DocumentItem {
         String documentName;
-        DocumentList next;
-        DocumentList tail;
+        DocumentItem next;
+        DocumentItem tail;
 
-        DocumentList(String documentName, DocumentList next) {
+        DocumentItem(String documentName, DocumentItem next) {
             this.documentName = documentName;
             this.next = next;
             this.tail = this;
 
-            // Estimate memory used by this DocumentList
+            // Estimate memory used by this DocumentItem
             totalBytesUsed += estimateMemoryUsage(documentName);
             totalBytesUsed += estimateMemoryUsage(this);
         }
@@ -122,7 +122,7 @@ public class Index4 {
         WikiItem existingItem = findWikiItem(word);
 
         if (existingItem == null) {
-            WikiItem newItem = new WikiItem(word, new DocumentList(docTitle, null), hashTable[hashIndex]);
+            WikiItem newItem = new WikiItem(word, new DocumentItem(docTitle, null), hashTable[hashIndex]);
             hashTable[hashIndex] = newItem;
             numItems++; // Increment the item count
         } else {
@@ -198,7 +198,7 @@ public class Index4 {
 
         if (foundItem != null) {
             System.out.println("Documents associated with '" + searchString + "':");
-            DocumentList currentDoc = foundItem.documents;
+            DocumentItem currentDoc = foundItem.documents;
 
             if (currentDoc == null) {
                 System.out.println("  No documents found.");
@@ -230,11 +230,11 @@ public class Index4 {
     }
 
     private void addDocumentToWikiItem(WikiItem item, String documentName) {
-        DocumentList currentDoc = item.documents;
+        DocumentItem currentDoc = item.documents;
 
         // Check if the document list is empty
         if (currentDoc == null) {
-            item.documents = new DocumentList(documentName, null);
+            item.documents = new DocumentItem(documentName, null);
             return;  // Document added; we can return immediately
         }
 
@@ -244,7 +244,7 @@ public class Index4 {
         }
 
         // The document doesn't exist yet, add it to the list
-        DocumentList newDoc = new DocumentList(documentName, null);
+        DocumentItem newDoc = new DocumentItem(documentName, null);
         currentDoc.tail.next = newDoc;
         currentDoc.tail = newDoc; // Update the tail pointer
     }
@@ -258,12 +258,12 @@ public class Index4 {
 
     // Helper method to estimate memory usage of a WikiItem object
     private long estimateMemoryUsage(WikiItem item) {
-        return 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, DocumentList, and next WikiItem (4 bytes each)
+        return 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, DocumentItem, and next WikiItem (4 bytes each)
     }
 
-    // Helper method to estimate memory usage of a DocumentList object
-    private long estimateMemoryUsage(DocumentList item) {
-        return 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, next and tail DocumentList (4 bytes each)
+    // Helper method to estimate memory usage of a DocumentItem object
+    private long estimateMemoryUsage(DocumentItem item) {
+        return 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, next and tail DocumentItem (4 bytes each)
     }
 
     // Helper method to estimate memory usage of an array
