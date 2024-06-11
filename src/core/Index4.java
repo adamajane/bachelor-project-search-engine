@@ -3,8 +3,6 @@ package core;
 import java.io.*;
 import java.util.Scanner;
 
-import static util.Config.*;
-
 public class Index4 {
 
     // Modifies Index3 to use a hash table instead of a linked list

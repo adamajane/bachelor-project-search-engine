@@ -2,7 +2,8 @@ package core;
 
 import java.util.Scanner;
 
-import static util.Config.*;
+import static util.TestConfig.*;
+// import static util.Config.*;
 
 public class Driver {
 
@@ -167,6 +168,10 @@ public class Driver {
                 while (true) {
                     System.out.println("Input search string or type 'exit' to stop");
                     searchString = console.nextLine();
+
+                    i6a.printByteArrayOfWord(searchString);
+                    i6a.printByteArrayOfWord2(searchString);
+                    i6a.printByteArrayOfWord3(searchString);
                     if (searchString.equals("exit")) {
                         break;
                     }

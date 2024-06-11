@@ -4,8 +4,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import static util.Config.FULL_FILE_PATH;
-
 public class Index6b {
 
     /*

@@ -255,6 +255,59 @@ public class Index6a {
         return null;
     }
 
+    public void printByteArrayOfWord(String word) {
+        WikiItem item = findWikiItem(word);
+        if (item != null) {
+            byte[] bytes = item.documentDiffs.toByteArray();
+            System.out.print("ByteArrayOutputStream for word '" + word + "': ");
+            for (byte b : bytes) {
+                System.out.print(b + " ");
+            }
+            System.out.println();
+        } else {
+            System.out.println("Word '" + word + "' not found in the index.");
+        }
+    }
+
+    public void printByteArrayOfWord2(String word) {
+        WikiItem item = findWikiItem(word);
+        if (item != null) {
+            byte[] bytes = item.documentDiffs.toByteArray();
+            System.out.print("ByteArrayOutputStream for word '" + word + "': ");
+            for (byte b : bytes) {
+                String binaryString = Integer.toBinaryString(b & 0xFF);
+                while (binaryString.length() < 8) {  // Add leading zeros
+                    binaryString = "0" + binaryString;
+                }
+                System.out.print(binaryString + " ");
+            }
+            System.out.println();
+        } else {
+            System.out.println("Word '" + word + "' not found in the index.");
+        }
+    }
+
+    public void printByteArrayOfWord3(String word) {
+        WikiItem item = findWikiItem(word);
+        if (item != null) {
+            byte[] bytes = item.documentDiffs.toByteArray();
+            System.out.println("ByteArrayOutputStream for word '" + word + "': ");
+            for (byte b : bytes) {
+                // Print the byte
+                System.out.print("Byte: " + b + ", Bits: ");
+
+                // Print the corresponding bits
+                String binaryString = Integer.toBinaryString(b & 0xFF);
+                while (binaryString.length() < 8) {  // Add leading zeros
+                    binaryString = "0" + binaryString;
+                }
+                System.out.println(binaryString);
+            }
+        } else {
+            System.out.println("Word '" + word + "' not found in the index.");
+        }
+    }
+
     private long estimateMemoryUsage(WikiItem item) {
         long memoryUsage = 12 + 4 + 4 + 4;
         return memoryUsage;

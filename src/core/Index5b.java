@@ -3,8 +3,6 @@ package core;
 import java.io.*;
 import java.util.Scanner;
 
-import static util.Config.*;
-
 public class Index5b {
 
     // This index modifies Index5a to use a string array for the index array for the document titles

@@ -4,8 +4,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import static util.Config.*;
-
 public class Index5a {
 
     /* This index implements space efficiency features.

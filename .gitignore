@@ -34,7 +34,7 @@ bin/
 data-files
 
 ### Util ###
-/src/util/Config.java
+/src/util/TestConfig.java
 
 ### Test output files ###
 test-output.txt
