@@ -15,7 +15,7 @@ public class TestDriverSearch {
     public static final String ADAM_MAC = "/Users/Adam/IdeaProjects/bachelor-project-search-engine/data-files/";
 
     public static final String CURRENT_FILE_PATH = OLIVER_MAC;
-    public static final String SEARCH_WORD = "specificWordThatIsNotExisting";  // Replace with the word you want to search
+    public static final String SEARCH_WORD = "specificWordThatIsNotExisting";
 
     public static void main(String[] args) {
 
