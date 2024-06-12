@@ -102,21 +102,26 @@ public class Index5b {
     }
 
     private void addDocumentName(String documentName) {
+        // Check if the array is full and needs resizing
         if (documentNamesSize == documentNames.length) {
             resizeDocumentNames();
         }
+        // Add the new document name to the array
         documentNames[documentNamesSize] = documentName;
+        // Increment the size counter
         documentNamesSize++;
     }
 
     private void resizeDocumentNames() {
+        // Create a new array with double the length of the current array
         String[] newDocumentNames = new String[documentNames.length * 2];
+        // Copy the contents of the current array to the new array
         System.arraycopy(documentNames, 0, newDocumentNames, 0, documentNames.length);
+        // Update the reference to point to the new array
         documentNames = newDocumentNames;
     }
 
     private int hash(String word) {
-        // Use the built-in hashCode() method
         int hashValue = word.hashCode();
 
         // Ensures that the hash value is non-negative
@@ -129,6 +134,7 @@ public class Index5b {
     }
 
     private void addWordToIndex(String word, int docId) {
+
         double currentLoadFactor = (double) (numItems + 1) / tableSize;
 
         if (currentLoadFactor > loadFactor) {
@@ -294,9 +300,6 @@ public class Index5b {
         return 12 + (array.length * 4); // Array header (12 bytes) + 4 bytes per reference
     }
 
-    public long getTotalBytesUsed() {
-        return totalBytesUsed;
-    }
 
     public String[] getDocumentNames() {
         return documentNames;

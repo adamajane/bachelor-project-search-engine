@@ -24,52 +24,74 @@ public class Index6a {
 
     private class WikiItem {
         String searchString;
-        ByteArrayOutputStream documentDiffs;
+        ByteArrayOutputStream documentDiffs; // Stream to store document ID differences using variable-byte encoding.
         WikiItem next;
-        int lastDocId;// Cache the last document ID
+        int lastDocId; // Cache the last document ID where the search word was found.
 
         WikiItem(String s, int firstDocId, WikiItem n) {
             this.searchString = s;
             this.documentDiffs = new ByteArrayOutputStream();
             this.lastDocId = firstDocId;
+
+            // Write the first document ID to the document differences stream.
             try {
                 writeVByte(firstDocId, this.documentDiffs);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            this.next = n;
+
+            this.next = n; // Set the next item in the linked list.
+
+            // Update the total memory usage to account for the new item.
             totalBytesUsed += estimateMemoryUsage(s);
             totalBytesUsed += estimateMemoryUsage(this);
         }
     }
 
     private void writeVByte(int value, ByteArrayOutputStream output) throws IOException {
+        // List to store the bytes of the encoded value.
         ArrayList<Integer> bytes = new ArrayList<>();
+
+        // Loop to encode the integer value into bytes.
         while (true) {
-            bytes.add(0, value % 128); // PREPEND(bytes, n mod 128)
+            // Prepend the least significant 7 bits of the value to the bytes list.
+            bytes.add(0, value % 128);
+            // Check if the value fits within 7 bits.
             if (value < 128) {
                 break;
             }
-            value = value / 128; // n div 128
+            // Shift right by 7 bits (divide by 128) to process the next 7 bits.
+            value = value / 128;
         }
-        bytes.set(bytes.size() - 1, bytes.get(bytes.size() - 1) + 128); // Modify the last element
+
+        // Modify the last byte to mark the end of the encoded value.
+        bytes.set(bytes.size() - 1, bytes.get(bytes.size() - 1) + 128);
+
+        // Write all the bytes to the output stream.
         for (int b : bytes) {
             output.write(b);
         }
     }
 
-
     private int readVByte(ByteArrayInputStream input) {
         int n = 0;
+
+        // Loop to decode the bytes from the input stream.
         while (true) {
+            // Read a byte from the input stream.
             int b = input.read();
+            // Check if this is the last byte of the encoded value.
             if (b >= 128) {
+                // Add the value of this byte to the integer, removing the end marker.
                 n = 128 * n + (b - 128);
                 break;
             } else {
+                // Add the value of this byte to the integer.
                 n = 128 * n + b;
             }
         }
+
+        // Return the decoded integer value.
         return n;
     }
 
@@ -144,22 +166,32 @@ public class Index6a {
         }
 
         int hashIndex = hash(word);
+
+        // Search for an existing item with the same word.
         WikiItem existingItem = findWikiItem(word);
 
+        // If the word is not already in the hash table, add it as a new item.
         if (existingItem == null) {
+            // Create a new WikiItem and add it to the hash table at the computed index.
             WikiItem newItem = new WikiItem(word, docId, hashTable[hashIndex]);
             hashTable[hashIndex] = newItem;
-            numItems++;
+            numItems++; // Increment the number of items in the hash table.
         } else {
+            // If the current document doesnt already contain the word, add the documentdifference to the bytearray.
             if (existingItem.lastDocId != docId) {
+                // Estimate the current memory usage of the document differences.
                 long oldMemoryUsage = estimateMemoryUsage(existingItem.documentDiffs);
                 try {
+                    // Write the difference between the current and last document IDs.
                     writeVByte(docId - existingItem.lastDocId, existingItem.documentDiffs);
+                    // Update the last document ID to the current one.
                     existingItem.lastDocId = docId;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                // Estimate the new memory usage after writing the difference.
                 long newMemoryUsage = estimateMemoryUsage(existingItem.documentDiffs);
+                // Update the total memory usage with the difference.
                 totalBytesUsed += (newMemoryUsage - oldMemoryUsage);
             }
         }
@@ -225,18 +257,29 @@ public class Index6a {
     public void search(String searchString) {
         WikiItem foundItem = findWikiItem(searchString);
 
+        // If the item is found in the index.
         if (foundItem != null) {
             System.out.println("Documents associated with '" + searchString + "':");
+
+            // Get the byte array of encoded document ID differences.
             byte[] encodedDiffs = foundItem.documentDiffs.toByteArray();
+            // Create a ByteArrayInputStream to read the encoded differences.
             ByteArrayInputStream input = new ByteArrayInputStream(encodedDiffs);
 
+            // Read and decode the first document ID.
             int docId = readVByte(input);
+            // Print the document ID and its corresponding name.
             System.out.println(docId + "  - " + documentNames.get(docId));
+
+            // Continue reading and decoding the remaining document ID differences.
             while (input.available() > 0) {
+                // Read the next document ID difference and add it to the previous document ID.
                 docId += readVByte(input);
+                // Print the document ID and its corresponding name.
                 System.out.println(docId + "  - " + documentNames.get(docId));
             }
         } else {
+            // If the item is not found in the index.
             System.out.println(searchString + " not found in the index.");
         }
     }
@@ -253,59 +296,6 @@ public class Index6a {
         }
 
         return null;
-    }
-
-    public void printByteArrayOfWord(String word) {
-        WikiItem item = findWikiItem(word);
-        if (item != null) {
-            byte[] bytes = item.documentDiffs.toByteArray();
-            System.out.print("ByteArrayOutputStream for word '" + word + "': ");
-            for (byte b : bytes) {
-                System.out.print(b + " ");
-            }
-            System.out.println();
-        } else {
-            System.out.println("Word '" + word + "' not found in the index.");
-        }
-    }
-
-    public void printByteArrayOfWord2(String word) {
-        WikiItem item = findWikiItem(word);
-        if (item != null) {
-            byte[] bytes = item.documentDiffs.toByteArray();
-            System.out.print("ByteArrayOutputStream for word '" + word + "': ");
-            for (byte b : bytes) {
-                String binaryString = Integer.toBinaryString(b & 0xFF);
-                while (binaryString.length() < 8) {  // Add leading zeros
-                    binaryString = "0" + binaryString;
-                }
-                System.out.print(binaryString + " ");
-            }
-            System.out.println();
-        } else {
-            System.out.println("Word '" + word + "' not found in the index.");
-        }
-    }
-
-    public void printByteArrayOfWord3(String word) {
-        WikiItem item = findWikiItem(word);
-        if (item != null) {
-            byte[] bytes = item.documentDiffs.toByteArray();
-            System.out.println("ByteArrayOutputStream for word '" + word + "': ");
-            for (byte b : bytes) {
-                // Print the byte
-                System.out.print("Byte: " + b + ", Bits: ");
-
-                // Print the corresponding bits
-                String binaryString = Integer.toBinaryString(b & 0xFF);
-                while (binaryString.length() < 8) {  // Add leading zeros
-                    binaryString = "0" + binaryString;
-                }
-                System.out.println(binaryString);
-            }
-        } else {
-            System.out.println("Word '" + word + "' not found in the index.");
-        }
     }
 
     private long estimateMemoryUsage(WikiItem item) {

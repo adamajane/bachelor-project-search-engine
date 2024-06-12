@@ -92,7 +92,6 @@ public class Index5c {
     }
 
     private int hash(String word) {
-        // Use the built-in hashCode() method
         int hashValue = word.hashCode();
 
         // Ensures that the hash value is non-negative
@@ -105,23 +104,29 @@ public class Index5c {
     }
 
     private void addWordToIndex(String word, int docId) {
+        // Calculate the current load factor to determine if resizing is needed
         double currentLoadFactor = (double) (numItems + 1) / tableSize;
 
+        // Resize the hash table if the current load factor exceeds the threshold
         if (currentLoadFactor > loadFactor) {
             resizeHashTable();
         }
-
         int hashIndex = hash(word);
+        // Find any existing WikiItem for the word in the hash table
         WikiItem existingItem = findWikiItem(word);
 
+        // If no existing item is found, create a new one
         if (existingItem == null) {
+            // Create a new document list and add the current document ID
             ArrayList<Integer> docList = new ArrayList<>();
             docList.add(docId);
+            // Create a new WikiItem with the word, document list, and link it to the current hash table bucket
             WikiItem newItem = new WikiItem(word, docList, hashTable[hashIndex]);
             newItem.lastDocIndex = 0; // Since this is the first document, index is 0
-            hashTable[hashIndex] = newItem;
-            numItems++; // Increment the item count
+            hashTable[hashIndex] = newItem; // Place the new item in the hash table
+            numItems++; // Increment the count of items in the hash table
         } else {
+            // If an existing item is found, add the document ID to it
             addDocumentToWikiItem(existingItem, docId);
         }
     }
@@ -219,13 +224,24 @@ public class Index5c {
     }
 
     private void addDocumentToWikiItem(WikiItem item, int documentId) {
+        // Retrieve the document list from the WikiItem
         ArrayList<Integer> docList = item.documents;
+        // Check if the list is empty or the last document is not the current document ID
         if (item.lastDocIndex == -1 || docList.get(item.lastDocIndex) != documentId) {
+            // Estimate the memory usage of the document list before adding the new document
             long oldMemoryUsage = estimateMemoryUsage(docList);
+
+            // Add the new document ID to the document list
             docList.add(documentId);
-            item.lastDocIndex = docList.size() - 1; // Update the last document index
+
+            // Update the last document index to the new document's position
+            item.lastDocIndex = docList.size() - 1;
+
+            // Estimate the memory usage of the document list after adding the new document
             long newMemoryUsage = estimateMemoryUsage(docList);
-            totalBytesUsed += (newMemoryUsage - oldMemoryUsage); // Update total memory usage
+
+            // Update the total memory usage with the difference in memory usage
+            totalBytesUsed += (newMemoryUsage - oldMemoryUsage);
         }
     }
 
@@ -267,7 +283,4 @@ public class Index5c {
         return documentNames;
     }
 
-    public long getTotalBytesUsed() {
-        return totalBytesUsed;
-    }
 }

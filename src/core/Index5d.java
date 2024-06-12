@@ -293,7 +293,4 @@ public class Index5d {
         return documentNames;
     }
 
-    public long getTotalBytesUsed() {
-        return totalBytesUsed;
-    }
 }

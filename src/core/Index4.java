@@ -53,8 +53,8 @@ public class Index4 {
             Scanner input = new Scanner(new File(filename), "UTF-8");
 
             String currentTitle = null;
-            StringBuilder documentContent = new StringBuilder();
-            boolean readingTitle = true;
+            StringBuilder documentContent = new StringBuilder(); // To accumulate document content
+            boolean readingTitle = true; // Flag to indicate if we're reading a title
 
             while (input.hasNext()) {
                 String word = input.next();
@@ -63,21 +63,22 @@ public class Index4 {
                     if (currentTitle == null) {
                         currentTitle = word;
                     } else {
-                        currentTitle = currentTitle + " " + word; // Append words
+                        currentTitle = currentTitle + " " + word; // Append words to the title
                     }
 
                     if (word.endsWith(".") || word.endsWith("!") || word.endsWith("?")) {
-                        readingTitle = false;
+                        readingTitle = false; // End of title
                     }
                 } else {
                     if (word.equals("---END.OF.DOCUMENT---")) {
+                        // process the document content
                         Scanner contentScanner = new Scanner(documentContent.toString());
                         while (contentScanner.hasNext()) {
                             addWordToIndex(contentScanner.next(), currentTitle);
                         }
-                        readingTitle = true;
+                        readingTitle = true; // Switch back to reading title
                         currentTitle = null;
-                        documentContent.setLength(0);
+                        documentContent.setLength(0); // Clear document content
                         contentScanner.close();
                     } else {
                         documentContent.append(word).append(" ");
@@ -86,7 +87,7 @@ public class Index4 {
             }
 
         } catch (FileNotFoundException e) {
-            System.out.println("Error reading file " + filename);
+            System.out.println("Error reading file " + filename); // Handle file not found exception
         }
         long endTime = System.currentTimeMillis(); // End timing
         double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
@@ -96,7 +97,6 @@ public class Index4 {
     }
 
     private int hash(String word) {
-        // Use the built-in hashCode() method
         int hashValue = word.hashCode();
 
         // Ensures that the hash value is non-negative
@@ -110,20 +110,25 @@ public class Index4 {
 
     private void addWordToIndex(String word, String docTitle) {
 
+        // Calculate the current load factor of the hash table
         double currentLoadFactor = (double) (numItems + 1) / tableSize;
 
+        // Check if the load factor exceeds the threshold, and resize the hash table if so
         if (currentLoadFactor > loadFactor) {
             resizeHashTable();
         }
-
         int hashIndex = hash(word);
+
+        // Check if the word already exists in the index
         WikiItem existingItem = findWikiItem(word);
 
         if (existingItem == null) {
+            // If not, create a new WikiItem
             WikiItem newItem = new WikiItem(word, new DocumentItem(docTitle, null), hashTable[hashIndex]);
             hashTable[hashIndex] = newItem;
             numItems++; // Increment the item count
         } else {
+            // If the word exists, add the document title to its document list
             addDocumentToWikiItem(existingItem, docTitle);
         }
     }
@@ -152,33 +157,41 @@ public class Index4 {
     }
 
     private void resizeHashTable() {
-        System.out.println("Starting resize..."); // Log start
 
+        // Make the new table size, as a prime number
         int newTableSize = nextPrime(tableSize * 2);
+        // Create a temporary table with the new size
         WikiItem[] tempTable = new WikiItem[newTableSize];
 
+        // Iterate over the current hash table
         for (int i = 0; i < tableSize; i++) {
             WikiItem item = hashTable[i];
             while (item != null) {
-                System.out.println("Rehashing item: " + item.searchString); // Log item
+                System.out.println("Rehashing item: " + item.searchString); // Log each item being rehashed
+                // Compute the new index for the item in the resized table
                 int newIndex = rehash(item.searchString, newTableSize);
 
-                WikiItem nextItem = item.next; // Save the next item
+                // Store reference to the next item
+                WikiItem nextItem = item.next;
 
-                // Insert at the head of the list in the new table
+                // Insert the current item into the new table at the computed index
                 item.next = tempTable[newIndex];
                 tempTable[newIndex] = item;
 
-                item = nextItem; // Move to the next item in the old list
+                // Move to the next item in the old list
+                item = nextItem;
             }
         }
 
+        // Replace the old hash table with the resized one
         hashTable = tempTable;
+        // Update the table size to the new size
         tableSize = newTableSize;
 
-        System.out.println("Resize complete. New size: " + tableSize); // Log end
+        System.out.println("Resize complete. New size: " + tableSize); // Log end of the resize process
     }
 
+    // rehashes the word to fit within the new table size
     private int rehash(String word, int newSize) {
         int hashValue = word.hashCode();
         hashValue = hashValue & 0x7fffffff;
@@ -187,13 +200,15 @@ public class Index4 {
     }
 
     public void search(String searchString) {
-        long startTime = System.nanoTime(); // Start timing
+        long startTime = System.nanoTime();
 
+        // Find the WikiItem associated with the search string
         WikiItem foundItem = findWikiItem(searchString);
 
-        long endTime = System.nanoTime(); // End timing
-        double timeTaken = (double) (endTime - startTime) ; // Convert to milliseconds
+        long endTime = System.nanoTime();
+        double timeTaken = (double) (endTime - startTime); // Convert to milliseconds
 
+        // Print search results
         if (foundItem != null) {
             System.out.println("Documents associated with '" + searchString + "':");
             DocumentItem currentDoc = foundItem.documents;
@@ -201,6 +216,7 @@ public class Index4 {
             if (currentDoc == null) {
                 System.out.println("  No documents found.");
             } else {
+                // Loop through all documents associated with the WikiItem
                 while (currentDoc != null) {
                     System.out.println("  - " + currentDoc.documentName);
                     currentDoc = currentDoc.next;
@@ -210,21 +226,23 @@ public class Index4 {
             System.out.println(searchString + " not found in the index.");
         }
 
-        System.out.println("Search query time: " + timeTaken + " ns"); // Print the time taken
+        System.out.println("Search query time: " + timeTaken + " ns");
     }
 
     private WikiItem findWikiItem(String searchString) {
+        // Hash the search string to get an index in the hash table
         int hashIndex = hash(searchString);
         WikiItem current = hashTable[hashIndex];
 
+        // Traverse the linked list at the hash table index
         while (current != null) {
             if (current.searchString.equals(searchString)) {
-                return current;
+                return current; // Found the WikiItem
             }
             current = current.next;
         }
 
-        return null; // Item not found
+        return null; // Search string not found in the hash table
     }
 
     private void addDocumentToWikiItem(WikiItem item, String documentName) {

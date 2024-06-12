@@ -52,9 +52,12 @@ public class Index5a {
     }
 
     public Index5a(String filename) {
-        long startTime = System.currentTimeMillis(); // Start timing
+        // Start measuring time to build the search index
+        long startTime = System.currentTimeMillis();
+
+        // Initialize the hash table and document title array
         hashTable = new WikiItem[tableSize];
-        documentNames = new ArrayList<>(); // Initialize the array
+        documentNames = new ArrayList<>();
 
         try {
             Scanner input = new Scanner(new File(filename), "UTF-8");
@@ -66,6 +69,7 @@ public class Index5a {
             while (input.hasNext()) {
                 String word = input.next();
 
+                // Extract and store document titles
                 if (readingTitle) {
                     if (currentTitle == null) {
                         currentTitle = word;
@@ -75,17 +79,18 @@ public class Index5a {
 
                     if (word.endsWith(".")) {
                         readingTitle = false;
-                        documentNames.add(currentTitle); // Add document title to the array
+                        documentNames.add(currentTitle); // Add title to the array
+                        currentTitle = null;
                     }
                 } else {
+                    // Process document content and add words to the index
                     if (word.equals("---END.OF.DOCUMENT---")) {
                         Scanner contentScanner = new Scanner(documentContent.toString());
                         while (contentScanner.hasNext()) {
-                            // Store the index of the document title in the DocumentItem
+                            // Store the index of the document title for this word
                             addWordToIndex(contentScanner.next(), documentNames.size() - 1);
                         }
                         readingTitle = true;
-                        currentTitle = null;
                         documentContent.setLength(0);
                         contentScanner.close();
                     } else {
@@ -98,16 +103,17 @@ public class Index5a {
             System.out.println("Error reading file " + filename);
         }
 
+        // Account for memory used by the data structures
         totalBytesUsed += estimateMemoryUsage(documentNames);
         totalBytesUsed += estimateMemoryUsage(hashTable);
 
-        long endTime = System.currentTimeMillis(); // End timing
+        // End measuring time to build the search index
+        long endTime = System.currentTimeMillis();
         double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
     }
 
     private int hash(String word) {
-        // Use the built-in hashCode() method
         int hashValue = word.hashCode();
 
         // Ensures that the hash value is non-negative
@@ -120,24 +126,27 @@ public class Index5a {
     }
 
     private void addWordToIndex(String word, int docId) {
-
+        // Check if the load factor is too high, and resize if so
         double currentLoadFactor = (double) (numItems + 1) / tableSize;
-
         if (currentLoadFactor > loadFactor) {
             resizeHashTable();
         }
-
         int hashIndex = hash(word);
+
+        // Find an existing WikiItem for this word in the hash table
         WikiItem existingItem = findWikiItem(word);
 
+        // If the word is not yet in the index, create a new WikiItem for it
         if (existingItem == null) {
+            // Create a new DocumentItem for the document and link it to the WikiItem
             WikiItem newItem = new WikiItem(word, new DocumentItem(docId, null), hashTable[hashIndex]);
+            // Add the new WikiItem to the head of the collision list at the hash table index
             hashTable[hashIndex] = newItem;
-            numItems++; // Increment the item count
+            numItems++; // Increment the count of items in the index
         } else {
+            // The word already exists in the index, add this document to the existing WikiItem
             addDocumentToWikiItem(existingItem, docId);
         }
-
     }
 
     // Helper method to find the next prime number
@@ -294,7 +303,4 @@ public class Index5a {
         return documentNames;
     }
 
-    public long getTotalBytesUsed() {
-        return totalBytesUsed;
-    }
 }

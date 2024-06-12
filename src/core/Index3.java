@@ -51,8 +51,8 @@ public class Index3 {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String currentTitle = null;
-            StringBuilder documentContent = new StringBuilder();
-            boolean readingTitle = true;
+            StringBuilder documentContent = new StringBuilder(); // Accumulate document content
+            boolean readingTitle = true; // Flag to indicate if we're reading a title
             String line;
 
             while ((line = reader.readLine()) != null) {
@@ -62,9 +62,9 @@ public class Index3 {
                     if (readingTitle) {
                         if (word.endsWith(".") || word.endsWith("!") || word.endsWith("?")) {
                             currentTitle = documentContent.toString() + word;
-                            readingTitle = false;
+                            readingTitle = false; // Switch to reading document content
                         } else {
-                            documentContent.append(word).append(" ");
+                            documentContent.append(word).append(" "); // Append to title
                         }
                     } else {
                         if (word.equals("---END.OF.DOCUMENT---")) {
@@ -74,9 +74,9 @@ public class Index3 {
                                 addWordToIndex(w, currentTitle);
                             }
 
-                            readingTitle = true;
+                            readingTitle = true; // Switch back to reading title
                             currentTitle = null;
-                            documentContent.setLength(0);
+                            documentContent.setLength(0); // Clear document content
                         } else {
                             documentContent.append(word).append(" ");
                         }
@@ -107,9 +107,6 @@ public class Index3 {
             // Word exists, need to add a document to its list
             addDocumentToWikiItem(existingItem, docTitle);
         }
-
-        // Logging for debugging (remove these lines later)
-        // System.out.println("Added word: " + word + " for document: " + docTitle);
     }
 
 
@@ -141,7 +138,6 @@ public class Index3 {
         WikiItem current = index;
         while (current != null) {
             if (current.searchString.equals(searchString)) {
-                // System.out.println("Found WikiItem for: " + searchString); // Debugging print
                 return current;
             }
             current = current.next;
@@ -157,7 +153,6 @@ public class Index3 {
         // Check for duplicates
         while (currentDoc != null) {
             if (currentDoc.documentName.equals(documentName)) {
-                //System.out.println("Document '" + documentName + "' already exists in WikiItem: " + item.searchString);
                 return; // Document already exists, no need to add again
             }
             currentDoc = currentDoc.next;
