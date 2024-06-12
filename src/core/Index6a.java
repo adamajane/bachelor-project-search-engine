@@ -12,7 +12,7 @@ public class Index6a {
 
     It builds up Index5a, which uses an ArrayList for the index array.
 
-    In addition, it uses a difference array and variable byte encoding for storing document IDs to make the
+    In addition, it uses a delta array and variable byte encoding for storing document IDs to make the
     index more compact.
     */
     private WikiItem[] hashTable;

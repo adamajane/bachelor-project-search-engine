@@ -164,7 +164,7 @@ public class Index5a {
             for (counter = 2; counter <= sqrt; counter++) {
                 if (num % counter == 0) {
                     prime = false;
-                    break; // exit the inner for loop
+                    break;
                 }
             }
         }
@@ -236,7 +236,6 @@ public class Index5a {
 
         while (current != null) {
             if (current.searchString.equals(searchString)) {
-                //System.out.println("Found WikiItem for: " + searchString);
                 return current;
             }
             current = current.next;

@@ -36,7 +36,7 @@ public class Index5c {
     }
 
     public Index5c(String filename) {
-        long startTime = System.currentTimeMillis(); // Start timing
+        long startTime = System.currentTimeMillis();
         hashTable = new WikiItem[tableSize];
         totalBytesUsed += estimateMemoryUsage(hashTable);
         documentNames = new ArrayList<>(); // Initialize the document names list
@@ -146,7 +146,7 @@ public class Index5c {
             for (counter = 2; counter <= sqrt; counter++) {
                 if (num % counter == 0) {
                     prime = false;
-                    break; // exit the inner for loop
+                    break;
                 }
             }
         }
@@ -155,7 +155,7 @@ public class Index5c {
     }
 
     private void resizeHashTable() {
-        System.out.println("Starting resize..."); // Log start
+        System.out.println("Starting resize...");
 
         int newTableSize = nextPrime(tableSize * 2);
         WikiItem[] tempTable = new WikiItem[newTableSize];
@@ -163,7 +163,7 @@ public class Index5c {
         for (int i = 0; i < tableSize; i++) {
             WikiItem item = hashTable[i];
             while (item != null) {
-                System.out.println("Rehashing item: " + item.searchString); // Log item
+                System.out.println("Rehashing item: " + item.searchString);
                 int newIndex = rehash(item.searchString, newTableSize);
 
                 WikiItem nextItem = item.next; // Save the next item

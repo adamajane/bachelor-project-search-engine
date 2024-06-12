@@ -34,7 +34,7 @@ public class Index5d {
     }
 
     public Index5d(String filename) {
-        long startTime = System.currentTimeMillis(); // Start timing
+        long startTime = System.currentTimeMillis();
         hashTable = new WikiItem[tableSize];
 
         documentNames = new ArrayList<>(); // Initialize the document names list
@@ -90,7 +90,7 @@ public class Index5d {
     }
 
     private int hash(String word) {
-        // Use the built-in hashCode() method
+
         int hashValue = word.hashCode();
 
         // Ensures that the hash value is non-negative
@@ -132,7 +132,6 @@ public class Index5d {
         int counter;
         boolean prime = false;
 
-        // Start searching for next prime number
         int num = input;
 
         while (!prime) {
@@ -143,7 +142,7 @@ public class Index5d {
             for (counter = 2; counter <= sqrt; counter++) {
                 if (num % counter == 0) {
                     prime = false;
-                    break; // exit the inner for loop
+                    break;
                 }
             }
         }
@@ -226,7 +225,6 @@ public class Index5d {
 
         while (current != null) {
             if (current.searchString.equals(searchString)) {
-                //System.out.println("Found WikiItem for: " + searchString);
                 return current;
             }
             current = current.next;

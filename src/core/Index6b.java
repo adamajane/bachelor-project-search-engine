@@ -241,7 +241,7 @@ public class Index6b {
     }
 
     private void resizeHashTable() {
-        System.out.println("Starting resize..."); // Log start
+        System.out.println("Starting resize...");
 
         int newTableSize = nextPrime(tableSize * 2);
         WikiItem[] tempTable = new WikiItem[newTableSize];

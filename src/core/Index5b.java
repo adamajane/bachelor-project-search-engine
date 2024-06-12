@@ -157,7 +157,6 @@ public class Index5b {
         int counter;
         boolean prime = false;
 
-        // Start searching for next prime number
         int num = input;
 
         while (!prime) {
@@ -168,7 +167,7 @@ public class Index5b {
             for (counter = 2; counter <= sqrt; counter++) {
                 if (num % counter == 0) {
                     prime = false;
-                    break; // exit the inner for loop
+                    break;
                 }
             }
         }
@@ -177,7 +176,7 @@ public class Index5b {
     }
 
     private void resizeHashTable() {
-        System.out.println("Starting resize..."); // Log start
+        System.out.println("Starting resize...");
 
         int newTableSize = nextPrime(tableSize * 2);
         WikiItem[] tempTable = new WikiItem[newTableSize];
