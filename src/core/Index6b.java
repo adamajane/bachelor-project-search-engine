@@ -293,36 +293,6 @@ public class Index6b {
         return null; // Item not found
     }
 
-    //commented out because not needed when using arraylist for documents
-/*
-    private void addDocumentToWikiItem(WikiItem item, int documentId) {
-        DocumentList currentDoc = item.documents;
-
-        // Check if the document list is empty
-        if (currentDoc == null) {
-            item.documents = new DocumentList(documentId, null);
-            return;  // Document added; we can return immediately
-        }
-
-        // Check the tail to avoid duplicates
-        if (currentDoc.tail.documentName == documentId) {
-            return; // Document already exists at the end
-        }
-
-        // Document doesn't exist yet, add it to the list
-        DocumentList newDoc = new DocumentList(documentId, null);
-        currentDoc.tail.next = newDoc;
-        currentDoc.tail = newDoc; // Update the tail pointer
-    }
-
- */
-
-    /*
-    public int countDocuments() {
-        return documentNames.size();
-    }
-     */
-
     // Helper method to estimate memory usage of a WikiItem object
     private long estimateMemoryUsage(WikiItem item) {
         long memoryUsage = 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, ByteArrayOutputStream, and next WikiItem (4 bytes each)
@@ -359,5 +329,9 @@ public class Index6b {
         int numChars = s.length();
         int memoryUsage = 8 * (int) Math.ceil(((numChars * 2) + 38) / 8.0);
         return memoryUsage;
+    }
+
+    public int getNumArticles() {
+        return documentNames.size();
     }
 }
