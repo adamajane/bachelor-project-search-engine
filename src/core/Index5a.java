@@ -18,7 +18,7 @@ public class Index5a {
     private ArrayList<String> documentNames; // separate array for document titles
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
-    private long totalBytesUsed = 0; // Global byte counter
+    public long totalBytesUsed = 0; // Global byte counter
 
     private class WikiItem {
         String searchString;

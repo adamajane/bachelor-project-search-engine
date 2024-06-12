@@ -33,7 +33,6 @@ public class Driver {
             case "2":
                 System.out.println("Preprocessing " + FULL_FILE_PATH);
                 Index2 i2 = new Index2(FULL_FILE_PATH);
-                System.out.println("Current heap size: " + (Runtime.getRuntime().totalMemory() / (1024 * 1024)) + " MB");
 
                 while (true) {
                     System.out.println("Input search string or type exit to stop");
@@ -78,8 +77,7 @@ public class Driver {
                 System.out.println("Preprocessing " + FULL_FILE_PATH);
                 Index5a i5a = new Index5a(FULL_FILE_PATH);
 
-                System.out.println("Total memory used: " + i5a.getTotalBytesUsed() + " bytes (" + i5a.getTotalBytesUsed() / (1024 * 1024) + " MB).");
-                System.out.println("Number of articles: " + i5a.getDocumentNames().size());
+                System.out.println("Total memory used: " + i5a.totalBytesUsed + " bytes (" + i5a.totalBytesUsed / (1024 * 1024) + " MB).");
 
                 while (true) {
                     System.out.println("Input search string or type 'exit' to stop");
@@ -94,8 +92,7 @@ public class Driver {
                 System.out.println("Preprocessing " + FULL_FILE_PATH);
                 Index5b i5b = new Index5b(FULL_FILE_PATH);
 
-                System.out.println("Total memory used: " + i5b.getTotalBytesUsed() + " bytes (" + i5b.getTotalBytesUsed() / (1024 * 1024) + " MB).");
-                System.out.println("Number of articles: " + i5b.getDocumentNames().length);
+                System.out.println("Total memory used: " + i5b.totalBytesUsed + " bytes (" + i5b.totalBytesUsed / (1024 * 1024) + " MB).");
 
                 while (true) {
                     System.out.println("Input search string or type 'exit' to stop");
@@ -110,7 +107,6 @@ public class Driver {
                 System.out.println("Preprocessing " + FULL_FILE_PATH);
                 Index5c i5c = new Index5c(FULL_FILE_PATH);
 
-                System.out.println("Number of articles: " + i5c.getDocumentNames().size());
 
                 while (true) {
                     System.out.println("Input search string or type 'exit' to stop");
@@ -125,8 +121,7 @@ public class Driver {
                 System.out.println("Preprocessing " + FULL_FILE_PATH);
                 Index5d i5d = new Index5d(FULL_FILE_PATH);
 
-                System.out.println("Total memory used: " + i5d.getTotalBytesUsed() + " bytes (" + i5d.getTotalBytesUsed() / (1024 * 1024) + " MB).");
-                System.out.println("Number of articles: " + i5d.getDocumentNames().size());
+                System.out.println("Total memory used: " + i5d.totalBytesUsed + " bytes (" + i5d.totalBytesUsed / (1024 * 1024) + " MB).");
 
                 while (true) {
                     System.out.println("Input search string or type 'exit' to stop");
@@ -145,9 +140,6 @@ public class Driver {
                     System.out.println("Input search string or type 'exit' to stop");
                     searchString = console.nextLine();
 
-                    i6a.printByteArrayOfWord(searchString);
-                    i6a.printByteArrayOfWord2(searchString);
-                    i6a.printByteArrayOfWord3(searchString);
                     if (searchString.equals("exit")) {
                         break;
                     }
@@ -157,8 +149,6 @@ public class Driver {
             case "6b":
                 System.out.println("Preprocessing " + FULL_FILE_PATH);
                 Index6b i6b = new Index6b(FULL_FILE_PATH);
-
-                System.out.println("Total number of articles: " + i6b.getNumArticles());
 
                 while (true) {
                     System.out.println("Input search string or type 'exit' to stop");

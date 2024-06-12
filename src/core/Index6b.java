@@ -217,17 +217,6 @@ public class Index6b {
     }
 
 
-    /*
-    private int decodeLastDocId(byte[] encodedDiffs) {
-        ByteArrayInputStream input = new ByteArrayInputStream(encodedDiffs);
-        int docId = readVByte(input);  // Decode the first docId
-        while (input.available() > 0) {
-            docId += readVByte(input);  // Decode and accumulate differences
-        }
-        return docId;
-    }
-    */
-
     private int nextPrime(int input) {
         int counter;
         boolean prime = false;

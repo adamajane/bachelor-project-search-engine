@@ -12,7 +12,7 @@ public class Index5d {
     private ArrayList<String> documentNames;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
-    private long totalBytesUsed = 0; // Global byte counter
+    public long totalBytesUsed = 0; // Global byte counter
     private StringBuilder sb = new StringBuilder();
 
     private class WikiItem {
@@ -89,8 +89,6 @@ public class Index5d {
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
     }
 
-    // Using modulus instead of logical AND, reduced the running time by half!!
-    // Using java inbuilt hash function on strings now further increased runtime by 20-25%
     private int hash(String word) {
         // Use the built-in hashCode() method
         int hashValue = word.hashCode();

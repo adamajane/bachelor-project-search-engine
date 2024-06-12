@@ -100,22 +100,22 @@ public class MemoryTestDriver {
                             break;
                         case 5:
                             Index5a index5a = new Index5a(dataFile);
-                            totalMegabytesUsed = index5a.getTotalBytesUsed() / (1024.0 * 1024.0);
+                            totalMegabytesUsed = index5a.totalBytesUsed / (1024.0 * 1024.0);
                             outputBuilder.append(String.format("%-15s", String.format("%.2f", totalMegabytesUsed)));
                             index5a = null;  // Release the reference
 
                             Index5b index5b = new Index5b(dataFile);
-                            totalMegabytesUsed = index5b.getTotalBytesUsed() / (1024.0 * 1024.0);
+                            totalMegabytesUsed = index5b.totalBytesUsed / (1024.0 * 1024.0);
                             outputBuilder.append(String.format("%-15s", String.format("%.2f", totalMegabytesUsed)));
                             index5b = null;  // Release the reference
 
                             Index5c index5c = new Index5c(dataFile);
-                            totalMegabytesUsed = index5c.getTotalBytesUsed() / (1024.0 * 1024.0);
+                            totalMegabytesUsed = index5c.totalBytesUsed / (1024.0 * 1024.0);
                             outputBuilder.append(String.format("%-15s", String.format("%.2f", totalMegabytesUsed)));
                             index5c = null;  // Release the reference
 
                             Index5d index5d = new Index5d(dataFile);
-                            totalMegabytesUsed = index5d.getTotalBytesUsed() / (1024.0 * 1024.0);
+                            totalMegabytesUsed = index5d.totalBytesUsed / (1024.0 * 1024.0);
                             outputBuilder.append(String.format("%-15s", String.format("%.2f", totalMegabytesUsed)));
                             index5d = null;  // Release the reference
                             break;
