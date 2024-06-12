@@ -6,9 +6,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
-import static util.Config.*;
+import static util.TestConfig.*;
 
-class IndexPrefix {
+class IndexRanking {
 
     private WikiItem[] hashTable;
     private int tableSize = 49999;
@@ -40,7 +40,7 @@ class IndexPrefix {
         }
     }
 
-    public IndexPrefix(String filename) {
+    public IndexRanking(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
 
@@ -252,7 +252,7 @@ class IndexPrefix {
         // String filePath = "...";
 
         System.out.println("Preprocessing " + FULL_FILE_PATH);
-        IndexPrefix index = new IndexPrefix(FULL_FILE_PATH);
+        IndexRanking index = new IndexRanking(FULL_FILE_PATH);
 
         Scanner console = new Scanner(System.in);
         while (true) {

@@ -2,83 +2,82 @@ package core;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
-
-import static util.Config.*;
 
 public class Index6a {
 
     /*
     This index implements compression techniques to further reduce memory usage.
 
-    It builds up Index5a to use a hash table for the index.
+    It builds up Index5a, which uses an ArrayList for the index array.
 
-    In addition, it uses a difference array and variable byte encoding for storing document IDs,
-    making the index more compact.
+    In addition, it uses a difference array and variable byte encoding for storing document IDs to make the
+    index more compact.
     */
-
     private WikiItem[] hashTable;
     private int tableSize = 49999;
     private ArrayList<String> documentNames;
-    private int numItems = 0; // Track the number of items
+    private int numItems = 0;
     private double loadFactor = 0.75;
-    private long totalBytesUsed = 0; // Global byte counter
+    public long totalBytesUsed = 0;
 
     private class WikiItem {
         String searchString;
         ByteArrayOutputStream documentDiffs;
         WikiItem next;
-        int lastDocId; // Cache the last document ID
+        int lastDocId;// Cache the last document ID
 
         WikiItem(String s, int firstDocId, WikiItem n) {
             this.searchString = s;
             this.documentDiffs = new ByteArrayOutputStream();
             this.lastDocId = firstDocId;
             try {
-                writeVByte(firstDocId, this.documentDiffs);  // Encode the first docId
+                writeVByte(firstDocId, this.documentDiffs);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             this.next = n;
-
-            // Estimate memory used by this WikiItem
             totalBytesUsed += estimateMemoryUsage(s);
             totalBytesUsed += estimateMemoryUsage(this);
         }
     }
 
-
     private void writeVByte(int value, ByteArrayOutputStream output) throws IOException {
+        ArrayList<Integer> bytes = new ArrayList<>();
         while (true) {
-            if ((value & ~0x7F) == 0) {  // Check if value fits in 7 bits
-                output.write(value);  // Write the value as the last byte
-                return;
-            } else {
-                output.write((value & 0x7F) | 0x80);  // Write the lower 7 bits with MSB set to 1
-                value >>>= 7;  // Right shift by 7 bits to process the next part
+            bytes.add(0, value % 128); // PREPEND(bytes, n mod 128)
+            if (value < 128) {
+                break;
             }
+            value = value / 128; // n div 128
+        }
+        bytes.set(bytes.size() - 1, bytes.get(bytes.size() - 1) + 128); // Modify the last element
+        for (int b : bytes) {
+            output.write(b);
         }
     }
 
+
     private int readVByte(ByteArrayInputStream input) {
-        int value = 0;
-        int shift = 0;
+        int n = 0;
         while (true) {
-            byte b = (byte) input.read();
-            value |= (b & 0x7F) << shift;  // Combine 7-bit value
-            if ((b & 0x80) == 0) {  // If MSB is 0, this is the last byte
+            int b = input.read();
+            if (b >= 128) {
+                n = 128 * n + (b - 128);
                 break;
+            } else {
+                n = 128 * n + b;
             }
-            shift += 7;  // Shift by 7 bits for the next part
         }
-        return value;
+        return n;
     }
 
     public Index6a(String filename) {
-        long startTime = System.currentTimeMillis(); // Start timing
+        long startTime = System.currentTimeMillis();
         hashTable = new WikiItem[tableSize];
         totalBytesUsed += estimateMemoryUsage(hashTable);
-        documentNames = new ArrayList<>(); // Initialize the document names list
+        documentNames = new ArrayList<>();
 
         try {
             Scanner input = new Scanner(new File(filename), "UTF-8");
@@ -94,14 +93,13 @@ public class Index6a {
                     if (currentTitle == null) {
                         currentTitle = word;
                     } else {
-                        currentTitle = currentTitle + " " + word; // Append words
+                        currentTitle = currentTitle + " " + word;
                     }
 
                     if (word.endsWith(".")) {
                         readingTitle = false;
                         documentNames.add(currentTitle);
                         totalBytesUsed += estimateMemoryUsage(currentTitle);
-
                     }
                 } else {
                     if (word.equals("---END.OF.DOCUMENT---")) {
@@ -125,27 +123,18 @@ public class Index6a {
 
         totalBytesUsed += estimateMemoryUsage(documentNames);
 
-        long endTime = System.currentTimeMillis(); // End timing
-        double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
+        long endTime = System.currentTimeMillis();
+        double minutes = (double) (endTime - startTime) / (1000 * 60);
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
         System.out.println("Total memory used: " + totalBytesUsed + " bytes (" + totalBytesUsed / (1024 * 1024) + " MB).");
     }
 
-    // Using modulus instead of logical AND, reduced the running time by half!!
-    // Using java inbuilt hash function on strings now further increased runtime by 20-25%
     private int hash(String word) {
-        // Use the built-in hashCode() method
         int hashValue = word.hashCode();
-
-        // Ensures that the hash value is non-negative
         hashValue = hashValue & 0x7fffffff;
-
-        // Reduce the hash value to fit within your table size
         hashValue = hashValue % tableSize;
-
         return hashValue;
     }
-
 
     private void addWordToIndex(String word, int docId) {
         double currentLoadFactor = (double) (numItems + 1) / tableSize;
@@ -163,32 +152,23 @@ public class Index6a {
             numItems++;
         } else {
             if (existingItem.lastDocId != docId) {
+                long oldMemoryUsage = estimateMemoryUsage(existingItem.documentDiffs);
                 try {
-                    writeVByte(docId - existingItem.lastDocId, existingItem.documentDiffs);  // Store the difference
-                    existingItem.lastDocId = docId; // Update the cached lastDocId
+                    writeVByte(docId - existingItem.lastDocId, existingItem.documentDiffs);
+                    existingItem.lastDocId = docId;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                long newMemoryUsage = estimateMemoryUsage(existingItem.documentDiffs);
+                totalBytesUsed += (newMemoryUsage - oldMemoryUsage);
             }
         }
     }
 
-    /*
-    private int decodeLastDocId(byte[] encodedDiffs) {
-        ByteArrayInputStream input = new ByteArrayInputStream(encodedDiffs);
-        int docId = readVByte(input);  // Decode the first docId
-        while (input.available() > 0) {
-            docId += readVByte(input);  // Decode and accumulate differences
-        }
-        return docId;
-    }
-    */
 
     private int nextPrime(int input) {
         int counter;
         boolean prime = false;
-
-        // Start searching for next prime number
         int num = input;
 
         while (!prime) {
@@ -199,7 +179,7 @@ public class Index6a {
             for (counter = 2; counter <= sqrt; counter++) {
                 if (num % counter == 0) {
                     prime = false;
-                    break; // exit the inner for loop
+                    break;
                 }
             }
         }
@@ -208,7 +188,7 @@ public class Index6a {
     }
 
     private void resizeHashTable() {
-        System.out.println("Starting resize..."); // Log start
+        System.out.println("Starting resize...");
 
         int newTableSize = nextPrime(tableSize * 2);
         WikiItem[] tempTable = new WikiItem[newTableSize];
@@ -216,16 +196,15 @@ public class Index6a {
         for (int i = 0; i < tableSize; i++) {
             WikiItem item = hashTable[i];
             while (item != null) {
-                System.out.println("Rehashing item: " + item.searchString); // Log item
+                System.out.println("Rehashing item: " + item.searchString);
                 int newIndex = rehash(item.searchString, newTableSize);
 
-                WikiItem nextItem = item.next; // Save the next item
+                WikiItem nextItem = item.next;
 
-                // Insert at the head of the list in the new table
                 item.next = tempTable[newIndex];
                 tempTable[newIndex] = item;
 
-                item = nextItem; // Move to the next item in the old list
+                item = nextItem;
             }
         }
 
@@ -233,7 +212,7 @@ public class Index6a {
         tableSize = newTableSize;
         totalBytesUsed += estimateMemoryUsage(tempTable);
 
-        System.out.println("Resize complete. New size: " + tableSize); // Log end
+        System.out.println("Resize complete. New size: " + tableSize);
     }
 
     private int rehash(String word, int newSize) {
@@ -243,7 +222,6 @@ public class Index6a {
         return hashValue;
     }
 
-
     public void search(String searchString) {
         WikiItem foundItem = findWikiItem(searchString);
 
@@ -251,10 +229,11 @@ public class Index6a {
             System.out.println("Documents associated with '" + searchString + "':");
             byte[] encodedDiffs = foundItem.documentDiffs.toByteArray();
             ByteArrayInputStream input = new ByteArrayInputStream(encodedDiffs);
-            int docId = readVByte(input);  // Decode the first docId
+
+            int docId = readVByte(input);
             System.out.println(docId + "  - " + documentNames.get(docId));
             while (input.available() > 0) {
-                docId += readVByte(input);  // Decode and accumulate differences
+                docId += readVByte(input);
                 System.out.println(docId + "  - " + documentNames.get(docId));
             }
         } else {
@@ -262,77 +241,93 @@ public class Index6a {
         }
     }
 
-
     private WikiItem findWikiItem(String searchString) {
         int hashIndex = hash(searchString);
         WikiItem current = hashTable[hashIndex];
 
         while (current != null) {
             if (current.searchString.equals(searchString)) {
-                //System.out.println("Found WikiItem for: " + searchString);
                 return current;
             }
             current = current.next;
         }
 
-        return null; // Item not found
+        return null;
     }
 
-    //commented out because not needed when using arraylist for documents
-/*
-    private void addDocumentToWikiItem(WikiItem item, int documentId) {
-        DocumentList currentDoc = item.documents;
-
-        // Check if the document list is empty
-        if (currentDoc == null) {
-            item.documents = new DocumentList(documentId, null);
-            return;  // Document added; we can return immediately
+    public void printByteArrayOfWord(String word) {
+        WikiItem item = findWikiItem(word);
+        if (item != null) {
+            byte[] bytes = item.documentDiffs.toByteArray();
+            System.out.print("ByteArrayOutputStream for word '" + word + "': ");
+            for (byte b : bytes) {
+                System.out.print(b + " ");
+            }
+            System.out.println();
+        } else {
+            System.out.println("Word '" + word + "' not found in the index.");
         }
+    }
 
-        // Check the tail to avoid duplicates
-        if (currentDoc.tail.documentName == documentId) {
-            return; // Document already exists at the end
+    public void printByteArrayOfWord2(String word) {
+        WikiItem item = findWikiItem(word);
+        if (item != null) {
+            byte[] bytes = item.documentDiffs.toByteArray();
+            System.out.print("ByteArrayOutputStream for word '" + word + "': ");
+            for (byte b : bytes) {
+                String binaryString = Integer.toBinaryString(b & 0xFF);
+                while (binaryString.length() < 8) {  // Add leading zeros
+                    binaryString = "0" + binaryString;
+                }
+                System.out.print(binaryString + " ");
+            }
+            System.out.println();
+        } else {
+            System.out.println("Word '" + word + "' not found in the index.");
         }
-
-        // Document doesn't exist yet, add it to the list
-        DocumentList newDoc = new DocumentList(documentId, null);
-        currentDoc.tail.next = newDoc;
-        currentDoc.tail = newDoc; // Update the tail pointer
     }
 
- */
+    public void printByteArrayOfWord3(String word) {
+        WikiItem item = findWikiItem(word);
+        if (item != null) {
+            byte[] bytes = item.documentDiffs.toByteArray();
+            System.out.println("ByteArrayOutputStream for word '" + word + "': ");
+            for (byte b : bytes) {
+                // Print the byte
+                System.out.print("Byte: " + b + ", Bits: ");
 
-    /*
-    public int countDocuments() {
-        return documentNames.size();
+                // Print the corresponding bits
+                String binaryString = Integer.toBinaryString(b & 0xFF);
+                while (binaryString.length() < 8) {  // Add leading zeros
+                    binaryString = "0" + binaryString;
+                }
+                System.out.println(binaryString);
+            }
+        } else {
+            System.out.println("Word '" + word + "' not found in the index.");
+        }
     }
-     */
 
-    // Helper method to estimate memory usage of a WikiItem object
     private long estimateMemoryUsage(WikiItem item) {
-        long memoryUsage = 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, ByteArrayOutputStream, and next WikiItem (4 bytes each)
-        memoryUsage += estimateMemoryUsage(item.documentDiffs); // Add memory usage of the ByteArrayOutputStream
+        long memoryUsage = 12 + 4 + 4 + 4;
         return memoryUsage;
     }
 
-    // Helper method to estimate memory usage of a ByteArrayOutputStream object
     private long estimateMemoryUsage(ByteArrayOutputStream outputStream) {
         int size = outputStream.size();
-        long memoryUsage = 12 + 4 + 4 + 4; // Object header (12 bytes) + count (4 bytes) + buf reference (4 bytes) + size reference (4 bytes)
-        memoryUsage += 12 + size; // Add memory usage of the buf array (12 bytes for array header + 1 byte per element)
+        long memoryUsage = 12 + 4 + 4 + 4;
+        memoryUsage += 12 + size;
         return memoryUsage;
     }
 
-    // Helper method to estimate memory usage of an array
     private long estimateMemoryUsage(WikiItem[] array) {
-        return 12 + (array.length * 4); // Array header (12 bytes) + 4 bytes per reference
+        return 12 + (array.length * 4);
     }
 
-    // Helper method to estimate memory usage of an ArrayList
     private long estimateMemoryUsage(ArrayList<String> arrayList) {
-        long arrayListMemory = 12 + 4 + 4 + 4; // ArrayList object header (12 bytes) + 4 bytes each for size, modCount, and elementData array reference
+        long arrayListMemory = 12 + 4 + 4 + 4;
         if (arrayList.size() > 0) {
-            arrayListMemory += 12 + (arrayList.size() * 4); // elementData array header (12 bytes) + 4 bytes per reference
+            arrayListMemory += 12 + (arrayList.size() * 4);
             for (String s : arrayList) {
                 arrayListMemory += estimateMemoryUsage(s);
             }
@@ -340,35 +335,9 @@ public class Index6a {
         return arrayListMemory;
     }
 
-    // Helper method to estimate memory usage of a String object using the given formula
     private long estimateMemoryUsage(String s) {
         int numChars = s.length();
         int memoryUsage = 8 * (int) Math.ceil(((numChars * 2) + 38) / 8.0);
         return memoryUsage;
-    }
-
-    public static void main(String[] args) {
-        // String filePath = "...";
-        //long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-
-        System.out.println("Preprocessing " + FULL_FILE_PATH);
-        Index6a index = new Index6a(FULL_FILE_PATH);
-        //long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-        //System.out.println("Memory Used:" + (afterUsedMem-beforeUsedMem));
-        //System.out.println(index.countDocuments());
-
-        long heapSize = Runtime.getRuntime().totalMemory();
-        System.out.println("Current heap size: " + heapSize / (1024 * 1024) + " MB");
-
-        Scanner console = new Scanner(System.in);
-        while (true) {
-            System.out.println("Input search string or type 'exit' to stop");
-            String searchString = console.nextLine();
-            if (searchString.equals("exit")) {
-                break;
-            }
-            index.search(searchString);
-        }
-        console.close();
     }
 }

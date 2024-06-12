@@ -1,44 +1,43 @@
 package core;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
-import static util.Config.*;
+public class Index5d {
 
-public class IndexGUI {
+    // This index builds upon Index5c and removing punctuation and converts all words to lowercase
 
     private WikiItem[] hashTable;
     private int tableSize = 49999;
+    private ArrayList<String> documentNames;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
+    private long totalBytesUsed = 0; // Global byte counter
+    private StringBuilder sb = new StringBuilder();
 
     private class WikiItem {
         String searchString;
-        DocumentList documents;
+        ArrayList<Integer> documents;
+        int lastDocIndex; // Track the index of the last document
         WikiItem next;
 
-        WikiItem(String s, DocumentList d, WikiItem n) {
+        WikiItem(String s, ArrayList<Integer> d, WikiItem n) {
             this.searchString = s;
             this.documents = d;
             this.next = n;
+            this.lastDocIndex = -1; // Initialize to -1 to indicate no documents initially
+
+            // Estimate memory used by this WikiItem
+            totalBytesUsed += estimateMemoryUsage(s);
+            totalBytesUsed += estimateMemoryUsage(this);
         }
     }
 
-    private class DocumentList {
-        String documentName;
-        DocumentList next;
-
-        DocumentList(String documentName, DocumentList next) {
-            this.documentName = documentName;
-            this.next = next;
-        }
-    }
-
-    public IndexGUI(String filename) {
+    public Index5d(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
+
+        documentNames = new ArrayList<>(); // Initialize the document names list
 
         try {
             Scanner input = new Scanner(new File(filename), "UTF-8");
@@ -59,12 +58,14 @@ public class IndexGUI {
 
                     if (word.endsWith(".")) {
                         readingTitle = false;
+                        documentNames.add(currentTitle);
+                        totalBytesUsed += estimateMemoryUsage(currentTitle);
                     }
                 } else {
                     if (word.equals("---END.OF.DOCUMENT---")) {
                         Scanner contentScanner = new Scanner(documentContent.toString());
                         while (contentScanner.hasNext()) {
-                            addWordToIndex(contentScanner.next(), currentTitle);
+                            addWordToIndex(contentScanner.next(), documentNames.size() - 1);
                         }
                         readingTitle = true;
                         currentTitle = null;
@@ -79,6 +80,10 @@ public class IndexGUI {
         } catch (FileNotFoundException e) {
             System.out.println("Error reading file " + filename);
         }
+
+        totalBytesUsed += estimateMemoryUsage(documentNames);
+        totalBytesUsed += estimateMemoryUsage(hashTable);
+
         long endTime = System.currentTimeMillis(); // End timing
         double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
@@ -99,8 +104,10 @@ public class IndexGUI {
         return hashValue;
     }
 
+    private void addWordToIndex(String word, int docId) {
 
-    private void addWordToIndex(String word, String docTitle) {
+        // Removes punctuation and converts to lowercase
+        word = cleanWord(word);
 
         double currentLoadFactor = (double) (numItems + 1) / tableSize;
 
@@ -112,15 +119,15 @@ public class IndexGUI {
         WikiItem existingItem = findWikiItem(word);
 
         if (existingItem == null) {
-            WikiItem newItem = new WikiItem(word, new DocumentList(docTitle, null), hashTable[hashIndex]);
+            ArrayList<Integer> docList = new ArrayList<>();
+            docList.add(docId);
+            WikiItem newItem = new WikiItem(word, docList, hashTable[hashIndex]);
+            newItem.lastDocIndex = 0; // Since this is the first document, index is 0
             hashTable[hashIndex] = newItem;
             numItems++; // Increment the item count
         } else {
-            addDocumentToWikiItem(existingItem, docTitle);
+            addDocumentToWikiItem(existingItem, docId);
         }
-
-        //System.out.println("Added word: " + word + " for document: " + docTitle);
-
     }
 
     private int nextPrime(int input) {
@@ -171,6 +178,7 @@ public class IndexGUI {
         hashTable = tempTable;
         tableSize = newTableSize;
 
+
         System.out.println("Resize complete. New size: " + tableSize); // Log end
     }
 
@@ -181,24 +189,38 @@ public class IndexGUI {
         return hashValue;
     }
 
-
-    // changed search method to return list instead of being void
-    public List<String> search(String searchString) {
-        int hashIndex = hash(searchString);
+    public void search(String searchString) {
+        searchString = cleanWord(searchString); // Clean the search string
         WikiItem foundItem = findWikiItem(searchString);
 
-        List<String> results = new ArrayList<>(); // Create a list to hold the results
-
         if (foundItem != null) {
-            DocumentList currentDoc = foundItem.documents;
-            while (currentDoc != null) {
-                results.add(currentDoc.documentName);
-                currentDoc = currentDoc.next;
+            System.out.println("Documents associated with '" + searchString + "':");
+            ArrayList<Integer> docList = foundItem.documents;
+
+            if (docList == null || docList.isEmpty()) {
+                System.out.println("  No documents found.");
+            } else {
+                for (int docId : docList) {
+                    System.out.println("  - " + documentNames.get(docId));
+                }
             }
+        } else {
+            System.out.println(searchString + " not found in the index.");
         }
-        return results; // Return the list of results
     }
 
+    private String cleanWord(String word) {
+        // Clears the StringBuilder
+        sb.setLength(0);
+
+        // Builds a new string without alphanumeric characters and converts to lowercase
+        for (char c : word.toCharArray()) {
+            if (Character.isLetter(c) || Character.isDigit(c)) {
+                sb.append(c);
+            }
+        }
+        return sb.toString().toLowerCase();
+    }
 
     private WikiItem findWikiItem(String searchString) {
         int hashIndex = hash(searchString);
@@ -215,49 +237,63 @@ public class IndexGUI {
         return null; // Item not found
     }
 
-
-    private void addDocumentToWikiItem(WikiItem item, String documentName) {
-        DocumentList currentDoc = item.documents;
-
-        while (currentDoc != null) {
-            if (currentDoc.documentName.equals(documentName)) {
-                //System.out.println("Document '" + documentName + "' already exists in WikiItem: " + item.searchString);
-                return;
-            }
-            currentDoc = currentDoc.next;
+    private void addDocumentToWikiItem(WikiItem item, int documentId) {
+        ArrayList<Integer> docList = item.documents;
+        if (item.lastDocIndex == -1 || docList.get(item.lastDocIndex) != documentId) {
+            long oldMemoryUsage = estimateMemoryUsageInt(docList);
+            docList.add(documentId);
+            item.lastDocIndex = docList.size() - 1; // Update the last document index
+            long newMemoryUsage = estimateMemoryUsageInt(docList);
+            totalBytesUsed += (newMemoryUsage - oldMemoryUsage); // Update total memory usage
         }
-
-        if (item.documents == null) {
-            item.documents = new DocumentList(documentName, null);
-        } else {
-            DocumentList newDoc = new DocumentList(documentName, null);
-            currentDoc = item.documents;
-
-            while (currentDoc.next != null) {
-                currentDoc = currentDoc.next;
-            }
-
-            currentDoc.next = newDoc;
-        }
-
-        // System.out.println("Adding document '" + documentName + "' to WikiItem: " + item.searchString);
     }
 
-    public static void main(String[] args) {
-        // String filePath = "...";
+    // Helper method to estimate memory usage of a String object using the given formula
+    private long estimateMemoryUsage(String s) {
+        int numChars = s.length();
+        int memoryUsage = 8 * (int) Math.ceil(((numChars * 2) + 38) / 8.0);
+        return memoryUsage;
+    }
 
-        System.out.println("Preprocessing " + FULL_FILE_PATH);
-        IndexGUI index = new IndexGUI(FULL_FILE_PATH);
+    // Helper method to estimate memory usage of a WikiItem object
+    private long estimateMemoryUsage(WikiItem item) {
+        return 16 + 4 + 4 + 4 + 4; // Object header (12 bytes + 4 for padding) + references to String, ArrayList, next WikiItem and lastdocID (4 bytes each)
+    }
 
-        Scanner console = new Scanner(System.in);
-        while (true) {
-            System.out.println("Input search string or type 'exit' to stop");
-            String searchString = console.nextLine();
-            if (searchString.equals("exit")) {
-                break;
+    // Helper method to estimate memory usage of an array
+    private long estimateMemoryUsage(WikiItem[] array) {
+        return 12 + (array.length * 4); // Array header (12 bytes) + 4 bytes per reference
+    }
+
+    // Helper method to estimate memory usage of an ArrayList of Integers
+    private long estimateMemoryUsageInt(ArrayList<Integer> arrayList) {
+        long arrayListMemory = 12 + 4 + 4 + 4; // ArrayList object header (12 bytes) + 4 bytes each for size, modCount, and elementData array reference
+        if (arrayList.size() > 0) {
+            arrayListMemory += 12 + (arrayList.size() * 4); // elementData array header (12 bytes) + 4 bytes per reference
+            for (Integer i : arrayList) {
+                arrayListMemory += 4; // Integer object size (4 bytes)
             }
-            index.search(searchString);
         }
-        console.close();
+        return arrayListMemory;
+    }
+
+    // Helper method to estimate memory usage of an ArrayList
+    private long estimateMemoryUsage(ArrayList<String> arrayList) {
+        long arrayListMemory = 12 + 4 + 4 + 4; // ArrayList object header (12 bytes) + 4 bytes each for size, modCount, and elementData array reference
+        if (arrayList.size() > 0) {
+            arrayListMemory += 12 + (arrayList.size() * 4); // elementData array header (12 bytes) + 4 bytes per reference
+            for (String s : arrayList) {
+                arrayListMemory += estimateMemoryUsage(s);
+            }
+        }
+        return arrayListMemory;
+    }
+
+    public ArrayList<String> getDocumentNames() {
+        return documentNames;
+    }
+
+    public long getTotalBytesUsed() {
+        return totalBytesUsed;
     }
 }

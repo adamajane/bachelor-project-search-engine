@@ -2,7 +2,8 @@ package core;
 
 import java.util.Scanner;
 
-import static util.Config.*;
+import static util.TestConfig.*;
+// import static util.Config.*;
 
 public class Driver {
 
@@ -10,14 +11,15 @@ public class Driver {
 
         Scanner console = new Scanner(System.in);
         String searchString;
-        System.out.println("Testing index " + INDEX_TO_TEST + " with file " + FULL_FILE_PATH);
+        long heapSize;
+        System.out.println("Running Index" + INDEX_TO_TEST + " with file " + FULL_FILE_PATH);
         switch (INDEX_TO_TEST) {
-            case 1:
+            case "1":
                 System.out.println("Preprocessing " + FULL_FILE_PATH);
                 Index1 i1 = new Index1(FULL_FILE_PATH);
                 for (; ; ) {
                     System.out.println("Input search string or type exit to stop");
-                    searchString = console.nextLine().toLowerCase();
+                    searchString = console.nextLine();
                     if (searchString.equals("exit")) {
                         break;
                     }
@@ -28,14 +30,14 @@ public class Driver {
                     }
                 }
                 break;
-            case 2:
+            case "2":
                 System.out.println("Preprocessing " + FULL_FILE_PATH);
                 Index2 i2 = new Index2(FULL_FILE_PATH);
                 System.out.println("Current heap size: " + (Runtime.getRuntime().totalMemory() / (1024 * 1024)) + " MB");
 
                 while (true) {
                     System.out.println("Input search string or type exit to stop");
-                    searchString = console.nextLine().toLowerCase();
+                    searchString = console.nextLine();
                     if (searchString.equals("exit")) {
                         break;
                     }
@@ -46,22 +48,69 @@ public class Driver {
                     }
                 }
                 break;
-            case 3:
+            case "3":
                 System.out.println("Preprocessing " + FULL_FILE_PATH);
                 Index3 i3 = new Index3(FULL_FILE_PATH);
 
-                while (true) { // Simple loop for multiple searches
+                while (true) {
                     System.out.println("Input search string or type 'exit' to stop");
-                    searchString = console.nextLine().toLowerCase();
+                    searchString = console.nextLine();
                     if (searchString.equals("exit")) {
                         break;
                     }
                     i3.search(searchString);
                 }
                 break;
-            case 4:
+            case "4":
                 System.out.println("Preprocessing " + FULL_FILE_PATH);
                 Index4 i4 = new Index4(FULL_FILE_PATH);
+
+                while (true) {
+                    System.out.println("Input search string or type 'exit' to stop");
+                    searchString = console.nextLine();
+                    if (searchString.equals("exit")) {
+                        break;
+                    }
+                    i4.search(searchString);
+                }
+                break;
+            case "5a":
+                System.out.println("Preprocessing " + FULL_FILE_PATH);
+                Index5a i5a = new Index5a(FULL_FILE_PATH);
+
+                System.out.println("Total memory used: " + i5a.getTotalBytesUsed() + " bytes (" + i5a.getTotalBytesUsed() / (1024 * 1024) + " MB).");
+                System.out.println("Number of articles: " + i5a.getDocumentNames().size());
+
+                while (true) {
+                    System.out.println("Input search string or type 'exit' to stop");
+                    searchString = console.nextLine();
+                    if (searchString.equals("exit")) {
+                        break;
+                    }
+                    i5a.search(searchString);
+                }
+                break;
+            case "5b":
+                System.out.println("Preprocessing " + FULL_FILE_PATH);
+                Index5b i5b = new Index5b(FULL_FILE_PATH);
+
+                System.out.println("Total memory used: " + i5b.getTotalBytesUsed() + " bytes (" + i5b.getTotalBytesUsed() / (1024 * 1024) + " MB).");
+                System.out.println("Number of articles: " + i5b.getDocumentNames().length);
+
+                while (true) {
+                    System.out.println("Input search string or type 'exit' to stop");
+                    searchString = console.nextLine();
+                    if (searchString.equals("exit")) {
+                        break;
+                    }
+                    i5b.search(searchString);
+                }
+                break;
+            case "5c":
+                System.out.println("Preprocessing " + FULL_FILE_PATH);
+                Index5c i5c = new Index5c(FULL_FILE_PATH);
+
+                System.out.println("Number of articles: " + i5c.getDocumentNames().size());
 
                 while (true) {
                     System.out.println("Input search string or type 'exit' to stop");
@@ -69,7 +118,56 @@ public class Driver {
                     if (searchString.equals("exit")) {
                         break;
                     }
-                    i4.search(searchString);
+                    i5c.search(searchString);
+                }
+                break;
+            case "5d":
+                System.out.println("Preprocessing " + FULL_FILE_PATH);
+                Index5d i5d = new Index5d(FULL_FILE_PATH);
+
+                System.out.println("Total memory used: " + i5d.getTotalBytesUsed() + " bytes (" + i5d.getTotalBytesUsed() / (1024 * 1024) + " MB).");
+                System.out.println("Number of articles: " + i5d.getDocumentNames().size());
+
+                while (true) {
+                    System.out.println("Input search string or type 'exit' to stop");
+                    searchString = console.nextLine().toLowerCase();
+                    if (searchString.equals("exit")) {
+                        break;
+                    }
+                    i5d.search(searchString);
+                }
+                break;
+            case "6a":
+                System.out.println("Preprocessing " + FULL_FILE_PATH);
+                Index6a i6a = new Index6a(FULL_FILE_PATH);
+
+                while (true) {
+                    System.out.println("Input search string or type 'exit' to stop");
+                    searchString = console.nextLine();
+
+                    i6a.printByteArrayOfWord(searchString);
+                    i6a.printByteArrayOfWord2(searchString);
+                    i6a.printByteArrayOfWord3(searchString);
+                    if (searchString.equals("exit")) {
+                        break;
+                    }
+                    i6a.search(searchString);
+                }
+                break;
+            case "6b":
+                System.out.println("Preprocessing " + FULL_FILE_PATH);
+                Index6b i6b = new Index6b(FULL_FILE_PATH);
+
+                System.out.println("Total number of articles: " + i6b.getNumArticles());
+
+                while (true) {
+                    System.out.println("Input search string or type 'exit' to stop");
+                    // Remove all whitespaces and punctuation from the search string
+                    searchString = console.nextLine().toLowerCase().replaceAll("\\s", "").replaceAll("\\p{Punct}", "");
+                    if (searchString.equals("exit")) {
+                        break;
+                    }
+                    i6b.search(searchString);
                 }
                 break;
         }

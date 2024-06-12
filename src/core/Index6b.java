@@ -4,19 +4,12 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import static util.Config.FULL_FILE_PATH;
-
 public class Index6b {
 
     /*
     This index implements compression techniques to further reduce memory usage.
 
-    It builds up Index5a to use a hash table for the index.
-
-    In addition, it uses a difference array and variable byte encoding for storing document IDs,
-    making the index more compact.
-
-    This index builds upon Index6a and removes punctuation and converts all words to lowercase to further reduce memory usage.
+    It builds up Index6a and removes punctuation and converts all words to lowercase to further reduce memory usage.
     */
 
     private WikiItem[] hashTable;
@@ -24,7 +17,7 @@ public class Index6b {
     private ArrayList<String> documentNames;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
-    private long totalBytesUsed = 0; // Global byte counter
+    public long totalBytesUsed = 0; // Global byte counter
     private StringBuilder sb = new StringBuilder();
 
     private class WikiItem {
@@ -52,29 +45,32 @@ public class Index6b {
 
 
     private void writeVByte(int value, ByteArrayOutputStream output) throws IOException {
+        ArrayList<Integer> bytes = new ArrayList<>();
         while (true) {
-            if ((value & ~0x7F) == 0) {  // Check if value fits in 7 bits
-                output.write(value);  // Write the value as the last byte
-                return;
-            } else {
-                output.write((value & 0x7F) | 0x80);  // Write the lower 7 bits with MSB set to 1
-                value >>>= 7;  // Right shift by 7 bits to process the next part
+            bytes.add(0, value % 128); // PREPEND(bytes, n mod 128)
+            if (value < 128) {
+                break;
             }
+            value = value / 128; // n div 128
+        }
+        bytes.set(bytes.size() - 1, bytes.get(bytes.size() - 1) + 128); // Modify the last element
+        for (int b : bytes) {
+            output.write(b);
         }
     }
 
     private int readVByte(ByteArrayInputStream input) {
-        int value = 0;
-        int shift = 0;
+        int n = 0;
         while (true) {
-            byte b = (byte) input.read();
-            value |= (b & 0x7F) << shift;  // Combine 7-bit value
-            if ((b & 0x80) == 0) {  // If MSB is 0, this is the last byte
+            int b = input.read();
+            if (b >= 128) {
+                n = 128 * n + (b - 128);
                 break;
+            } else {
+                n = 128 * n + b;
             }
-            shift += 7;  // Shift by 7 bits for the next part
         }
-        return value;
+        return n;
     }
 
     public Index6b(String filename) {
@@ -100,7 +96,7 @@ public class Index6b {
                         currentTitle = currentTitle + " " + word; // Append words
                     }
 
-                    if (word.endsWith(".")) {
+                    if (word.endsWith(".") || word.endsWith("!") || word.endsWith("?")) {
                         readingTitle = false;
                         documentNames.add(currentTitle);
                         totalBytesUsed += estimateMemoryUsage(currentTitle);
@@ -154,10 +150,9 @@ public class Index6b {
         // Clear the StringBuilder
         sb.setLength(0);
 
-        // Use StringBuilder to remove punctuation and convert to lowercase
-        // StringBuilder sb = new StringBuilder();
+        // Builds a new string without alphanumeric characters and converts to lowercase
         for (char c : word.toCharArray()) {
-            if (Character.isLetter(c)) {
+            if (Character.isLetter(c) || Character.isDigit(c)) {
                 sb.append(c);
             }
         }
@@ -179,12 +174,15 @@ public class Index6b {
             numItems++;
         } else {
             if (existingItem.lastDocId != docId) {
+                long oldMemoryUsage = estimateMemoryUsage(existingItem.documentDiffs);
                 try {
                     writeVByte(docId - existingItem.lastDocId, existingItem.documentDiffs);  // Store the difference
                     existingItem.lastDocId = docId; // Update the cached lastDocId
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                long newMemoryUsage = estimateMemoryUsage(existingItem.documentDiffs);
+                totalBytesUsed += (newMemoryUsage - oldMemoryUsage); // Update total memory usage
             }
         }
     }
@@ -264,7 +262,8 @@ public class Index6b {
         WikiItem foundItem = findWikiItem(searchString);
 
         if (foundItem != null) {
-            System.out.println("Documents associated with '" + searchString + "':");
+            // System.out.println("Documents associated with '" + searchString + "':");
+            System.out.println("Showing results for " + searchString + ":");
             byte[] encodedDiffs = foundItem.documentDiffs.toByteArray();
             ByteArrayInputStream input = new ByteArrayInputStream(encodedDiffs);
             int docId = readVByte(input);  // Decode the first docId
@@ -294,40 +293,9 @@ public class Index6b {
         return null; // Item not found
     }
 
-    //commented out because not needed when using arraylist for documents
-/*
-    private void addDocumentToWikiItem(WikiItem item, int documentId) {
-        DocumentList currentDoc = item.documents;
-
-        // Check if the document list is empty
-        if (currentDoc == null) {
-            item.documents = new DocumentList(documentId, null);
-            return;  // Document added; we can return immediately
-        }
-
-        // Check the tail to avoid duplicates
-        if (currentDoc.tail.documentName == documentId) {
-            return; // Document already exists at the end
-        }
-
-        // Document doesn't exist yet, add it to the list
-        DocumentList newDoc = new DocumentList(documentId, null);
-        currentDoc.tail.next = newDoc;
-        currentDoc.tail = newDoc; // Update the tail pointer
-    }
-
- */
-
-    /*
-    public int countDocuments() {
-        return documentNames.size();
-    }
-     */
-
     // Helper method to estimate memory usage of a WikiItem object
     private long estimateMemoryUsage(WikiItem item) {
         long memoryUsage = 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, ByteArrayOutputStream, and next WikiItem (4 bytes each)
-        memoryUsage += estimateMemoryUsage(item.documentDiffs); // Add memory usage of the ByteArrayOutputStream
         return memoryUsage;
     }
 
@@ -363,29 +331,7 @@ public class Index6b {
         return memoryUsage;
     }
 
-    public static void main(String[] args) {
-        // String filePath = "...";
-        //long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-
-        System.out.println("Preprocessing " + FULL_FILE_PATH);
-        Index6b index = new Index6b(FULL_FILE_PATH);
-        //long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-        //System.out.println("Memory Used:" + (afterUsedMem-beforeUsedMem));
-        //System.out.println(index.countDocuments());
-
-        long heapSize = Runtime.getRuntime().totalMemory();
-        System.out.println("Current heap size: " + heapSize / (1024 * 1024) + " MB");
-
-        Scanner console = new Scanner(System.in);
-        while (true) {
-            System.out.println("Input search string or type 'exit' to stop");
-            String searchString = console.nextLine().toLowerCase();
-            ;
-            if (searchString.equals("exit")) {
-                break;
-            }
-            index.search(searchString);
-        }
-        console.close();
+    public int getNumArticles() {
+        return documentNames.size();
     }
 }

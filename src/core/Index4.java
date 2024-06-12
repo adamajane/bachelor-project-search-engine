@@ -3,8 +3,6 @@ package core;
 import java.io.*;
 import java.util.Scanner;
 
-import static util.Config.*;
-
 public class Index4 {
 
     // Modifies Index3 to use a hash table instead of a linked list
@@ -13,14 +11,14 @@ public class Index4 {
     private int tableSize = 49999;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
-    private long totalBytesUsed = 0; // Global byte counter
+    public long totalBytesUsed = 0; // Global byte counter
 
     private class WikiItem {
         String searchString;
-        DocumentList documents;
+        DocumentItem documents;
         WikiItem next;
 
-        WikiItem(String s, DocumentList d, WikiItem n) {
+        WikiItem(String s, DocumentItem d, WikiItem n) {
             this.searchString = s;
             this.documents = d;
             this.next = n;
@@ -31,17 +29,17 @@ public class Index4 {
         }
     }
 
-    private class DocumentList {
+    private class DocumentItem {
         String documentName;
-        DocumentList next;
-        DocumentList tail;
+        DocumentItem next;
+        DocumentItem tail;
 
-        DocumentList(String documentName, DocumentList next) {
+        DocumentItem(String documentName, DocumentItem next) {
             this.documentName = documentName;
             this.next = next;
             this.tail = this;
 
-            // Estimate memory used by this DocumentList
+            // Estimate memory used by this DocumentItem
             totalBytesUsed += estimateMemoryUsage(documentName);
             totalBytesUsed += estimateMemoryUsage(this);
         }
@@ -50,7 +48,6 @@ public class Index4 {
     public Index4(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
-        totalBytesUsed += estimateMemoryUsage(hashTable);
 
         try {
             Scanner input = new Scanner(new File(filename), "UTF-8");
@@ -69,7 +66,7 @@ public class Index4 {
                         currentTitle = currentTitle + " " + word; // Append words
                     }
 
-                    if (word.endsWith(".")) {
+                    if (word.endsWith(".") || word.endsWith("!") || word.endsWith("?")) {
                         readingTitle = false;
                     }
                 } else {
@@ -93,12 +90,11 @@ public class Index4 {
         }
         long endTime = System.currentTimeMillis(); // End timing
         double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
+        totalBytesUsed += estimateMemoryUsage(hashTable); // Add the memory usage of the final hash table size
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
         System.out.println("Total memory used: " + totalBytesUsed + " bytes (" + totalBytesUsed / (1024 * 1024) + " MB).");
     }
 
-    // Using modulus instead of logical AND, reduced the running time by half!!
-    // Using java inbuilt hash function on strings now further increased runtime by 20-25%
     private int hash(String word) {
         // Use the built-in hashCode() method
         int hashValue = word.hashCode();
@@ -112,7 +108,6 @@ public class Index4 {
         return hashValue;
     }
 
-
     private void addWordToIndex(String word, String docTitle) {
 
         double currentLoadFactor = (double) (numItems + 1) / tableSize;
@@ -125,13 +120,12 @@ public class Index4 {
         WikiItem existingItem = findWikiItem(word);
 
         if (existingItem == null) {
-            WikiItem newItem = new WikiItem(word, new DocumentList(docTitle, null), hashTable[hashIndex]);
+            WikiItem newItem = new WikiItem(word, new DocumentItem(docTitle, null), hashTable[hashIndex]);
             hashTable[hashIndex] = newItem;
             numItems++; // Increment the item count
         } else {
             addDocumentToWikiItem(existingItem, docTitle);
         }
-
     }
 
     private int nextPrime(int input) {
@@ -181,7 +175,6 @@ public class Index4 {
 
         hashTable = tempTable;
         tableSize = newTableSize;
-        totalBytesUsed += estimateMemoryUsage(tempTable);
 
         System.out.println("Resize complete. New size: " + tableSize); // Log end
     }
@@ -193,18 +186,17 @@ public class Index4 {
         return hashValue;
     }
 
-
     public void search(String searchString) {
         long startTime = System.nanoTime(); // Start timing
 
         WikiItem foundItem = findWikiItem(searchString);
 
         long endTime = System.nanoTime(); // End timing
-        double timeTaken = (double) (endTime - startTime) / 1_000_000; // Convert to milliseconds
+        double timeTaken = (double) (endTime - startTime) ; // Convert to milliseconds
 
         if (foundItem != null) {
             System.out.println("Documents associated with '" + searchString + "':");
-            DocumentList currentDoc = foundItem.documents;
+            DocumentItem currentDoc = foundItem.documents;
 
             if (currentDoc == null) {
                 System.out.println("  No documents found.");
@@ -218,7 +210,7 @@ public class Index4 {
             System.out.println(searchString + " not found in the index.");
         }
 
-        System.out.println("Search query time: " + timeTaken + " ms"); // Print the time taken
+        System.out.println("Search query time: " + timeTaken + " ns"); // Print the time taken
     }
 
     private WikiItem findWikiItem(String searchString) {
@@ -227,7 +219,6 @@ public class Index4 {
 
         while (current != null) {
             if (current.searchString.equals(searchString)) {
-                //System.out.println("Found WikiItem for: " + searchString);
                 return current;
             }
             current = current.next;
@@ -237,11 +228,11 @@ public class Index4 {
     }
 
     private void addDocumentToWikiItem(WikiItem item, String documentName) {
-        DocumentList currentDoc = item.documents;
+        DocumentItem currentDoc = item.documents;
 
         // Check if the document list is empty
         if (currentDoc == null) {
-            item.documents = new DocumentList(documentName, null);
+            item.documents = new DocumentItem(documentName, null);
             return;  // Document added; we can return immediately
         }
 
@@ -251,7 +242,7 @@ public class Index4 {
         }
 
         // The document doesn't exist yet, add it to the list
-        DocumentList newDoc = new DocumentList(documentName, null);
+        DocumentItem newDoc = new DocumentItem(documentName, null);
         currentDoc.tail.next = newDoc;
         currentDoc.tail = newDoc; // Update the tail pointer
     }
@@ -265,17 +256,16 @@ public class Index4 {
 
     // Helper method to estimate memory usage of a WikiItem object
     private long estimateMemoryUsage(WikiItem item) {
-        return 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, DocumentList, and next WikiItem (4 bytes each)
+        return 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, DocumentItem, and next WikiItem (4 bytes each)
     }
 
-    // Helper method to estimate memory usage of a DocumentList object
-    private long estimateMemoryUsage(DocumentList item) {
-        return 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, next and tail DocumentList (4 bytes each)
+    // Helper method to estimate memory usage of a DocumentItem object
+    private long estimateMemoryUsage(DocumentItem item) {
+        return 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, next and tail DocumentItem (4 bytes each)
     }
 
     // Helper method to estimate memory usage of an array
     private long estimateMemoryUsage(WikiItem[] array) {
         return 12 + (array.length * 4); // Array header (12 bytes) + 4 bytes per reference
     }
-
 }

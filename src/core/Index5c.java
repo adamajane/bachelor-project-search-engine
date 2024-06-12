@@ -1,57 +1,44 @@
 package core;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
-
-import static util.Config.FULL_FILE_PATH;
 
 public class Index5c {
 
-    /* This index implements space efficiency features.
-    It modifies Index4 to use an index array for the article titles in the linked list of documents
-    instead of the string name.
-
-    This index builds upon Index5a and removes punctuation and converts all words to lowercase.
-    */
+    // This index builds upon Index5a
+    // It uses an ArrayList for both the index array (for the document titles) and the document list of each WikiItem
 
     private WikiItem[] hashTable;
     private int tableSize = 49999;
     private ArrayList<String> documentNames;
     private int numItems = 0; // Track the number of items
     private double loadFactor = 0.75;
-    private StringBuilder sb = new StringBuilder();
+    public long totalBytesUsed = 0; // Global byte counter
 
     private class WikiItem {
         String searchString;
-        DocumentList documents;
+        ArrayList<Integer> documents;
         WikiItem next;
+        int lastDocIndex; // Track the index of the last document
 
-        WikiItem(String s, DocumentList d, WikiItem n) {
+        WikiItem(String s, ArrayList<Integer> d, WikiItem n) {
             this.searchString = s;
             this.documents = d;
             this.next = n;
-        }
-    }
+            this.lastDocIndex = -1; // Initialize to -1 to indicate no documents initially
 
-    private class DocumentList {
-        int documentName;
-        DocumentList next;
-        DocumentList tail;
-
-        DocumentList(int documentName, DocumentList next) {
-            this.documentName = documentName;
-            this.next = next;
-            this.tail = this;
+            // Estimate memory used by this WikiItem
+            totalBytesUsed += estimateMemoryUsage(s);
+            totalBytesUsed += estimateMemoryUsage(this);
+            // Removed the document list memory usage from here
         }
     }
 
     public Index5c(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
         hashTable = new WikiItem[tableSize];
+        totalBytesUsed += estimateMemoryUsage(hashTable);
         documentNames = new ArrayList<>(); // Initialize the document names list
 
         try {
@@ -74,7 +61,6 @@ public class Index5c {
                     if (word.endsWith(".")) {
                         readingTitle = false;
                         documentNames.add(currentTitle);
-
                     }
                 } else {
                     if (word.equals("---END.OF.DOCUMENT---")) {
@@ -95,13 +81,16 @@ public class Index5c {
         } catch (FileNotFoundException e) {
             System.out.println("Error reading file " + filename);
         }
+
+        // Total memory usage of the documentNames ArrayList including the strings it contains
+        totalBytesUsed += estimateMemoryUsage(documentNames);
+
         long endTime = System.currentTimeMillis(); // End timing
         double minutes = (double) (endTime - startTime) / (1000 * 60); // Convert to minutes with decimals
         System.out.println("Preprocessing completed in " + minutes + " minutes.");
+        System.out.println("Total memory used: " + totalBytesUsed + " bytes (" + totalBytesUsed / (1024 * 1024) + " MB).");
     }
 
-    // Using modulus instead of logical AND, reduced the running time by half!!
-    // Using java inbuilt hash function on strings now further increased runtime by 20-25%
     private int hash(String word) {
         // Use the built-in hashCode() method
         int hashValue = word.hashCode();
@@ -116,34 +105,6 @@ public class Index5c {
     }
 
     private void addWordToIndex(String word, int docId) {
-
-        // List of words to ignore
-        List<String> ignoreWords = Arrays.asList("the", "an");
-
-        // Remove punctuation and convert to lowercase
-        // word = word.replaceAll("[^a-zA-Z ]", "").toLowerCase();
-
-        // Clear the StringBuilder
-        sb.setLength(0);
-
-        // Use StringBuilder to remove punctuation and convert to lowercase
-        // StringBuilder sb = new StringBuilder();
-        for (char c : word.toCharArray()) {
-            if (Character.isLetter(c)) {
-                sb.append(c);
-            }
-        }
-
-        // TODO: The above for-loop removes all punctuation. Note some words (like jiu-jitsu) contain hyphens.
-        //  We should consider how to handle these cases.
-
-        word = sb.toString().toLowerCase();
-
-        // Skip if the word is in the ignore list
-        if (ignoreWords.contains(word)) {
-            return;
-        }
-
         double currentLoadFactor = (double) (numItems + 1) / tableSize;
 
         if (currentLoadFactor > loadFactor) {
@@ -154,13 +115,15 @@ public class Index5c {
         WikiItem existingItem = findWikiItem(word);
 
         if (existingItem == null) {
-            WikiItem newItem = new WikiItem(word, new DocumentList(docId, null), hashTable[hashIndex]);
+            ArrayList<Integer> docList = new ArrayList<>();
+            docList.add(docId);
+            WikiItem newItem = new WikiItem(word, docList, hashTable[hashIndex]);
+            newItem.lastDocIndex = 0; // Since this is the first document, index is 0
             hashTable[hashIndex] = newItem;
             numItems++; // Increment the item count
         } else {
             addDocumentToWikiItem(existingItem, docId);
         }
-
     }
 
     private int nextPrime(int input) {
@@ -210,6 +173,7 @@ public class Index5c {
 
         hashTable = tempTable;
         tableSize = newTableSize;
+        totalBytesUsed += estimateMemoryUsage(tempTable);
 
         System.out.println("Resize complete. New size: " + tableSize); // Log end
     }
@@ -221,20 +185,18 @@ public class Index5c {
         return hashValue;
     }
 
-
     public void search(String searchString) {
         WikiItem foundItem = findWikiItem(searchString);
 
         if (foundItem != null) {
             System.out.println("Documents associated with '" + searchString + "':");
-            DocumentList currentDoc = foundItem.documents;
+            ArrayList<Integer> docList = foundItem.documents;
 
-            if (currentDoc == null) {
+            if (docList == null || docList.isEmpty()) {
                 System.out.println("  No documents found.");
             } else {
-                while (currentDoc != null) {
-                    System.out.println("  - " + documentNames.get(currentDoc.documentName));
-                    currentDoc = currentDoc.next;
+                for (int docId : docList) {
+                    System.out.println("  - " + documentNames.get(docId));
                 }
             }
         } else {
@@ -248,7 +210,6 @@ public class Index5c {
 
         while (current != null) {
             if (current.searchString.equals(searchString)) {
-                //System.out.println("Found WikiItem for: " + searchString);
                 return current;
             }
             current = current.next;
@@ -258,45 +219,55 @@ public class Index5c {
     }
 
     private void addDocumentToWikiItem(WikiItem item, int documentId) {
-        DocumentList currentDoc = item.documents;
-
-        // Check if the document list is empty
-        if (currentDoc == null) {
-            item.documents = new DocumentList(documentId, null);
-            return;  // Document added; we can return immediately
+        ArrayList<Integer> docList = item.documents;
+        if (item.lastDocIndex == -1 || docList.get(item.lastDocIndex) != documentId) {
+            long oldMemoryUsage = estimateMemoryUsage(docList);
+            docList.add(documentId);
+            item.lastDocIndex = docList.size() - 1; // Update the last document index
+            long newMemoryUsage = estimateMemoryUsage(docList);
+            totalBytesUsed += (newMemoryUsage - oldMemoryUsage); // Update total memory usage
         }
-
-        // Check the tail to avoid duplicates
-        if (currentDoc.tail.documentName == documentId) {
-            return; // Document already exists at the end
-        }
-
-        // The document doesn't exist yet, add it to the list
-        DocumentList newDoc = new DocumentList(documentId, null);
-        currentDoc.tail.next = newDoc;
-        currentDoc.tail = newDoc; // Update the tail pointer
     }
 
-    public static void main(String[] args) {
-        // String filePath = "...";
-        // long beforeUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+    // Helper method to estimate memory usage of a String object using the given formula
+    private long estimateMemoryUsage(String s) {
+        int numChars = s.length();
+        int memoryUsage = 8 * (int) Math.ceil(((numChars * 2) + 38) / 8.0);
+        return memoryUsage;
+    }
 
-        System.out.println("Preprocessing " + FULL_FILE_PATH);
-        Index5c index = new Index5c(FULL_FILE_PATH);
-        // long afterUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-        // System.out.println("Memory Used:" + (afterUsedMem - beforeUsedMem));
-        System.out.println("Number of articles: " + index.documentNames.size());
+    // Helper method to estimate memory usage of a WikiItem object
+    private long estimateMemoryUsage(WikiItem item) {
+        long memoryUsage = 12 + 4 + 4 + 4; // Object header (12 bytes) + references to String, ArrayList, and next WikiItem (4 bytes each)
+        return memoryUsage;
+    }
 
+    // Helper method to estimate memory usage of an array
+    private long estimateMemoryUsage(WikiItem[] array) {
+        return 12 + (array.length * 4); // Array header (12 bytes) + 4 bytes per reference
+    }
 
-        Scanner console = new Scanner(System.in);
-        while (true) {
-            System.out.println("Input search string or type 'exit' to stop");
-            String searchString = console.nextLine().toLowerCase();
-            if (searchString.equals("exit")) {
-                break;
+    // Generic helper method to estimate memory usage of an ArrayList
+    private long estimateMemoryUsage(ArrayList<?> arrayList) {
+        long arrayListMemory = 12 + 4 + 4 + 4; // ArrayList object header (12 bytes) + 4 bytes each for size, modCount, and elementData array reference
+        if (arrayList.size() > 0) {
+            arrayListMemory += 12 + (arrayList.size() * 4); // elementData array header (12 bytes) + 4 bytes per reference
+            for (Object element : arrayList) {
+                if (element instanceof String) {
+                    arrayListMemory += estimateMemoryUsage((String) element);
+                } else if (element instanceof Integer) {
+                    arrayListMemory += 4; // Integer size in bytes
+                }
             }
-            index.search(searchString);
         }
-        console.close();
+        return arrayListMemory;
+    }
+
+    public ArrayList<String> getDocumentNames() {
+        return documentNames;
+    }
+
+    public long getTotalBytesUsed() {
+        return totalBytesUsed;
     }
 }

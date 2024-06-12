@@ -1,9 +1,6 @@
 package core;
 
 import java.io.*;
-import java.util.Scanner;
-
-import static util.Config.*;
 
 public class Index3 {
 
@@ -16,14 +13,14 @@ public class Index3 {
     */
 
     private WikiItem index; // Represents the head of our main index
-    private long totalBytesUsed = 0; // Global byte counter
+    public long totalBytesUsed = 0; // Global byte counter
 
     private class WikiItem {
         String searchString;
-        DocumentList documents;
+        DocumentItem documents;
         WikiItem next;
 
-        WikiItem(String s, DocumentList d, WikiItem n) {
+        WikiItem(String s, DocumentItem d, WikiItem n) {
             this.searchString = s;
             this.documents = d;
             this.next = n;
@@ -34,24 +31,21 @@ public class Index3 {
         }
     }
 
-    // Add DocumentList class, that can be used to create a linked list of documents,
-    // And attach it to each WikiItem object.
-    private class DocumentList {
+    // Represents a document in which a search string appears
+    private class DocumentItem {
         String documentName;
-        DocumentList next;
+        DocumentItem next;
 
-        DocumentList(String documentName, DocumentList next) {
+        DocumentItem(String documentName, DocumentItem next) {
             this.documentName = documentName;
             this.next = next;
 
-            // Estimate memory used by this DocumentList
+            // Estimate memory used by this DocumentItem
             totalBytesUsed += estimateMemoryUsage(documentName);
             totalBytesUsed += estimateMemoryUsage(this);
         }
     }
 
-    // Changed the index from using Scanner to BufferedReader
-    // It has a larger default buffer size and is typically faster for file reading.
     public Index3(String filename) {
         long startTime = System.currentTimeMillis(); // Start timing
 
@@ -66,7 +60,7 @@ public class Index3 {
 
                 for (String word : words) {
                     if (readingTitle) {
-                        if (word.endsWith(".")) {
+                        if (word.endsWith(".") || word.endsWith("!") || word.endsWith("?")) {
                             currentTitle = documentContent.toString() + word;
                             readingTitle = false;
                         } else {
@@ -106,11 +100,11 @@ public class Index3 {
         // If the word doesn't exist in the index yet
         if (existingItem == null) {
             // Create a new WikiItem and start its document list
-            WikiItem newItem = new WikiItem(word, new DocumentList(docTitle, null), null);
-            newItem.next = index; // Add as new head of main index
+            WikiItem newItem = new WikiItem(word, new DocumentItem(docTitle, null), null);
+            newItem.next = index; // Add as new head of the main index
             index = newItem;
         } else {
-            // Word exists, need to add document to its list
+            // Word exists, need to add a document to its list
             addDocumentToWikiItem(existingItem, docTitle);
         }
 
@@ -120,11 +114,11 @@ public class Index3 {
 
 
     public void search(String searchString) {
-        long startTime = System.currentTimeMillis(); // Start timing
+        long startTime = System.nanoTime(); // Start timing in nanoseconds
         WikiItem foundItem = findWikiItem(searchString);
         if (foundItem != null) {
             System.out.println("Documents associated with '" + searchString + "':");
-            DocumentList currentDoc = foundItem.documents;
+            DocumentItem currentDoc = foundItem.documents;
             if (currentDoc == null) {
                 System.out.println("  No documents found.");
             } else {
@@ -136,17 +130,18 @@ public class Index3 {
         } else {
             System.out.println(searchString + " not found in the index.");
         }
-        long endTime = System.currentTimeMillis(); // End timing
+        long endTime = System.nanoTime(); // End timing in nanoseconds
         long elapsedTime = endTime - startTime;
-        System.out.println("Search query time: " + elapsedTime + " ms"); // Print the time taken
+        System.out.println("Search query time: " + elapsedTime + " ns"); // Print the time taken
     }
+
 
     // Finds a WikiItem with the given searchString or returns null
     private WikiItem findWikiItem(String searchString) {
         WikiItem current = index;
         while (current != null) {
             if (current.searchString.equals(searchString)) {
-                //System.out.println("Found WikiItem for: " + searchString); // Debugging log
+                // System.out.println("Found WikiItem for: " + searchString); // Debugging print
                 return current;
             }
             current = current.next;
@@ -155,9 +150,9 @@ public class Index3 {
     }
 
 
-    // Adds a document to a WikiItem's DocumentList
+    // Adds a document to a WikiItem's DocumentItem
     private void addDocumentToWikiItem(WikiItem item, String documentName) {
-        DocumentList currentDoc = item.documents;
+        DocumentItem currentDoc = item.documents;
 
         // Check for duplicates
         while (currentDoc != null) {
@@ -168,12 +163,12 @@ public class Index3 {
             currentDoc = currentDoc.next;
         }
 
-        // If DocumentList is empty
+        // If DocumentItem is empty
         if (item.documents == null) {
-            item.documents = new DocumentList(documentName, null);
+            item.documents = new DocumentItem(documentName, null);
         } else {
-            // Adding at the end of the DocumentList
-            DocumentList newDoc = new DocumentList(documentName, null);
+            // Adding at the end of the DocumentItem
+            DocumentItem newDoc = new DocumentItem(documentName, null);
             currentDoc = item.documents; // Resetting currentDoc to the beginning
 
             while (currentDoc.next != null) {
@@ -194,11 +189,11 @@ public class Index3 {
 
     // Helper method to estimate memory usage of a WikiItem object
     private long estimateMemoryUsage(WikiItem item) {
-        return 4 + 4 + 4 + 12 ; //   references to String, DocumentList, and next WikiItem (4 bytes each)+ Object header (12 bytes)
+        return 4 + 4 + 4 + 12; //   references to String, DocumentItem, and next WikiItem (4 bytes each)+ Object header (12 bytes)
     }
 
-    // Helper method to estimate memory usage of a DocumentList object
-    private long estimateMemoryUsage(DocumentList item) {
-        return 16 + 4 + 4; // Object header (16 bytes(with the 8-byte java object padding rule)) + references to String and next DocumentList (4 bytes each)
+    // Helper method to estimate memory usage of a DocumentItem object
+    private long estimateMemoryUsage(DocumentItem item) {
+        return 16 + 4 + 4; // Object header (16 bytes (with the 8-byte java object padding rule)) + references to String and next DocumentItem (4 bytes each)
     }
 }
